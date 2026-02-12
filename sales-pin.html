@@ -6,7 +6,9 @@
 <title>Sales Pin - บันทึกพิกัดร้านค้า</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 :root{--bg:#0c0e14;--surface:#161923;--surface2:#1e2230;--surface3:#262a3a;--border:#2a2f42;--text:#eaecf2;--text-dim:#7b829e;--blue:#4f8cff;--blue-bg:rgba(79,140,255,0.1);--blue-border:rgba(79,140,255,0.3);--green:#34d399;--green-bg:rgba(52,211,153,0.1);--orange:#fbbf24;--red:#f87171;--radius:14px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -223,19 +225,46 @@ async function reverseGeocode(lat,lng){
   }catch(e){info.classList.remove('loading');val.textContent='⚠️ หาที่ตั้งไม่ได้';}
 }
 
-// ══════ API ══════
-async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}}
-async function apiPost(action,data){if(!API_URL)return null;try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}}
+// ══════ API (มี timeout 10 วินาที) ══════
+function fetchWithTimeout(url,opts={},ms=10000){
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),ms);
+  return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
+}
+async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetchWithTimeout(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('API error:',e);return null;}}
+async function apiPost(action,data){if(!API_URL)return null;try{const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('API error:',e);return null;}}
 
 // ══════ INIT ══════
 async function init(){
   salesName=localStorage.getItem('salespin-myname')||'';
   if(!API_URL){document.getElementById('setupLoading').textContent='⚠️ ยังไม่ได้ตั้งค่า API_URL';return;}
+
+  // ถ้าเคย login แล้ว → แสดง UI ทันทีไม่ต้องรอ API
+  if(salesName){
+    document.getElementById('setupOverlay').classList.add('hidden');
+    document.getElementById('salesNameDisplay').textContent='👤 '+salesName;
+  }else{
+    document.getElementById('setupLoading').textContent='⏳ กำลังเชื่อมต่อ...';
+  }
+
+  // โหลด API พื้นหลัง
   const team=await apiGet('getTeam');
-  if(team){salesTeam=team;document.getElementById('connDot').classList.add('ok');}
-  populateDropdown();
-  if(salesName&&salesTeam.includes(salesName)){document.getElementById('setupOverlay').classList.add('hidden');document.getElementById('salesNameDisplay').textContent='👤 '+salesName;loadMyShops();}
-  else document.getElementById('setupOverlay').classList.remove('hidden');
+  if(team&&team.length){
+    salesTeam=team;document.getElementById('connDot').classList.add('ok');
+    if(salesName&&salesTeam.includes(salesName)){
+      loadMyShops();
+    }else if(salesName&&!salesTeam.includes(salesName)){
+      // ชื่อเดิมไม่อยู่ในรายชื่อแล้ว
+      salesName='';localStorage.removeItem('salespin-myname');
+      populateDropdown();document.getElementById('setupOverlay').classList.remove('hidden');
+    }else{
+      populateDropdown();
+    }
+  }else{
+    document.getElementById('setupWarning').style.display='block';
+    document.getElementById('setupWarning').innerHTML='⚠️ เชื่อมต่อ Google Sheets ไม่ได้<br>ลองรีเฟรชหน้าอีกครั้ง';
+    document.getElementById('setupLoading').style.display='none';
+  }
 }
 async function loadMyShops(){if(!salesName)return;const data=await apiGet('getShops',`&sales=${encodeURIComponent(salesName)}`);if(data){myShops=data;renderAll();}}
 function populateDropdown(){
