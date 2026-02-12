@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -63,7 +64,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .search-bar{position:relative;margin-bottom:8px}
 .search-bar input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px 10px 36px;border-radius:10px;font-size:13px;font-family:inherit;outline:none}
 .search-bar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px}
-.nearby-btn{width:100%;padding:10px;background:var(--orange-bg,rgba(251,191,36,0.08));border:1px solid rgba(251,191,36,0.25);border-radius:10px;color:var(--orange);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s}
+.nearby-btn{width:100%;padding:10px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;color:var(--orange);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s}
 .nearby-btn:active{transform:scale(0.97)}
 .nearby-btn.loading{opacity:0.5}
 .shop-item-dist{font-size:11px;color:var(--orange);font-weight:600}
@@ -77,20 +78,24 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .mini-btn{font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit}
 .mini-btn:active{background:var(--surface3)}
 .mini-btn.nav-btn{border-color:var(--blue-border);color:var(--blue)}
-.mini-btn.route-btn{border-color:rgba(52,211,153,0.3);color:var(--green)}
+.mini-btn.cam-btn{border-color:rgba(251,191,36,0.3);color:var(--orange)}
 
-.route-empty{text-align:center;padding:24px;color:var(--text-dim);font-size:13px}
-.route-item{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px}
-.route-num{width:26px;height:26px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.route-item-info{flex:1}
-.route-item-name{font-size:13px;font-weight:600}
-.route-item-sub{font-size:11px;color:var(--text-dim)}
-.route-remove{background:none;border:none;color:var(--text-dim);font-size:16px;cursor:pointer;padding:4px}
-.gmaps-route-btn{width:100%;padding:14px;background:linear-gradient(135deg,#34d399,#22d3ee);border:none;border-radius:var(--radius);color:#0c0e14;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:8px;display:none}
-.gmaps-route-btn:active{transform:scale(0.97)}
-.clear-all-btn{width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:10px;color:var(--text-dim);font-size:12px;font-family:inherit;cursor:pointer;margin-top:6px;display:none}
+/* ══ CAMERA ══ */
+.cam-section{text-align:center}
+.cam-shop-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237b829e'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.cam-capture-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--orange),#f97316);border:none;border-radius:var(--radius);color:#0c0e14;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(251,191,36,0.3);position:relative;overflow:hidden}
+.cam-capture-btn:active{transform:scale(0.97)}
+.cam-capture-btn.disabled{opacity:0.3;pointer-events:none}
+.cam-capture-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cam-preview{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);display:none}
+.cam-preview img{width:100%;display:block}
+.cam-actions{display:flex;gap:8px;margin-top:10px;display:none}
+.cam-action-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.cam-action-btn.share{background:var(--green);color:#0c0e14}
+.cam-action-btn.retake{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
+.cam-hint{font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.6}
 
-.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;transition:transform 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.5);white-space:nowrap}
+.toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;transition:transform 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.5);max-width:90%;text-align:center}
 .toast.error{border-color:var(--red);color:var(--red)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 
@@ -110,7 +115,6 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .leaflet-popup-tip{background:var(--surface)!important}
 .leaflet-popup-content{margin:10px 14px!important;font-family:'IBM Plex Sans Thai',sans-serif!important;font-size:13px!important}
 .custom-pin{width:24px;height:24px;background:var(--blue);border:2px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,0.4)}
-.custom-pin.in-route{background:var(--green);width:28px;height:28px}
 .custom-pin.temp{background:var(--orange);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.4)}50%{box-shadow:0 0 0 10px rgba(251,191,36,0)}}
 </style>
@@ -148,51 +152,55 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
   <div class="nav-bar">
     <div class="nav-item active" onclick="switchScreen('pin')"><span class="nav-icon">📌</span> ปักหมุด</div>
     <div class="nav-item" onclick="switchScreen('shops')"><span class="nav-icon">📋</span> ร้านค้า</div>
-    <div class="nav-item" onclick="switchScreen('route')"><span class="nav-icon">🗺️</span> เส้นทาง <span id="routeBadge" style="display:none;background:var(--green);color:#0c0e14;padding:1px 6px;border-radius:10px;font-size:10px;font-weight:700"></span></div>
+    <div class="nav-item" onclick="switchScreen('camera')"><span class="nav-icon">📷</span> ถ่ายรูป</div>
   </div>
 
+  <!-- ══ ปักหมุด ══ -->
   <div class="screen active" id="screenPin">
     <button class="big-gps-btn" id="gpsBtn" onclick="captureGPS()">📡 จับพิกัดปัจจุบัน</button>
     <div class="pick-map-label">หรือแตะที่แผนที่ด้านบน</div>
-
-    <div class="coord-display" id="coordDisplay">
-      <span class="coord-text empty" id="coordText">ยังไม่ได้เลือกพิกัด</span>
-    </div>
-
-    <!-- Auto-detected location -->
-    <div class="location-info" id="locationInfo">
-      <div class="loc-label">📍 ที่ตั้งอัตโนมัติ</div>
-      <div class="loc-value" id="locValue">-</div>
-    </div>
-
+    <div class="coord-display" id="coordDisplay"><span class="coord-text empty" id="coordText">ยังไม่ได้เลือกพิกัด</span></div>
+    <div class="location-info" id="locationInfo"><div class="loc-label">📍 ที่ตั้งอัตโนมัติ</div><div class="loc-value" id="locValue">-</div></div>
     <input class="form-input" id="fName" placeholder="ชื่อร้านค้า *" oninput="checkReady()">
     <input class="form-input" id="fPhone" placeholder="เบอร์โทรร้าน">
     <input class="form-input" id="fNote" placeholder="หมายเหตุ (ไม่บังคับ)">
     <button class="save-btn" id="saveBtn" disabled onclick="saveShop()">💾 บันทึกร้านค้า</button>
   </div>
 
+  <!-- ══ ร้านค้า ══ -->
   <div class="screen" id="screenShops">
     <div class="search-bar"><input id="searchInput" placeholder="ค้นหาร้าน..." oninput="clearNearby();renderShops()"></div>
     <button class="nearby-btn" id="nearbyBtn" onclick="searchNearby()">📡 ค้นหาร้านใกล้ฉัน (100 ม.)</button>
     <div id="shopsList"></div>
   </div>
 
-  <div class="screen" id="screenRoute">
-    <div id="routeList"></div>
-    <button class="gmaps-route-btn" id="gmapsBtn" onclick="openGmapsRoute()">🗺️ เปิด Google Maps นำทาง</button>
-    <button class="clear-all-btn" id="clearBtn" onclick="clearRoute()">ล้างเส้นทางทั้งหมด</button>
+  <!-- ══ ถ่ายรูป ══ -->
+  <div class="screen" id="screenCamera">
+    <div class="cam-section">
+      <select class="cam-shop-select" id="camShopSelect" onchange="document.getElementById('camBtn').classList.toggle('disabled',!this.value)">
+        <option value="">-- เลือกร้านค้าที่จะถ่ายรูป --</option>
+      </select>
+      <div class="cam-capture-btn disabled" id="camBtn">
+        📷 ถ่ายรูปร้านค้า
+        <input type="file" id="camInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
+      </div>
+      <div class="cam-preview" id="camPreview"><img id="camImg"></div>
+      <div class="cam-actions" id="camActions">
+        <button class="cam-action-btn retake" onclick="retakePhoto()">📷 ถ่ายใหม่</button>
+        <button class="cam-action-btn share" onclick="sharePhoto()">📤 บันทึก/แชร์</button>
+      </div>
+      <div class="cam-hint" id="camHint">เลือกร้านค้า → ถ่ายรูป → ระบบใส่ข้อมูลร้านลงในรูปให้<br>กดบันทึก/แชร์ เพื่อส่งต่อใน LINE ได้เลย</div>
+    </div>
   </div>
 </div>
 
+<canvas id="camCanvas" style="display:none"></canvas>
 <div class="toast" id="toast"></div>
 
 <script>
-// ══════════════════════════════════════════════════
-// ⚙️ ใส่ URL ของ Google Apps Script Web App ที่นี่
 const API_URL = 'https://script.google.com/macros/s/AKfycbyWJGCku3wxI0tR0l0CX3RGj7P8OT_ccbTaCVu82Cuqe3tJC4ar7SZDfsuCLO8Yeb8J/exec';
-// ══════════════════════════════════════════════════
 
-let myShops=[],route=[],salesTeam=[],salesName='';
+let myShops=[],salesTeam=[],salesName='';
 let selectedLat=null,selectedLng=null,detectedProvince='',detectedDistrict='';
 let tempMarker=null,markers={};
 
@@ -208,52 +216,20 @@ map.on('click',e=>{
 
 // ══════ REVERSE GEOCODING ══════
 async function reverseGeocode(lat,lng){
-  const info=document.getElementById('locationInfo');
-  const val=document.getElementById('locValue');
-  info.classList.add('show');
-  info.classList.add('loading');
-  val.textContent='⏳ กำลังหาที่ตั้ง...';
+  const info=document.getElementById('locationInfo'),val=document.getElementById('locValue');
+  info.classList.add('show','loading');val.textContent='⏳ กำลังหาที่ตั้ง...';
   detectedProvince='';detectedDistrict='';
-
   try{
     const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&addressdetails=1`);
-    const j=await r.json();
-    const a=j.address||{};
-    const dn=j.display_name||'';
-
-    // ═══ จังหวัด — ดึงจาก display_name ก่อน ═══
-    const provMatch=dn.match(/จังหวัด([^\s,]+)/);
-    if(provMatch) detectedProvince=provMatch[1];
-    if(!detectedProvince) detectedProvince=(a.state||a.province||'').toString().replace(/^จังหวัด/,'').replace(/,/g,'').trim();
-
-    // ═══ อำเภอ — ดึงจาก display_name ก่อน (ได้อำเภอจริง ไม่ใช่ตำบล) ═══
-    const distMatch=dn.match(/อำเภอ([^\s,]+)/);
-    if(distMatch) detectedDistrict=distMatch[1];
-    // กรุงเทพ ใช้ "เขต"
-    if(!detectedDistrict){
-      const khetMatch=dn.match(/เขต([^\s,]+)/);
-      if(khetMatch) detectedDistrict=khetMatch[1];
-    }
-    // fallback: county จาก address
-    if(!detectedDistrict){
-      const county=(a.county||'').toString().replace(/^อำเภอ/,'').replace(/^เขต/,'').trim();
-      if(county) detectedDistrict=county;
-    }
-
-    if(detectedProvince||detectedDistrict){
-      info.classList.remove('loading');
-      let parts=[];
-      if(detectedDistrict) parts.push('อ.'+detectedDistrict);
-      if(detectedProvince) parts.push('จ.'+detectedProvince);
-      val.textContent=parts.join(' · ');
-    } else {
-      info.classList.remove('loading');
-      val.textContent='ไม่พบข้อมูลที่ตั้ง';
-    }
-  }catch(e){
-    info.classList.remove('loading');
-    val.textContent='⚠️ หาที่ตั้งไม่ได้ (ไม่มีเน็ต?)';
-  }
+    const j=await r.json();const a=j.address||{},dn=j.display_name||'';
+    const pm=dn.match(/จังหวัด([^\s,]+)/);if(pm)detectedProvince=pm[1];
+    if(!detectedProvince)detectedProvince=(a.state||a.province||'').toString().replace(/^จังหวัด/,'').replace(/,/g,'').trim();
+    const dm=dn.match(/อำเภอ([^\s,]+)/);if(dm)detectedDistrict=dm[1];
+    if(!detectedDistrict){const k=dn.match(/เขต([^\s,]+)/);if(k)detectedDistrict=k[1];}
+    if(!detectedDistrict){const c=(a.county||'').toString().replace(/^อำเภอ/,'').replace(/^เขต/,'').replace(/,/g,'').trim();if(c)detectedDistrict=c;}
+    if(detectedProvince||detectedDistrict){info.classList.remove('loading');let p=[];if(detectedDistrict)p.push('อ.'+detectedDistrict);if(detectedProvince)p.push('จ.'+detectedProvince);val.textContent=p.join(' · ');}
+    else{info.classList.remove('loading');val.textContent='ไม่พบข้อมูลที่ตั้ง';}
+  }catch(e){info.classList.remove('loading');val.textContent='⚠️ หาที่ตั้งไม่ได้';}
 }
 
 // ══════ API ══════
@@ -269,12 +245,7 @@ async function apiPost(action,data){
 // ══════ INIT ══════
 async function init(){
   salesName=localStorage.getItem('salespin-myname')||'';
-  if(!API_URL){
-    document.getElementById('setupLoading').textContent='⚠️ ยังไม่ได้ตั้งค่า API_URL';
-    document.getElementById('setupWarning').style.display='block';
-    document.getElementById('setupWarning').innerHTML='⚠️ กรุณาแจ้งแอดมินตั้งค่าก่อน';
-    return;
-  }
+  if(!API_URL){document.getElementById('setupLoading').textContent='⚠️ ยังไม่ได้ตั้งค่า API_URL';return;}
   const team=await apiGet('getTeam');
   if(team){salesTeam=team;document.getElementById('connDot').classList.add('ok');}
   populateDropdown();
@@ -282,15 +253,13 @@ async function init(){
     document.getElementById('setupOverlay').classList.add('hidden');
     document.getElementById('salesNameDisplay').textContent='👤 '+salesName;
     loadMyShops();
-  } else { document.getElementById('setupOverlay').classList.remove('hidden'); }
+  }else document.getElementById('setupOverlay').classList.remove('hidden');
 }
-
 async function loadMyShops(){
   if(!salesName)return;
   const data=await apiGet('getShops',`&sales=${encodeURIComponent(salesName)}`);
   if(data){myShops=data;renderAll();}
 }
-
 function populateDropdown(){
   const sel=document.getElementById('setupSelect'),ld=document.getElementById('setupLoading'),w=document.getElementById('setupWarning');
   ld.style.display='none';
@@ -300,132 +269,62 @@ function populateDropdown(){
   salesTeam.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;if(n===salesName)o.selected=true;sel.appendChild(o);});
   if(salesName&&salesTeam.includes(salesName))document.getElementById('setupBtn').disabled=false;
 }
-
-function completeSetup(){
-  const v=document.getElementById('setupSelect').value;if(!v)return;
-  salesName=v;localStorage.setItem('salespin-myname',salesName);
-  document.getElementById('setupOverlay').classList.add('hidden');
-  document.getElementById('salesNameDisplay').textContent='👤 '+salesName;
-  showToast('สวัสดี '+salesName+'!');loadMyShops();
-}
+function completeSetup(){const v=document.getElementById('setupSelect').value;if(!v)return;salesName=v;localStorage.setItem('salespin-myname',salesName);document.getElementById('setupOverlay').classList.add('hidden');document.getElementById('salesNameDisplay').textContent='👤 '+salesName;showToast('สวัสดี '+salesName+'!');loadMyShops();}
 function showSetup(){populateDropdown();document.getElementById('setupOverlay').classList.remove('hidden');}
 
 // ══════ GPS ══════
 function captureGPS(){
-  const btn=document.getElementById('gpsBtn');
-  btn.classList.add('loading');btn.textContent='⏳ กำลังจับพิกัด...';
+  const btn=document.getElementById('gpsBtn');btn.classList.add('loading');btn.textContent='⏳ กำลังจับพิกัด...';
   if(!navigator.geolocation){showToast('เบราว์เซอร์ไม่รองรับ GPS',true);resetGps();return;}
   navigator.geolocation.getCurrentPosition(p=>{
     selectedLat=+p.coords.latitude.toFixed(6);selectedLng=+p.coords.longitude.toFixed(6);
     updateCoord();placeTempPin(selectedLat,selectedLng);map.setView([selectedLat,selectedLng],16);
-    checkReady();resetGps();showToast('จับพิกัดสำเร็จ!');
-    reverseGeocode(selectedLat,selectedLng);
+    checkReady();resetGps();showToast('จับพิกัดสำเร็จ!');reverseGeocode(selectedLat,selectedLng);
   },e=>{
-    // แสดงเหตุผลจริงที่จับไม่ได้
-    let msg='จับพิกัดไม่ได้: ';
+    let msg='';
     switch(e.code){
-      case 1: msg+='ไม่ได้อนุญาตตำแหน่ง — กดไอคอน 🔒 ที่ address bar แล้วอนุญาต Location'; break;
-      case 2: msg+='หาตำแหน่งไม่ได้ — ลองเปิด GPS/Location บนมือถือ'; break;
-      case 3: msg+='หมดเวลา — ลองอีกครั้งในที่โล่ง'; break;
-      default: msg+=e.message||'ไม่ทราบสาเหตุ';
+      case 1:msg='⚠️ ไม่ได้อนุญาตตำแหน่ง\nเปิด ตั้งค่า → ค้นหา "ตำแหน่ง" → อนุญาตให้ browser เข้าถึง';break;
+      case 2:msg='⚠️ หาตำแหน่งไม่ได้ — ลองเปิด GPS บนมือถือแล้วกดใหม่';break;
+      case 3:msg='⚠️ หมดเวลา — ลองอีกครั้งในที่โล่ง หรือแตะเลือกบนแผนที่แทน';break;
+      default:msg='⚠️ จับพิกัดไม่ได้ — ลองแตะเลือกตำแหน่งบนแผนที่แทน';
     }
     showToast(msg,true);resetGps();
   },{enableHighAccuracy:true,timeout:15000});
 }
 function resetGps(){const b=document.getElementById('gpsBtn');b.classList.remove('loading');b.textContent='📡 จับพิกัดปัจจุบัน';}
 
-// ══════ NEARBY SEARCH ══════
-let nearbyMode=false;
-let myCurrentLat=null,myCurrentLng=null;
-
-function haversine(lat1,lon1,lat2,lon2){
-  const R=6371000;// เมตร
-  const dLat=(lat2-lat1)*Math.PI/180;
-  const dLon=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-
+// ══════ NEARBY ══════
+let nearbyMode=false,myCurrentLat=null,myCurrentLng=null;
+function haversine(lat1,lon1,lat2,lon2){const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function searchNearby(){
   const btn=document.getElementById('nearbyBtn');
   if(nearbyMode){clearNearby();renderShops();return;}
-  if(!navigator.geolocation){showToast('เบราว์เซอร์ไม่รองรับ GPS',true);return;}
+  if(!navigator.geolocation){showToast('ไม่รองรับ GPS',true);return;}
   btn.classList.add('loading');btn.textContent='⏳ กำลังหาตำแหน่ง...';
-  navigator.geolocation.getCurrentPosition(p=>{
-    myCurrentLat=p.coords.latitude;myCurrentLng=p.coords.longitude;
-    nearbyMode=true;
-    btn.classList.remove('loading');
-    btn.textContent='✕ ปิดค้นหาใกล้ฉัน';
-    btn.style.borderColor='var(--blue-border)';btn.style.color='var(--blue)';
-    document.getElementById('searchInput').value='';
-    renderShops();
-    // ซูมแผนที่ไปตำแหน่งตัวเอง
-    map.setView([myCurrentLat,myCurrentLng],16);
-  },e=>{
-    let msg='หาตำแหน่งไม่ได้: ';
-    if(e.code===1) msg+='ไม่ได้อนุญาต Location';
-    else if(e.code===2) msg+='ลองเปิด GPS';
-    else msg+='หมดเวลา ลองอีกครั้ง';
-    showToast(msg,true);
-    btn.classList.remove('loading');btn.textContent='📡 ค้นหาร้านใกล้ฉัน (100 ม.)';
-  },{enableHighAccuracy:true,timeout:15000});
+  navigator.geolocation.getCurrentPosition(p=>{myCurrentLat=p.coords.latitude;myCurrentLng=p.coords.longitude;nearbyMode=true;btn.classList.remove('loading');btn.textContent='✕ ปิดค้นหาใกล้ฉัน';btn.style.borderColor='var(--blue-border)';btn.style.color='var(--blue)';document.getElementById('searchInput').value='';renderShops();map.setView([myCurrentLat,myCurrentLng],16);},e=>{showToast('หาตำแหน่งไม่ได้',true);btn.classList.remove('loading');btn.textContent='📡 ค้นหาร้านใกล้ฉัน (100 ม.)';},{enableHighAccuracy:true,timeout:15000});
 }
+function clearNearby(){nearbyMode=false;myCurrentLat=null;myCurrentLng=null;const btn=document.getElementById('nearbyBtn');btn.textContent='📡 ค้นหาร้านใกล้ฉัน (100 ม.)';btn.style.borderColor='';btn.style.color='';}
 
-function clearNearby(){
-  nearbyMode=false;myCurrentLat=null;myCurrentLng=null;
-  const btn=document.getElementById('nearbyBtn');
-  btn.textContent='📡 ค้นหาร้านใกล้ฉัน (100 ม.)';
-  btn.style.borderColor='';btn.style.color='';
-}
-
-function updateCoord(){
-  const el=document.getElementById('coordDisplay'),tx=document.getElementById('coordText');
-  if(selectedLat!==null){el.classList.add('has-value');tx.classList.remove('empty');tx.innerHTML=`${selectedLat}, ${selectedLng} <span style="color:var(--green)">✓</span>`;}
-  else{el.classList.remove('has-value');tx.classList.add('empty');tx.textContent='ยังไม่ได้เลือกพิกัด';document.getElementById('locationInfo').classList.remove('show');}
-}
+function updateCoord(){const el=document.getElementById('coordDisplay'),tx=document.getElementById('coordText');if(selectedLat!==null){el.classList.add('has-value');tx.classList.remove('empty');tx.innerHTML=`${selectedLat}, ${selectedLng} <span style="color:var(--green)">✓</span>`;}else{el.classList.remove('has-value');tx.classList.add('empty');tx.textContent='ยังไม่ได้เลือกพิกัด';document.getElementById('locationInfo').classList.remove('show');}}
 function checkReady(){document.getElementById('saveBtn').disabled=!(selectedLat!==null&&document.getElementById('fName').value.trim());}
 
 function saveShop(){
-  const shop={
-    id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),
-    name:document.getElementById('fName').value.trim(),
-    lat:selectedLat,lng:selectedLng,
-    province:detectedProvince,
-    district:detectedDistrict,
-    sales:salesName,
-    phone:document.getElementById('fPhone').value.trim(),
-    note:document.getElementById('fNote').value.trim(),
-    createdAt:new Date().toISOString()
-  };
-
-  // Optimistic UI
-  myShops.unshift(shop);renderAll();
-  showToast(`บันทึก "${shop.name}" แล้ว!`);
-  map.setView([shop.lat,shop.lng],14);
-
-  // Clear form
+  const shop={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),name:document.getElementById('fName').value.trim(),lat:selectedLat,lng:selectedLng,province:detectedProvince,district:detectedDistrict,sales:salesName,phone:document.getElementById('fPhone').value.trim(),note:document.getElementById('fNote').value.trim(),createdAt:new Date().toISOString()};
+  myShops.unshift(shop);renderAll();showToast(`บันทึก "${shop.name}" แล้ว!`);map.setView([shop.lat,shop.lng],14);
   document.getElementById('fName').value='';document.getElementById('fPhone').value='';document.getElementById('fNote').value='';
-  selectedLat=null;selectedLng=null;detectedProvince='';detectedDistrict='';
-  updateCoord();document.getElementById('saveBtn').disabled=true;
+  selectedLat=null;selectedLng=null;detectedProvince='';detectedDistrict='';updateCoord();document.getElementById('saveBtn').disabled=true;
   if(tempMarker){map.removeLayer(tempMarker);tempMarker=null;}
-
-  // Background save
   apiPost('addShop',{data:shop}).then(r=>{if(!r)showToast('⚠️ บันทึกลง Sheet ไม่สำเร็จ',true);});
 }
 
 // ══════ MARKERS ══════
-function pinIcon(inR){return L.divIcon({className:'',html:`<div class="custom-pin ${inR?'in-route':''}"></div>`,iconSize:inR?[28,28]:[24,24],iconAnchor:inR?[14,28]:[12,24],popupAnchor:[0,-24]})}
+function pinIcon(){return L.divIcon({className:'',html:'<div class="custom-pin"></div>',iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-24]})}
 function placeTempPin(lat,lng){if(tempMarker)map.removeLayer(tempMarker);tempMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="custom-pin temp"></div>',iconSize:[24,24],iconAnchor:[12,24]})}).addTo(map)}
 function renderMarkers(){
   Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
   myShops.forEach(s=>{
-    const inR=route.some(r=>r.id===s.id);
-    const m=L.marker([s.lat,s.lng],{icon:pinIcon(inR)}).addTo(map);
-    let locLine='';
-    if(s.district||s.province){
-      let p=[];if(s.district)p.push('อ.'+s.district);if(s.province)p.push('จ.'+s.province);
-      locLine='📍 '+p.join(' ')+'<br>';
-    }
+    const m=L.marker([s.lat,s.lng],{icon:pinIcon()}).addTo(map);
+    let locLine='';if(s.district||s.province){let p=[];if(s.district)p.push('อ.'+s.district);if(s.province)p.push('จ.'+s.province);locLine='📍 '+p.join(' ')+'<br>';}
     m.bindPopup(`<div style="font-weight:600">${s.name}</div><div style="color:var(--text-dim);font-size:12px;margin-top:4px">${locLine}${s.phone?'📞 '+s.phone+'<br>':''}${s.note?'📝 '+s.note:''}</div><a href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" style="color:var(--blue);font-size:12px;text-decoration:none">🧭 นำทาง</a>`);
     markers[s.id]=m;
   });
@@ -435,70 +334,135 @@ function renderMarkers(){
 function renderShops(){
   const q=(document.getElementById('searchInput').value||'').toLowerCase();
   let list;
-
-  if(nearbyMode && myCurrentLat!==null){
-    // โหมดค้นหาใกล้ — คำนวณระยะทางทุกร้าน แล้วกรองเฉพาะ ≤100 ม.
-    list=myShops.map(s=>({...s, dist:haversine(myCurrentLat,myCurrentLng,s.lat,s.lng)}))
-      .filter(s=>s.dist<=100)
-      .sort((a,b)=>a.dist-b.dist);
-  } else {
-    list=myShops.filter(s=>!q||s.name.toLowerCase().includes(q)||(s.phone||'').includes(q)||(s.district||'').includes(q));
-  }
-
+  if(nearbyMode&&myCurrentLat!==null){list=myShops.map(s=>({...s,dist:haversine(myCurrentLat,myCurrentLng,s.lat,s.lng)})).filter(s=>s.dist<=100).sort((a,b)=>a.dist-b.dist);}
+  else{list=myShops.filter(s=>!q||s.name.toLowerCase().includes(q)||(s.phone||'').includes(q)||(s.district||'').includes(q));}
   const el=document.getElementById('shopsList');
-  if(!list.length){
-    const msg=nearbyMode?'📡 ไม่พบร้านค้าในระยะ 100 เมตร':(myShops.length?'🔍 ไม่พบ':'📍 ยังไม่มีร้านค้า');
-    el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:13px">${msg}</div>`;return;
-  }
+  if(!list.length){el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--text-dim);font-size:13px">${nearbyMode?'📡 ไม่พบร้านค้าในระยะ 100 เมตร':(myShops.length?'🔍 ไม่พบ':'📍 ยังไม่มีร้านค้า')}</div>`;return;}
   el.innerHTML=list.slice(0,50).map(s=>{
-    const inR=route.some(r=>r.id===s.id);
     const d=new Date(s.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short'});
     let loc='';if(s.district||s.province){let p=[];if(s.district)p.push('อ.'+s.district);if(s.province)p.push('จ.'+s.province);loc=p.join(' · ');}
-    const distLabel=(nearbyMode && s.dist!=null)?`<span class="shop-item-dist">📏 ${Math.round(s.dist)} ม.</span> · `:'';
+    const distLabel=(nearbyMode&&s.dist!=null)?`<span class="shop-item-dist">📏 ${Math.round(s.dist)} ม.</span> · `:'';
     return `<div class="shop-item" onclick="focusShop('${s.id}')">
       <div class="shop-item-name">${s.name}</div>
       ${loc?`<div class="shop-item-loc">📍 ${loc}</div>`:''}
       <div class="shop-item-meta">${distLabel}${s.phone?'📞 '+s.phone+' · ':''}${d}${s.note?' · 📝 '+s.note:''}</div>
       <div class="shop-item-actions">
         <button class="mini-btn nav-btn" onclick="event.stopPropagation();openNav('${s.id}')">🧭 นำทาง</button>
-        <button class="mini-btn route-btn" onclick="event.stopPropagation();toggleRoute('${s.id}')">${inR?'✅ ในเส้นทาง':'📌 เพิ่มเส้นทาง'}</button>
+        <button class="mini-btn cam-btn" onclick="event.stopPropagation();quickPhoto('${s.id}')">📷 ถ่ายรูป</button>
       </div>
-    </div>`;
-  }).join('')+(list.length>50?`<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:11px">แสดง 50 จาก ${list.length} รายการ</div>`:'');
+    </div>`;}).join('')+(list.length>50?`<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:11px">แสดง 50 จาก ${list.length} รายการ</div>`:'');
 }
 function focusShop(id){const s=myShops.find(x=>x.id===id);if(s){map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();}}
 function openNav(id){const s=myShops.find(x=>x.id===id);if(s)window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`,'_blank');}
+function quickPhoto(id){switchScreen('camera');document.getElementById('camShopSelect').value=id;document.getElementById('camBtn').classList.remove('disabled');}
 
-// ══════ ROUTE ══════
-function toggleRoute(id){const i=route.findIndex(r=>r.id===id);if(i>-1)route.splice(i,1);else{const s=myShops.find(x=>x.id===id);if(s)route.push(s);}renderAll();}
-function renderRoute(){
-  const el=document.getElementById('routeList'),badge=document.getElementById('routeBadge'),gb=document.getElementById('gmapsBtn'),cb=document.getElementById('clearBtn');
-  if(!route.length){badge.style.display='none';gb.style.display='none';cb.style.display='none';el.innerHTML='<div class="route-empty">เลือกร้านค้าจาก 📋 แล้วกด "เพิ่มเส้นทาง"</div>';return;}
-  badge.style.display='inline';badge.textContent=route.length;gb.style.display='block';cb.style.display='block';
-  el.innerHTML=route.map((s,i)=>{
-    let loc='';if(s.district)loc='อ.'+s.district;
-    return `<div class="route-item"><div class="route-num">${i+1}</div><div class="route-item-info"><div class="route-item-name">${s.name}</div><div class="route-item-sub">${loc?loc+' · ':''}${s.phone?'📞 '+s.phone:''}</div></div><button class="route-remove" onclick="toggleRoute('${s.id}')">✕</button></div>`;
-  }).join('');
+// ══════ CAMERA — ถ่ายรูป + ใส่ข้อมูลร้าน ══════
+function updateCamDropdown(){
+  const sel=document.getElementById('camShopSelect'),cur=sel.value;
+  sel.innerHTML='<option value="">-- เลือกร้านค้าที่จะถ่ายรูป --</option>';
+  myShops.forEach(s=>{let label=s.name;if(s.district)label+=' (อ.'+s.district+')';const o=document.createElement('option');o.value=s.id;o.textContent=label;if(s.id===cur)o.selected=true;sel.appendChild(o);});
 }
-function openGmapsRoute(){
-  if(!route.length)return;
-  if(route.length===1){window.open(`https://www.google.com/maps/dir/?api=1&destination=${route[0].lat},${route[0].lng}`,'_blank');return;}
-  const o=route[0],d=route[route.length-1],wp=route.slice(1,-1).map(s=>`${s.lat},${s.lng}`).join('|');
-  let url=`https://www.google.com/maps/dir/?api=1&origin=${o.lat},${o.lng}&destination=${d.lat},${d.lng}`;
-  if(wp)url+=`&waypoints=${wp}`;url+='&travelmode=driving';window.open(url,'_blank');
-}
-function clearRoute(){route=[];renderAll();showToast('ล้างเส้นทางแล้ว');}
 
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const shopId=document.getElementById('camShopSelect').value;
+  const shop=myShops.find(s=>s.id===shopId);
+  if(!shop){showToast('เลือกร้านค้าก่อน',true);e.target.value='';return;}
+
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.getElementById('camCanvas'),ctx=canvas.getContext('2d');
+      let w=img.width,h=img.height;const maxW=1200;
+      if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
+      canvas.width=w;canvas.height=h;
+      ctx.drawImage(img,0,0,w,h);
+
+      // ═══ สร้างข้อความ overlay ═══
+      const lines=[];
+      lines.push(shop.name);
+      if(shop.district||shop.province){let loc=[];if(shop.district)loc.push('อ.'+shop.district);if(shop.province)loc.push('จ.'+shop.province);lines.push(loc.join(' '));}
+      lines.push(parseFloat(shop.lat).toFixed(6)+', '+parseFloat(shop.lng).toFixed(6));
+      const now=new Date();
+      lines.push(now.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+      lines.push('เซลล์: '+salesName);
+
+      const fs=Math.max(14,Math.round(w*0.03));
+      const lineH=fs*1.55;
+      const padX=fs*0.9,padY=fs*0.7;
+      ctx.font='600 '+fs+'px sans-serif';
+      let maxTW=0;lines.forEach(l=>{const m=ctx.measureText(l).width;if(m>maxTW)maxTW=m;});
+      const boxW=maxTW+padX*2;
+      const boxH=lines.length*lineH+padY*2;
+      const boxX=12,boxY=h-boxH-12;
+
+      // พื้นหลังกึ่งโปร่ง + มน
+      ctx.fillStyle='rgba(0,0,0,0.7)';
+      ctx.beginPath();roundRect(ctx,boxX,boxY,boxW,boxH,10);ctx.fill();
+
+      // เส้นสี highlight ด้านซ้าย
+      ctx.fillStyle='#4f8cff';
+      ctx.beginPath();roundRect(ctx,boxX,boxY,4,boxH,2);ctx.fill();
+
+      // ข้อความ
+      ctx.textBaseline='top';
+      lines.forEach((line,i)=>{
+        if(i===0){ctx.fillStyle='#ffffff';ctx.font='700 '+(fs*1.15)+'px sans-serif';}
+        else if(i===1){ctx.fillStyle='#4f8cff';ctx.font='600 '+fs+'px sans-serif';}
+        else{ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='500 '+(fs*0.9)+'px sans-serif';}
+        ctx.fillText(line,boxX+padX,boxY+padY+i*lineH);
+      });
+
+      // แสดง preview
+      document.getElementById('camImg').src=canvas.toDataURL('image/jpeg',0.85);
+      document.getElementById('camPreview').style.display='block';
+      document.getElementById('camActions').style.display='flex';
+      document.getElementById('camHint').style.display='none';
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);e.target.value='';
+}
+
+function roundRect(ctx,x,y,w,h,r){ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);}
+
+function retakePhoto(){document.getElementById('camPreview').style.display='none';document.getElementById('camActions').style.display='none';document.getElementById('camHint').style.display='block';document.getElementById('camInput').click();}
+
+async function sharePhoto(){
+  const canvas=document.getElementById('camCanvas');
+  const shopId=document.getElementById('camShopSelect').value;
+  const shop=myShops.find(s=>s.id===shopId);
+  const fileName=(shop?shop.name:'photo')+'_'+new Date().toISOString().slice(0,10)+'.jpg';
+
+  // ลอง Web Share API (มือถือ → แชร์ไป LINE ได้เลย)
+  if(navigator.share){
+    try{
+      const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',0.85));
+      const file=new File([blob],fileName,{type:'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        await navigator.share({files:[file]});
+        showToast('แชร์สำเร็จ!');return;
+      }
+    }catch(e){if(e.name==='AbortError')return;}
+  }
+  // Fallback: Download
+  const link=document.createElement('a');link.download=fileName;link.href=canvas.toDataURL('image/jpeg',0.85);
+  document.body.appendChild(link);link.click();document.body.removeChild(link);
+  showToast('💾 บันทึกรูปแล้ว — เปิดจาก Gallery แล้วส่งใน LINE');
+}
+
+// ══════ SCREEN ══════
 function switchScreen(name){
-  ['pin','shops','route'].forEach(s=>document.getElementById('screen'+s[0].toUpperCase()+s.slice(1)).classList.toggle('active',s===name));
-  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',(name==='pin'&&i===0)||(name==='shops'&&i===1)||(name==='route'&&i===2)));
+  ['pin','shops','camera'].forEach(s=>document.getElementById('screen'+s[0].toUpperCase()+s.slice(1)).classList.toggle('active',s===name));
+  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',(name==='pin'&&i===0)||(name==='shops'&&i===1)||(name==='camera'&&i===2)));
   document.getElementById('mapHint').classList.toggle('show',name==='pin');
+  if(name==='camera')updateCamDropdown();
 }
-function renderAll(){renderMarkers();renderShops();renderRoute();}
-function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),2500);}
+function renderAll(){renderMarkers();renderShops();}
+function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3500);}
 
-init();
-setTimeout(()=>map.invalidateSize(),150);
+init();setTimeout(()=>map.invalidateSize(),150);
 </script>
 </body>
 </html>
