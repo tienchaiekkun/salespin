@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -57,16 +56,16 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .form-input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border 0.2s;margin-bottom:10px}
 .form-input:focus{border-color:var(--blue)}
 
-.save-btn{width:100%;padding:14px;background:var(--green);border:none;border-radius:var(--radius);color:#0c0e14;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px}
+.save-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--orange),#f97316);border:none;border-radius:var(--radius);color:#0c0e14;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.2s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(251,191,36,0.3);position:relative;overflow:hidden}
 .save-btn:active{transform:scale(0.97)}
 .save-btn:disabled{opacity:0.3;pointer-events:none}
+.save-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
 
 .search-bar{position:relative;margin-bottom:8px}
 .search-bar input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px 10px 36px;border-radius:10px;font-size:13px;font-family:inherit;outline:none}
 .search-bar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px}
 .nearby-btn{width:100%;padding:10px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;color:var(--orange);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s}
 .nearby-btn:active{transform:scale(0.97)}
-.nearby-btn.loading{opacity:0.5}
 .shop-item-dist{font-size:11px;color:var(--orange);font-weight:600}
 
 .shop-item{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all 0.15s}
@@ -78,22 +77,19 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .mini-btn{font-size:11px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);cursor:pointer;font-family:inherit}
 .mini-btn:active{background:var(--surface3)}
 .mini-btn.nav-btn{border-color:var(--blue-border);color:var(--blue)}
-.mini-btn.cam-btn{border-color:rgba(251,191,36,0.3);color:var(--orange)}
+.mini-btn.cam-btn{border-color:rgba(251,191,36,0.3);color:var(--orange);position:relative;overflow:hidden}
+.mini-btn.cam-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 
-/* ══ CAMERA ══ */
-.cam-section{text-align:center}
-.cam-shop-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:10px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237b829e'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
-.cam-capture-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--orange),#f97316);border:none;border-radius:var(--radius);color:#0c0e14;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(251,191,36,0.3);position:relative;overflow:hidden}
-.cam-capture-btn:active{transform:scale(0.97)}
-.cam-capture-btn.disabled{opacity:0.3;pointer-events:none}
-.cam-capture-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.cam-preview{margin-top:8px;border-radius:12px;overflow:hidden;border:1px solid var(--border);display:none}
-.cam-preview img{width:100%;display:block}
-.cam-actions{display:flex;gap:8px;margin-top:10px;display:none}
-.cam-action-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
-.cam-action-btn.share{background:var(--green);color:#0c0e14}
-.cam-action-btn.retake{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
-.cam-hint{font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.6}
+/* ══ PHOTO MODAL ══ */
+.photo-modal{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9500;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.photo-modal.show{display:flex}
+.photo-modal-content{width:100%;max-width:400px;text-align:center}
+.photo-modal img{width:100%;border-radius:12px;border:1px solid var(--border);margin-bottom:14px}
+.photo-modal-info{font-size:13px;color:var(--text-dim);margin-bottom:14px;line-height:1.6}
+.photo-modal-actions{display:flex;gap:10px}
+.photo-modal-btn{flex:1;padding:14px;border:none;border-radius:12px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
+.photo-modal-btn.share{background:var(--green);color:#0c0e14}
+.photo-modal-btn.close{background:var(--surface2);border:1px solid var(--border);color:var(--text-dim)}
 
 .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;transition:transform 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.5);max-width:90%;text-align:center}
 .toast.error{border-color:var(--red);color:var(--red)}
@@ -128,9 +124,7 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
     <p>เลือกชื่อของคุณเพื่อเริ่มใช้งาน</p>
     <div class="setup-loading" id="setupLoading">⏳ กำลังโหลดรายชื่อ...</div>
     <div class="setup-warning" id="setupWarning"></div>
-    <select class="setup-select" id="setupSelect" onchange="document.getElementById('setupBtn').disabled=!this.value" style="display:none">
-      <option value="">-- เลือกชื่อเซลล์ --</option>
-    </select>
+    <select class="setup-select" id="setupSelect" onchange="document.getElementById('setupBtn').disabled=!this.value" style="display:none"><option value="">-- เลือกชื่อเซลล์ --</option></select>
     <button class="setup-btn" id="setupBtn" disabled onclick="completeSetup()" style="display:none">เข้าใช้งาน</button>
   </div>
 </div>
@@ -152,7 +146,6 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
   <div class="nav-bar">
     <div class="nav-item active" onclick="switchScreen('pin')"><span class="nav-icon">📌</span> ปักหมุด</div>
     <div class="nav-item" onclick="switchScreen('shops')"><span class="nav-icon">📋</span> ร้านค้า</div>
-    <div class="nav-item" onclick="switchScreen('camera')"><span class="nav-icon">📷</span> ถ่ายรูป</div>
   </div>
 
   <!-- ══ ปักหมุด ══ -->
@@ -164,7 +157,10 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
     <input class="form-input" id="fName" placeholder="ชื่อร้านค้า *" oninput="checkReady()">
     <input class="form-input" id="fPhone" placeholder="เบอร์โทรร้าน">
     <input class="form-input" id="fNote" placeholder="หมายเหตุ (ไม่บังคับ)">
-    <button class="save-btn" id="saveBtn" disabled onclick="saveShop()">💾 บันทึกร้านค้า</button>
+    <button class="save-btn" id="saveBtn" disabled>
+      📷 ถ่ายรูป & บันทึก
+      <input type="file" id="savePhotoInput" accept="image/*" capture="environment" onchange="onSavePhoto(event)">
+    </button>
   </div>
 
   <!-- ══ ร้านค้า ══ -->
@@ -173,23 +169,16 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
     <button class="nearby-btn" id="nearbyBtn" onclick="searchNearby()">📡 ค้นหาร้านใกล้ฉัน (100 ม.)</button>
     <div id="shopsList"></div>
   </div>
+</div>
 
-  <!-- ══ ถ่ายรูป ══ -->
-  <div class="screen" id="screenCamera">
-    <div class="cam-section">
-      <select class="cam-shop-select" id="camShopSelect" onchange="document.getElementById('camBtn').classList.toggle('disabled',!this.value)">
-        <option value="">-- เลือกร้านค้าที่จะถ่ายรูป --</option>
-      </select>
-      <div class="cam-capture-btn disabled" id="camBtn">
-        📷 ถ่ายรูปร้านค้า
-        <input type="file" id="camInput" accept="image/*" capture="environment" onchange="handlePhoto(event)">
-      </div>
-      <div class="cam-preview" id="camPreview"><img id="camImg"></div>
-      <div class="cam-actions" id="camActions">
-        <button class="cam-action-btn retake" onclick="retakePhoto()">📷 ถ่ายใหม่</button>
-        <button class="cam-action-btn share" onclick="sharePhoto()">📤 บันทึก/แชร์</button>
-      </div>
-      <div class="cam-hint" id="camHint">เลือกร้านค้า → ถ่ายรูป → ระบบใส่ข้อมูลร้านลงในรูปให้<br>กดบันทึก/แชร์ เพื่อส่งต่อใน LINE ได้เลย</div>
+<!-- Photo result modal -->
+<div class="photo-modal" id="photoModal">
+  <div class="photo-modal-content">
+    <img id="photoModalImg">
+    <div class="photo-modal-info" id="photoModalInfo"></div>
+    <div class="photo-modal-actions">
+      <button class="photo-modal-btn close" onclick="closePhotoModal()">✓ เสร็จ</button>
+      <button class="photo-modal-btn share" onclick="shareCurrentPhoto()">📤 ส่ง LINE</button>
     </div>
   </div>
 </div>
@@ -203,6 +192,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbyWJGCku3wxI0tR0l0CX3RG
 let myShops=[],salesTeam=[],salesName='';
 let selectedLat=null,selectedLng=null,detectedProvince='',detectedDistrict='';
 let tempMarker=null,markers={};
+let lastPhotoShop=null; // เก็บข้อมูลร้านล่าสุดที่ถ่ายรูป
 
 const map=L.map('map',{center:[18.7883,98.9853],zoom:10,zoomControl:false});
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
@@ -233,14 +223,8 @@ async function reverseGeocode(lat,lng){
 }
 
 // ══════ API ══════
-async function apiGet(action,params=''){
-  if(!API_URL)return null;
-  try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
-}
-async function apiPost(action,data){
-  if(!API_URL)return null;
-  try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
-}
+async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}}
+async function apiPost(action,data){if(!API_URL)return null;try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}}
 
 // ══════ INIT ══════
 async function init(){
@@ -249,20 +233,12 @@ async function init(){
   const team=await apiGet('getTeam');
   if(team){salesTeam=team;document.getElementById('connDot').classList.add('ok');}
   populateDropdown();
-  if(salesName&&salesTeam.includes(salesName)){
-    document.getElementById('setupOverlay').classList.add('hidden');
-    document.getElementById('salesNameDisplay').textContent='👤 '+salesName;
-    loadMyShops();
-  }else document.getElementById('setupOverlay').classList.remove('hidden');
+  if(salesName&&salesTeam.includes(salesName)){document.getElementById('setupOverlay').classList.add('hidden');document.getElementById('salesNameDisplay').textContent='👤 '+salesName;loadMyShops();}
+  else document.getElementById('setupOverlay').classList.remove('hidden');
 }
-async function loadMyShops(){
-  if(!salesName)return;
-  const data=await apiGet('getShops',`&sales=${encodeURIComponent(salesName)}`);
-  if(data){myShops=data;renderAll();}
-}
+async function loadMyShops(){if(!salesName)return;const data=await apiGet('getShops',`&sales=${encodeURIComponent(salesName)}`);if(data){myShops=data;renderAll();}}
 function populateDropdown(){
-  const sel=document.getElementById('setupSelect'),ld=document.getElementById('setupLoading'),w=document.getElementById('setupWarning');
-  ld.style.display='none';
+  const sel=document.getElementById('setupSelect'),ld=document.getElementById('setupLoading'),w=document.getElementById('setupWarning');ld.style.display='none';
   if(!salesTeam.length){w.style.display='block';w.innerHTML='⚠️ ยังไม่มีรายชื่อเซลล์<br>กรุณาแจ้งแอดมินเพิ่มชื่อก่อน';return;}
   w.style.display='none';sel.style.display='block';document.getElementById('setupBtn').style.display='block';
   sel.innerHTML='<option value="">-- เลือกชื่อเซลล์ --</option>';
@@ -283,10 +259,10 @@ function captureGPS(){
   },e=>{
     let msg='';
     switch(e.code){
-      case 1:msg='⚠️ ไม่ได้อนุญาตตำแหน่ง\nเปิด ตั้งค่า → ค้นหา "ตำแหน่ง" → อนุญาตให้ browser เข้าถึง';break;
-      case 2:msg='⚠️ หาตำแหน่งไม่ได้ — ลองเปิด GPS บนมือถือแล้วกดใหม่';break;
-      case 3:msg='⚠️ หมดเวลา — ลองอีกครั้งในที่โล่ง หรือแตะเลือกบนแผนที่แทน';break;
-      default:msg='⚠️ จับพิกัดไม่ได้ — ลองแตะเลือกตำแหน่งบนแผนที่แทน';
+      case 1:msg='⚠️ ไม่ได้อนุญาตตำแหน่ง\nเปิด ตั้งค่า → Location → อนุญาตให้ browser';break;
+      case 2:msg='⚠️ หาตำแหน่งไม่ได้ — ลองเปิด GPS แล้วกดใหม่';break;
+      case 3:msg='⚠️ หมดเวลา — ลองอีกครั้ง หรือแตะแผนที่แทน';break;
+      default:msg='⚠️ จับพิกัดไม่ได้ — แตะแผนที่แทน';
     }
     showToast(msg,true);resetGps();
   },{enableHighAccuracy:true,timeout:15000});
@@ -308,13 +284,134 @@ function clearNearby(){nearbyMode=false;myCurrentLat=null;myCurrentLng=null;cons
 function updateCoord(){const el=document.getElementById('coordDisplay'),tx=document.getElementById('coordText');if(selectedLat!==null){el.classList.add('has-value');tx.classList.remove('empty');tx.innerHTML=`${selectedLat}, ${selectedLng} <span style="color:var(--green)">✓</span>`;}else{el.classList.remove('has-value');tx.classList.add('empty');tx.textContent='ยังไม่ได้เลือกพิกัด';document.getElementById('locationInfo').classList.remove('show');}}
 function checkReady(){document.getElementById('saveBtn').disabled=!(selectedLat!==null&&document.getElementById('fName').value.trim());}
 
-function saveShop(){
-  const shop={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),name:document.getElementById('fName').value.trim(),lat:selectedLat,lng:selectedLng,province:detectedProvince,district:detectedDistrict,sales:salesName,phone:document.getElementById('fPhone').value.trim(),note:document.getElementById('fNote').value.trim(),createdAt:new Date().toISOString()};
-  myShops.unshift(shop);renderAll();showToast(`บันทึก "${shop.name}" แล้ว!`);map.setView([shop.lat,shop.lng],14);
-  document.getElementById('fName').value='';document.getElementById('fPhone').value='';document.getElementById('fNote').value='';
-  selectedLat=null;selectedLng=null;detectedProvince='';detectedDistrict='';updateCoord();document.getElementById('saveBtn').disabled=true;
-  if(tempMarker){map.removeLayer(tempMarker);tempMarker=null;}
-  apiPost('addShop',{data:shop}).then(r=>{if(!r)showToast('⚠️ บันทึกลง Sheet ไม่สำเร็จ',true);});
+// ══════ SAVE — ถ่ายรูปก่อนบันทึก ══════
+function onSavePhoto(e){
+  const file=e.target.files[0];if(!file){e.target.value='';return;}
+  if(!selectedLat||!document.getElementById('fName').value.trim()){showToast('กรุณากรอกพิกัดและชื่อร้านก่อน',true);e.target.value='';return;}
+
+  // สร้างข้อมูลร้าน
+  const shop={
+    id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),
+    name:document.getElementById('fName').value.trim(),
+    lat:selectedLat,lng:selectedLng,
+    province:detectedProvince,district:detectedDistrict,
+    sales:salesName,
+    phone:document.getElementById('fPhone').value.trim(),
+    note:document.getElementById('fNote').value.trim(),
+    createdAt:new Date().toISOString()
+  };
+
+  // วาดรูป + overlay
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      drawOverlay(img,shop);
+
+      // บันทึกร้าน
+      myShops.unshift(shop);renderAll();
+      map.setView([shop.lat,shop.lng],14);
+
+      // Clear form
+      document.getElementById('fName').value='';document.getElementById('fPhone').value='';document.getElementById('fNote').value='';
+      selectedLat=null;selectedLng=null;detectedProvince='';detectedDistrict='';updateCoord();document.getElementById('saveBtn').disabled=true;
+      if(tempMarker){map.removeLayer(tempMarker);tempMarker=null;}
+
+      // Background save
+      apiPost('addShop',{data:shop}).then(r=>{if(!r)showToast('⚠️ บันทึกลง Sheet ไม่สำเร็จ',true);});
+
+      // แสดง modal แชร์รูป
+      lastPhotoShop=shop;
+      showPhotoModal(shop);
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value='';
+}
+
+// ถ่ายรูปร้านเดิมจากรายชื่อ
+function retakeShopPhoto(id){
+  const shop=myShops.find(s=>s.id===id);if(!shop)return;
+  // สร้าง file input ชั่วคราว
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.capture='environment';
+  inp.onchange=e=>{
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{drawOverlay(img,shop);lastPhotoShop=shop;showPhotoModal(shop);};
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  inp.click();
+}
+
+// ══════ DRAW OVERLAY ON PHOTO ══════
+function drawOverlay(img,shop){
+  const canvas=document.getElementById('camCanvas'),ctx=canvas.getContext('2d');
+  let w=img.width,h=img.height;const maxW=1200;
+  if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
+  canvas.width=w;canvas.height=h;
+  ctx.drawImage(img,0,0,w,h);
+
+  const lines=[];
+  lines.push(shop.name);
+  if(shop.district||shop.province){let loc=[];if(shop.district)loc.push('อ.'+shop.district);if(shop.province)loc.push('จ.'+shop.province);lines.push(loc.join(' '));}
+  lines.push(parseFloat(shop.lat).toFixed(6)+', '+parseFloat(shop.lng).toFixed(6));
+  const now=new Date();
+  lines.push(now.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
+  lines.push('เซลล์: '+salesName);
+
+  const fs=Math.max(14,Math.round(w*0.03));
+  const lineH=fs*1.55;
+  const padX=fs*0.9,padY=fs*0.7;
+  ctx.font='600 '+fs+'px sans-serif';
+  let maxTW=0;lines.forEach(l=>{const m=ctx.measureText(l).width;if(m>maxTW)maxTW=m;});
+  const boxW=maxTW+padX*2;
+  const boxH=lines.length*lineH+padY*2;
+  const boxX=12,boxY=h-boxH-12;
+
+  ctx.fillStyle='rgba(0,0,0,0.7)';ctx.beginPath();roundRect(ctx,boxX,boxY,boxW,boxH,10);ctx.fill();
+  ctx.fillStyle='#4f8cff';ctx.beginPath();roundRect(ctx,boxX,boxY,4,boxH,2);ctx.fill();
+
+  ctx.textBaseline='top';
+  lines.forEach((line,i)=>{
+    if(i===0){ctx.fillStyle='#ffffff';ctx.font='700 '+(fs*1.15)+'px sans-serif';}
+    else if(i===1){ctx.fillStyle='#4f8cff';ctx.font='600 '+fs+'px sans-serif';}
+    else{ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='500 '+(fs*0.9)+'px sans-serif';}
+    ctx.fillText(line,boxX+padX,boxY+padY+i*lineH);
+  });
+}
+function roundRect(ctx,x,y,w,h,r){ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);}
+
+// ══════ PHOTO MODAL ══════
+function showPhotoModal(shop){
+  const canvas=document.getElementById('camCanvas');
+  document.getElementById('photoModalImg').src=canvas.toDataURL('image/jpeg',0.85);
+  let info=`✅ บันทึก "${shop.name}" สำเร็จ!`;
+  if(shop.district)info+=`<br>📍 อ.${shop.district}`;
+  if(shop.province)info+=` จ.${shop.province}`;
+  document.getElementById('photoModalInfo').innerHTML=info;
+  document.getElementById('photoModal').classList.add('show');
+}
+function closePhotoModal(){document.getElementById('photoModal').classList.remove('show');}
+
+async function shareCurrentPhoto(){
+  const canvas=document.getElementById('camCanvas');
+  const shop=lastPhotoShop;
+  const fileName=(shop?shop.name:'photo')+'_'+new Date().toISOString().slice(0,10)+'.jpg';
+  if(navigator.share){
+    try{
+      const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',0.85));
+      const file=new File([blob],fileName,{type:'image/jpeg'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});closePhotoModal();showToast('แชร์สำเร็จ!');return;}
+    }catch(e){if(e.name==='AbortError')return;}
+  }
+  const link=document.createElement('a');link.download=fileName;link.href=canvas.toDataURL('image/jpeg',0.85);
+  document.body.appendChild(link);link.click();document.body.removeChild(link);
+  showToast('💾 บันทึกรูปแล้ว — เปิดจาก Gallery แล้วส่งใน LINE');
 }
 
 // ══════ MARKERS ══════
@@ -348,116 +445,18 @@ function renderShops(){
       <div class="shop-item-meta">${distLabel}${s.phone?'📞 '+s.phone+' · ':''}${d}${s.note?' · 📝 '+s.note:''}</div>
       <div class="shop-item-actions">
         <button class="mini-btn nav-btn" onclick="event.stopPropagation();openNav('${s.id}')">🧭 นำทาง</button>
-        <button class="mini-btn cam-btn" onclick="event.stopPropagation();quickPhoto('${s.id}')">📷 ถ่ายรูป</button>
+        <button class="mini-btn cam-btn" onclick="event.stopPropagation();retakeShopPhoto('${s.id}')">📷 ถ่ายรูป</button>
       </div>
     </div>`;}).join('')+(list.length>50?`<div style="text-align:center;padding:12px;color:var(--text-dim);font-size:11px">แสดง 50 จาก ${list.length} รายการ</div>`:'');
 }
 function focusShop(id){const s=myShops.find(x=>x.id===id);if(s){map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();}}
 function openNav(id){const s=myShops.find(x=>x.id===id);if(s)window.open(`https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`,'_blank');}
-function quickPhoto(id){switchScreen('camera');document.getElementById('camShopSelect').value=id;document.getElementById('camBtn').classList.remove('disabled');}
-
-// ══════ CAMERA — ถ่ายรูป + ใส่ข้อมูลร้าน ══════
-function updateCamDropdown(){
-  const sel=document.getElementById('camShopSelect'),cur=sel.value;
-  sel.innerHTML='<option value="">-- เลือกร้านค้าที่จะถ่ายรูป --</option>';
-  myShops.forEach(s=>{let label=s.name;if(s.district)label+=' (อ.'+s.district+')';const o=document.createElement('option');o.value=s.id;o.textContent=label;if(s.id===cur)o.selected=true;sel.appendChild(o);});
-}
-
-function handlePhoto(e){
-  const file=e.target.files[0];if(!file)return;
-  const shopId=document.getElementById('camShopSelect').value;
-  const shop=myShops.find(s=>s.id===shopId);
-  if(!shop){showToast('เลือกร้านค้าก่อน',true);e.target.value='';return;}
-
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const canvas=document.getElementById('camCanvas'),ctx=canvas.getContext('2d');
-      let w=img.width,h=img.height;const maxW=1200;
-      if(w>maxW){h=Math.round(h*(maxW/w));w=maxW;}
-      canvas.width=w;canvas.height=h;
-      ctx.drawImage(img,0,0,w,h);
-
-      // ═══ สร้างข้อความ overlay ═══
-      const lines=[];
-      lines.push(shop.name);
-      if(shop.district||shop.province){let loc=[];if(shop.district)loc.push('อ.'+shop.district);if(shop.province)loc.push('จ.'+shop.province);lines.push(loc.join(' '));}
-      lines.push(parseFloat(shop.lat).toFixed(6)+', '+parseFloat(shop.lng).toFixed(6));
-      const now=new Date();
-      lines.push(now.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'})+' '+now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));
-      lines.push('เซลล์: '+salesName);
-
-      const fs=Math.max(14,Math.round(w*0.03));
-      const lineH=fs*1.55;
-      const padX=fs*0.9,padY=fs*0.7;
-      ctx.font='600 '+fs+'px sans-serif';
-      let maxTW=0;lines.forEach(l=>{const m=ctx.measureText(l).width;if(m>maxTW)maxTW=m;});
-      const boxW=maxTW+padX*2;
-      const boxH=lines.length*lineH+padY*2;
-      const boxX=12,boxY=h-boxH-12;
-
-      // พื้นหลังกึ่งโปร่ง + มน
-      ctx.fillStyle='rgba(0,0,0,0.7)';
-      ctx.beginPath();roundRect(ctx,boxX,boxY,boxW,boxH,10);ctx.fill();
-
-      // เส้นสี highlight ด้านซ้าย
-      ctx.fillStyle='#4f8cff';
-      ctx.beginPath();roundRect(ctx,boxX,boxY,4,boxH,2);ctx.fill();
-
-      // ข้อความ
-      ctx.textBaseline='top';
-      lines.forEach((line,i)=>{
-        if(i===0){ctx.fillStyle='#ffffff';ctx.font='700 '+(fs*1.15)+'px sans-serif';}
-        else if(i===1){ctx.fillStyle='#4f8cff';ctx.font='600 '+fs+'px sans-serif';}
-        else{ctx.fillStyle='rgba(255,255,255,0.8)';ctx.font='500 '+(fs*0.9)+'px sans-serif';}
-        ctx.fillText(line,boxX+padX,boxY+padY+i*lineH);
-      });
-
-      // แสดง preview
-      document.getElementById('camImg').src=canvas.toDataURL('image/jpeg',0.85);
-      document.getElementById('camPreview').style.display='block';
-      document.getElementById('camActions').style.display='flex';
-      document.getElementById('camHint').style.display='none';
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);e.target.value='';
-}
-
-function roundRect(ctx,x,y,w,h,r){ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);}
-
-function retakePhoto(){document.getElementById('camPreview').style.display='none';document.getElementById('camActions').style.display='none';document.getElementById('camHint').style.display='block';document.getElementById('camInput').click();}
-
-async function sharePhoto(){
-  const canvas=document.getElementById('camCanvas');
-  const shopId=document.getElementById('camShopSelect').value;
-  const shop=myShops.find(s=>s.id===shopId);
-  const fileName=(shop?shop.name:'photo')+'_'+new Date().toISOString().slice(0,10)+'.jpg';
-
-  // ลอง Web Share API (มือถือ → แชร์ไป LINE ได้เลย)
-  if(navigator.share){
-    try{
-      const blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',0.85));
-      const file=new File([blob],fileName,{type:'image/jpeg'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        await navigator.share({files:[file]});
-        showToast('แชร์สำเร็จ!');return;
-      }
-    }catch(e){if(e.name==='AbortError')return;}
-  }
-  // Fallback: Download
-  const link=document.createElement('a');link.download=fileName;link.href=canvas.toDataURL('image/jpeg',0.85);
-  document.body.appendChild(link);link.click();document.body.removeChild(link);
-  showToast('💾 บันทึกรูปแล้ว — เปิดจาก Gallery แล้วส่งใน LINE');
-}
 
 // ══════ SCREEN ══════
 function switchScreen(name){
-  ['pin','shops','camera'].forEach(s=>document.getElementById('screen'+s[0].toUpperCase()+s.slice(1)).classList.toggle('active',s===name));
-  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',(name==='pin'&&i===0)||(name==='shops'&&i===1)||(name==='camera'&&i===2)));
+  ['pin','shops'].forEach(s=>document.getElementById('screen'+s[0].toUpperCase()+s.slice(1)).classList.toggle('active',s===name));
+  document.querySelectorAll('.nav-item').forEach((el,i)=>el.classList.toggle('active',(name==='pin'&&i===0)||(name==='shops'&&i===1)));
   document.getElementById('mapHint').classList.toggle('show',name==='pin');
-  if(name==='camera')updateCamDropdown();
 }
 function renderAll(){renderMarkers();renderShops();}
 function showToast(msg,isErr){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(isErr?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),3500);}
