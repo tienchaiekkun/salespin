@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Map Admin - จัดการข้อมูลร้านค้า</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d13;--surface:#12151e;--surface2:#1a1e2c;--surface3:#222738;--border:#272d42;--border-light:#333a54;--text:#e8eaf2;--text-dim:#6e7590;--text-mid:#9aa0b8;--blue:#4f8cff;--blue-bg:rgba(79,140,255,0.08);--blue-border:rgba(79,140,255,0.25);--green:#34d399;--green-bg:rgba(52,211,153,0.08);--orange:#fbbf24;--orange-bg:rgba(251,191,36,0.08);--red:#f87171;--red-bg:rgba(248,113,113,0.08);--purple:#a78bfa;--radius:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:12px}
+.logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),#7c5cfc);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.header h1{font-size:15px;font-weight:600}
+.header h1 small{font-weight:400;color:var(--text-dim);font-size:11px;margin-left:8px}
+.conn-status{font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid var(--border);color:var(--text-dim)}
+.conn-status.ok{border-color:var(--green);color:var(--green)}
+.conn-status.err{border-color:var(--red);color:var(--red)}
+.header-actions{display:flex;align-items:center;gap:8px}
+.h-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text-mid);transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.h-btn:hover{border-color:var(--blue);color:var(--blue)}
+.h-btn.primary{background:var(--blue);color:white;border-color:var(--blue)}
+.h-btn.primary:hover{filter:brightness(1.1)}
+.h-btn.danger:hover{border-color:var(--red);color:var(--red)}
+.h-btn:disabled{opacity:0.4;pointer-events:none}
+
+.layout{display:flex;height:calc(100vh - 54px)}
+.table-panel{flex:1;display:flex;flex-direction:column;min-width:0}
+.stats-strip{display:flex;gap:1px;background:var(--border);border-bottom:1px solid var(--border)}
+.stat-card{flex:1;background:var(--surface);padding:14px 18px}
+.stat-label{font-size:11px;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.stat-value{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.stat-value.blue{color:var(--blue)}.stat-value.green{color:var(--green)}.stat-value.orange{color:var(--orange)}.stat-value.purple{color:var(--purple)}
+
+.toolbar{padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap}
+.tool-input,.tool-select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit;outline:none}
+.tool-input{min-width:180px}.tool-select{min-width:110px}
+.tool-input:focus,.tool-select:focus{border-color:var(--blue)}
+.tool-sep{width:1px;height:24px;background:var(--border)}
+.selection-info{font-size:12px;color:var(--text-dim);margin-left:auto}
+.selection-info b{color:var(--blue)}
+.date-filter-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.date-preset{padding:5px 10px;border-radius:6px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);transition:all 0.15s;white-space:nowrap}
+.date-preset:hover{border-color:var(--blue-border);color:var(--text-mid)}
+.date-preset.active{background:var(--blue-bg);border-color:var(--blue);color:var(--blue)}
+.date-sep{color:var(--text-dim);font-size:11px}
+.date-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:6px;font-size:11px;font-family:inherit;outline:none;width:130px;color-scheme:dark}
+.date-input:focus{border-color:var(--blue)}
+.date-clear{padding:4px 8px;border-radius:6px;font-size:11px;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);transition:all 0.15s}
+.date-clear:hover{border-color:var(--red);color:var(--red)}
+
+.table-wrap{flex:1;overflow:auto}
+.table-wrap::-webkit-scrollbar{width:6px;height:6px}
+.table-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead{position:sticky;top:0;z-index:10}
+th{background:var(--surface2);padding:10px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+td{padding:10px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr{transition:background 0.1s}
+tr:hover td{background:var(--blue-bg)}
+tr.selected td{background:rgba(79,140,255,0.12)}
+.cb-cell{width:36px;text-align:center}
+.cb-cell input{cursor:pointer;accent-color:var(--blue);width:15px;height:15px}
+.cell-name{font-weight:600}
+.cell-loc{display:inline-block;background:var(--surface3);padding:2px 8px;border-radius:6px;font-size:11px;color:var(--text-mid)}
+.cell-sales{color:var(--purple);font-weight:500}
+.cell-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)}
+.cell-date{font-size:12px;color:var(--text-dim)}
+.row-actions{display:flex;gap:4px}
+.row-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:11px;cursor:pointer;font-family:inherit}
+.row-btn:hover{border-color:var(--blue);color:var(--blue)}
+.row-btn.del:hover{border-color:var(--red);color:var(--red)}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-dim);font-size:14px}
+
+.right-panel{width:440px;min-width:440px;border-left:1px solid var(--border);display:flex;flex-direction:column}
+.right-tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
+.right-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:500;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s}
+.right-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.right-tab:hover{color:var(--text)}
+.right-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.right-screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.right-screen.active{display:flex}
+#adminMap{flex:1}
+
+.settings-content{flex:1;overflow-y:auto;padding:20px}
+.settings-content::-webkit-scrollbar{width:4px}
+.settings-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.settings-section{margin-bottom:24px}
+.settings-section-title{font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.settings-section-desc{font-size:12px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
+.add-sales-row{display:flex;gap:8px;margin-bottom:14px}
+.add-sales-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.add-sales-input:focus{border-color:var(--blue)}
+.add-sales-btn{padding:9px 16px;background:var(--blue);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
+.add-sales-btn:hover{filter:brightness(1.1)}
+.add-sales-btn:disabled{opacity:0.3;pointer-events:none}
+.sales-team-list{display:flex;flex-direction:column;gap:6px}
+.team-member-card{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px}
+.member-avatar{width:34px;height:34px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.member-info{flex:1}
+.member-name{font-size:13px;font-weight:600}
+.member-stats{font-size:11px;color:var(--text-dim)}
+.member-remove{padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.member-remove:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.empty-team{text-align:center;padding:30px;color:var(--text-dim);font-size:13px;background:var(--bg);border:1px dashed var(--border);border-radius:10px}
+
+.api-url-row{display:flex;gap:8px}
+.api-url-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.api-url-input:focus{border-color:var(--blue)}
+
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;width:480px;max-height:80vh;overflow-y:auto}
+.modal h2{font-size:16px;margin-bottom:16px}
+.modal .form-group{margin-bottom:12px}
+.modal .form-group label{display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px}
+.modal .form-group input,.modal .form-group select,.modal .form-group textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.modal .form-group textarea{resize:vertical;min-height:50px}
+.modal .form-group input:focus,.modal .form-group select:focus{border-color:var(--blue)}
+.modal-row{display:flex;gap:10px}
+.modal-row .form-group{flex:1}
+.modal-footer{display:flex;gap:8px;margin-top:18px}
+.modal-footer button{flex:1;padding:10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;border:1px solid var(--border)}
+.m-cancel{background:var(--surface2);color:var(--text)}
+.m-save{background:var(--blue);color:white;border-color:var(--blue)!important}
+.import-zone{border:2px dashed var(--border);border-radius:12px;padding:30px;text-align:center;color:var(--text-dim);margin-bottom:12px;cursor:pointer;transition:all 0.2s}
+.import-zone:hover{border-color:var(--blue);color:var(--blue)}
+.import-zone input{display:none}
+
+.geocode-check{margin-top:12px;padding:10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;font-size:12px;color:var(--blue);display:flex;align-items:center;gap:8px}
+.geocode-check input{accent-color:var(--blue);width:16px;height:16px}
+.import-progress{margin-top:10px;font-size:12px;color:var(--orange)}
+.progress-bar{width:100%;height:4px;background:var(--surface3);border-radius:2px;margin-top:6px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--blue);border-radius:2px;transition:width 0.3s}
+
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);border:1px solid var(--green);color:var(--green);padding:10px 20px;border-radius:10px;font-size:13px;z-index:9999;transform:translateY(80px);transition:transform 0.3s;box-shadow:0 4px 20px rgba(0,0,0,0.4)}
+.toast.error{border-color:var(--red);color:var(--red)}
+.toast.show{transform:translateY(0)}
+
+.leaflet-popup-content-wrapper{background:var(--surface)!important;color:var(--text)!important;border-radius:10px!important;border:1px solid var(--border)!important;box-shadow:0 8px 30px rgba(0,0,0,0.5)!important}
+.leaflet-popup-tip{background:var(--surface)!important}
+.leaflet-popup-content{margin:10px 14px!important;font-family:'IBM Plex Sans Thai',sans-serif!important;font-size:13px!important}
+.admin-pin{width:22px;height:22px;background:var(--blue);border:2px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo-mark">📍</div>
+    <h1>Sales Map Admin <small>ระบบจัดการข้อมูลร้านค้า</small></h1>
+    <span class="conn-status" id="connStatus">⏳ กำลังเชื่อมต่อ...</span>
+  </div>
+  <div class="header-actions">
+    <button class="h-btn" id="refreshBtn" onclick="refreshData()">🔄 รีเฟรช</button>
+    <button class="h-btn" onclick="showImportModal()">📥 นำเข้า CSV</button>
+    <button class="h-btn" onclick="exportCSV()">📤 CSV</button>
+    <button class="h-btn" onclick="exportJSON()">📤 JSON</button>
+    <button class="h-btn primary" onclick="showAddModal()">➕ เพิ่มร้าน</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="table-panel">
+    <div class="stats-strip">
+      <div class="stat-card"><div class="stat-label">ร้านค้าทั้งหมด</div><div class="stat-value blue" id="statTotal">-</div></div>
+      <div class="stat-card"><div class="stat-label">จังหวัด</div><div class="stat-value green" id="statProvince">-</div></div>
+      <div class="stat-card"><div class="stat-label">เซลล์ทั้งหมด</div><div class="stat-value purple" id="statSales">-</div></div>
+      <div class="stat-card"><div class="stat-label">เดือนนี้</div><div class="stat-value orange" id="statMonth">-</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="tool-input" id="searchInput" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderTable()">
+      <select class="tool-select" id="filterProv" onchange="renderTable()"><option value="">ทุกจังหวัด</option></select>
+      <select class="tool-select" id="filterDistrict" onchange="renderTable()"><option value="">ทุกอำเภอ</option></select>
+      <select class="tool-select" id="filterSales" onchange="renderTable()"><option value="">ทุกเซลล์</option></select>
+      <div class="tool-sep"></div>
+      <div class="date-filter-group">
+        <button class="date-preset" onclick="setDatePreset('today',this)">วันนี้</button>
+        <button class="date-preset" onclick="setDatePreset('week',this)">7 วัน</button>
+        <button class="date-preset" onclick="setDatePreset('month',this)">30 วัน</button>
+        <span class="date-sep">│</span>
+        <input type="date" class="date-input" id="dateFrom" onchange="onDateChange()" title="ตั้งแต่">
+        <span class="date-sep">ถึง</span>
+        <input type="date" class="date-input" id="dateTo" onchange="onDateChange()" title="ถึง">
+        <button class="date-clear" id="dateClearBtn" onclick="clearDateFilter()" style="display:none">✕</button>
+      </div>
+      <div class="tool-sep"></div>
+      <div class="selection-info" id="selectionInfo"></div>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr>
+        <th class="cb-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+        <th onclick="sortBy('name')">ชื่อร้านค้า</th>
+        <th onclick="sortBy('province')">จังหวัด</th>
+        <th onclick="sortBy('district')">อำเภอ</th>
+        <th onclick="sortBy('sales')">เซลล์</th>
+        <th>เบอร์โทร</th><th>หมายเหตุ</th><th>พิกัด</th>
+        <th onclick="sortBy('createdAt')">วันที่</th><th>จัดการ</th>
+      </tr></thead><tbody id="tableBody"></tbody></table>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="right-tabs">
+      <div class="right-tab active" onclick="switchRight('map')">🗺️ แผนที่</div>
+      <div class="right-tab" onclick="switchRight('settings')">⚙️ ตั้งค่า</div>
+    </div>
+    <div class="right-content">
+      <div class="right-screen active" id="rightMap"><div id="adminMap"></div></div>
+      <div class="right-screen" id="rightSettings">
+        <div class="settings-content">
+          <div class="settings-section">
+            <div class="settings-section-title">🔗 เชื่อมต่อ Google Sheets</div>
+            <div class="settings-section-desc">วาง URL ของ Google Apps Script Web App ที่นี่</div>
+            <div class="api-url-row">
+              <input class="api-url-input" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxxxx/exec">
+              <button class="add-sales-btn" onclick="saveApiUrl()">💾 บันทึก</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <div class="settings-section-title">👥 จัดการรายชื่อเซลล์</div>
+            <div class="settings-section-desc">เพิ่มหรือลบรายชื่อเซลล์ที่นี่ รายชื่อจะแสดงในแอป Sales Pin</div>
+            <div class="add-sales-row">
+              <input class="add-sales-input" id="newSalesName" placeholder="พิมพ์ชื่อเซลล์ใหม่..." oninput="document.getElementById('addSalesBtn').disabled=!this.value.trim()" onkeydown="if(event.key==='Enter')addSalesMember()">
+              <button class="add-sales-btn" id="addSalesBtn" disabled onclick="addSalesMember()">➕ เพิ่ม</button>
+            </div>
+            <div class="sales-team-list" id="salesTeamList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="editModal"><div class="modal">
+  <h2 id="modalTitle">✏️ แก้ไขร้านค้า</h2>
+  <div class="form-group"><label>ชื่อร้านค้า</label><input id="mName"></div>
+  <div class="modal-row">
+    <div class="form-group"><label>ละติจูด</label><input id="mLat" type="number" step="any"></div>
+    <div class="form-group"><label>ลองจิจูด</label><input id="mLng" type="number" step="any"></div>
+    <div class="form-group" style="flex:0.6;display:flex;align-items:flex-end"><button class="h-btn" onclick="geocodeModal()" style="width:100%;justify-content:center;padding:9px 8px">📍 หาที่ตั้ง</button></div>
+  </div>
+  <div class="modal-row">
+    <div class="form-group"><label>จังหวัด</label><input id="mProvince" placeholder="อัตโนมัติจากพิกัด"></div>
+    <div class="form-group"><label>อำเภอ</label><input id="mDistrict" placeholder="อัตโนมัติจากพิกัด"></div>
+  </div>
+  <div class="modal-row">
+    <div class="form-group"><label>เซลล์</label><select id="mSales"><option value="">เลือก</option></select></div>
+    <div class="form-group"><label>เบอร์โทร</label><input id="mPhone"></div>
+  </div>
+  <div class="form-group"><label>หมายเหตุ</label><textarea id="mNote"></textarea></div>
+  <div class="modal-footer"><button class="m-cancel" onclick="closeModal('editModal')">ยกเลิก</button><button class="m-save" onclick="saveModal()">💾 บันทึก</button></div>
+</div></div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-bg" id="importModal"><div class="modal">
+  <h2>📥 นำเข้าข้อมูลจาก CSV</h2>
+  <div class="import-zone" onclick="document.getElementById('csvFile').click()">
+    <div style="font-size:32px;margin-bottom:8px">📄</div>
+    <div>คลิกเพื่อเลือกไฟล์ CSV</div>
+    <div style="font-size:11px;margin-top:6px;color:var(--text-dim)">รูปแบบ: name, lat, lng, sales (ระบบจะหาจังหวัดและอำเภอให้อัตโนมัติ)</div>
+    <div style="font-size:10px;margin-top:4px;color:var(--orange)">💡 ถ้าสร้างจาก Excel ให้ Save As เลือก "CSV UTF-8"</div>
+    <input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)">
+  </div>
+  <div id="importPreview" style="font-size:12px;color:var(--text-dim);margin-bottom:8px"></div>
+  <div class="geocode-check" id="geocodeCheck" style="display:none">
+    <input type="checkbox" id="autoGeocode" checked>
+    <label for="autoGeocode">หาจังหวัด/อำเภออัตโนมัติจากพิกัด (ใช้เวลาประมาณ 1 วินาที/ร้าน)</label>
+  </div>
+  <div class="import-progress" id="importProgress" style="display:none">
+    <span id="progressText"></span>
+    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0"></div></div>
+  </div>
+  <div class="modal-footer">
+    <button class="m-cancel" id="importCancelBtn" onclick="closeModal('importModal')">ยกเลิก</button>
+    <button class="m-save" id="importBtn" onclick="doImport()" style="display:none">📥 นำเข้า</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let shops=[],salesTeam=[],selected=new Set(),sortField='createdAt',sortDir=-1,editingId=null,csvRows=[];
+let API_URL=localStorage.getItem('salesmap-api-url')||'https://script.google.com/macros/s/AKfycbyWJGCku3wxI0tR0l0CX3RGj7P8OT_ccbTaCVu82Cuqe3tJC4ar7SZDfsuCLO8Yeb8J/exec';
+
+// ══════ MAP ══════
+const map=L.map('adminMap',{center:[18.7883,98.9853],zoom:9});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
+let markers={};
+function pinIcon(){return L.divIcon({className:'',html:'<div class="admin-pin"></div>',iconSize:[22,22],iconAnchor:[11,22],popupAnchor:[0,-22]})}
+function renderMarkers(){
+  Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
+  getFiltered().forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:pinIcon()}).addTo(map);
+    let loc='';if(s.district||s.province){let p=[];if(s.district)p.push('อ.'+s.district);if(s.province)p.push('จ.'+s.province);loc='📍 '+p.join(' ')+'<br>';}
+    m.bindPopup(`<div style="font-weight:600">${s.name}</div><div style="font-size:12px;color:var(--text-dim);margin-top:4px">${loc}${s.sales?'👤 '+s.sales+'<br>':''}${s.phone?'📞 '+s.phone:''}</div>`);
+    markers[s.id]=m;
+  });
+}
+
+// ══════ REVERSE GEOCODING ══════
+async function reverseGeocode(lat,lng){
+  try{
+    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&addressdetails=1`);
+    const j=await r.json();
+    const a=j.address||{};
+    const dn=j.display_name||'';
+
+    // ═══ จังหวัด — ดึงจาก display_name ก่อน ═══
+    let prov='';
+    const provMatch=dn.match(/จังหวัด([^\s,]+)/);
+    if(provMatch) prov=provMatch[1];
+    // fallback จาก address fields
+    if(!prov) prov=(a.state||a.province||'').toString().replace(/^จังหวัด/,'').replace(/,/g,'').trim();
+
+    // ═══ อำเภอ ═══
+    // ดึงจาก display_name ก่อน — จะได้อำเภอจริงๆ ไม่ใช่ตำบล
+    let dist='';
+    const distMatch=dn.match(/อำเภอ([^\s,]+)/);
+    if(distMatch) dist=distMatch[1];
+    // สำหรับกรุงเทพ ใช้ "เขต"
+    if(!dist){
+      const khetMatch=dn.match(/เขต([^\s,]+)/);
+      if(khetMatch) dist=khetMatch[1];
+    }
+    // fallback: ลอง county จาก address (ปกติคืออำเภอ)
+    if(!dist){
+      const county=(a.county||'').toString().replace(/^อำเภอ/,'').replace(/^เขต/,'').trim();
+      // ตรวจว่าไม่ใช่ตำบล (ตำบลมักอยู่ใน suburb, village, city_district)
+      if(county) dist=county;
+    }
+
+    return {province:prov,district:dist};
+  }catch(e){return {province:'',district:''};}
+}
+
+// ไม่ใช้ parseDisplayName แล้ว — ดึงตรงจาก regex ข้างบน
+
+// ══════ API ══════
+async function apiGet(action,params=''){
+  if(!API_URL)return null;
+  try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
+}
+async function apiPost(action,data){
+  if(!API_URL)return null;
+  try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
+}
+
+// ══════ INIT ══════
+async function init(){
+  document.getElementById('apiUrlInput').value=API_URL;
+  if(!API_URL){setConn('err','⚠️ ยังไม่ได้ตั้งค่า API URL');switchRight('settings');return;}
+  setConn('','⏳ กำลังโหลด...');
+  const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
+  if(t!==null){salesTeam=t;setConn('ok','✅ เชื่อมต่อแล้ว');}else setConn('err','❌ เชื่อมต่อไม่ได้');
+  if(s)shops=s;
+  renderAll();
+}
+function setConn(c,t){const e=document.getElementById('connStatus');e.className='conn-status'+(c?' '+c:'');e.textContent=t;}
+function saveApiUrl(){const u=document.getElementById('apiUrlInput').value.trim();if(!u){showToast('ใส่ URL',true);return;}API_URL=u;localStorage.setItem('salesmap-api-url',u);showToast('บันทึก URL แล้ว');init();}
+
+async function refreshData(){
+  const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='⏳ ...';
+  const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
+  if(t!==null)salesTeam=t;if(s)shops=s;renderAll();
+  btn.disabled=false;btn.textContent='🔄 รีเฟรช';showToast(`โหลดแล้ว: ${shops.length} ร้าน`);
+}
+
+// ══════ TEAM ══════
+async function addSalesMember(){
+  const input=document.getElementById('newSalesName'),name=input.value.trim();
+  if(!name)return;if(salesTeam.includes(name)){showToast(`"${name}" มีอยู่แล้ว`,true);return;}
+  salesTeam.push(name);salesTeam.sort((a,b)=>a.localeCompare(b,'th'));
+  renderTeamList();updateFilters();input.value='';document.getElementById('addSalesBtn').disabled=true;
+  await apiPost('setTeam',{data:salesTeam});showToast(`เพิ่ม "${name}"`);
+}
+async function removeSalesMember(name){
+  if(!confirm(`ลบ "${name}" ?`))return;
+  salesTeam=salesTeam.filter(n=>n!==name);renderTeamList();updateFilters();
+  await apiPost('setTeam',{data:salesTeam});showToast(`ลบ "${name}"`);
+}
+function renderTeamList(){
+  const el=document.getElementById('salesTeamList');
+  if(!salesTeam.length){el.innerHTML='<div class="empty-team">👥 ยังไม่มีรายชื่อเซลล์</div>';return;}
+  el.innerHTML=salesTeam.map(name=>`<div class="team-member-card"><div class="member-avatar">👤</div><div class="member-info"><div class="member-name">${name}</div><div class="member-stats">บันทึก ${shops.filter(s=>s.sales===name).length} ร้าน</div></div><button class="member-remove" onclick="removeSalesMember('${name.replace(/'/g,"\\'")}')">✕ ลบ</button></div>`).join('');
+}
+
+// ══════ DATE ══════
+function setDatePreset(p,btn){document.querySelectorAll('.date-preset').forEach(b=>b.classList.remove('active'));const n=new Date();let f;const t=fmtD(n);if(p==='today')f=t;else if(p==='week'){const d=new Date(n);d.setDate(d.getDate()-6);f=fmtD(d);}else{const d=new Date(n);d.setDate(d.getDate()-29);f=fmtD(d);}document.getElementById('dateFrom').value=f;document.getElementById('dateTo').value=t;document.getElementById('dateClearBtn').style.display='inline-block';btn.classList.add('active');renderTable();}
+function onDateChange(){document.querySelectorAll('.date-preset').forEach(b=>b.classList.remove('active'));const f=document.getElementById('dateFrom').value,t=document.getElementById('dateTo').value;document.getElementById('dateClearBtn').style.display=(f||t)?'inline-block':'none';renderTable();}
+function clearDateFilter(){document.getElementById('dateFrom').value='';document.getElementById('dateTo').value='';document.getElementById('dateClearBtn').style.display='none';document.querySelectorAll('.date-preset').forEach(b=>b.classList.remove('active'));renderTable();}
+function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+// ══════ FILTER ══════
+function getFiltered(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const prov=document.getElementById('filterProv').value;
+  const dist=document.getElementById('filterDistrict').value;
+  const sales=document.getElementById('filterSales').value;
+  const df=document.getElementById('dateFrom').value,dt=document.getElementById('dateTo').value;
+  return shops.filter(s=>{
+    if(q&&!s.name.toLowerCase().includes(q)&&!(s.phone||'').includes(q)&&!(s.district||'').toLowerCase().includes(q))return false;
+    if(prov&&s.province!==prov)return false;
+    if(dist&&s.district!==dist)return false;
+    if(sales&&s.sales!==sales)return false;
+    if(df||dt){const sd=(s.createdAt||'').slice(0,10);if(df&&sd<df)return false;if(dt&&sd>dt)return false;}
+    return true;
+  }).sort((a,b)=>{const va=a[sortField]||'',vb=b[sortField]||'';return(typeof va==='string'?va.localeCompare(vb):va-vb)*sortDir;});
+}
+function sortBy(f){if(sortField===f)sortDir*=-1;else{sortField=f;sortDir=1;}renderTable();}
+
+// ══════ RENDER ══════
+function renderAll(){updateStats();updateFilters();renderTable();renderMarkers();renderTeamList();}
+function updateStats(){
+  document.getElementById('statTotal').textContent=shops.length;
+  document.getElementById('statProvince').textContent=new Set(shops.map(s=>s.province).filter(Boolean)).size;
+  document.getElementById('statSales').textContent=salesTeam.length;
+  const n=new Date();document.getElementById('statMonth').textContent=shops.filter(s=>{const d=new Date(s.createdAt);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
+}
+function updateFilters(){
+  const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
+  const dists=[...new Set(shops.map(s=>s.district).filter(Boolean))].sort();
+  const salesIn=[...new Set(shops.map(s=>s.sales).filter(Boolean))];
+  const allSales=[...new Set([...salesTeam,...salesIn])].sort((a,b)=>a.localeCompare(b,'th'));
+
+  const pEl=document.getElementById('filterProv'),cur=pEl.value;
+  pEl.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option ${p===cur?'selected':''}>${p}</option>`).join('');
+
+  const dEl=document.getElementById('filterDistrict'),curD=dEl.value;
+  // Filter districts by selected province
+  let filteredDists=dists;
+  if(cur){filteredDists=[...new Set(shops.filter(s=>s.province===cur).map(s=>s.district).filter(Boolean))].sort();}
+  dEl.innerHTML='<option value="">ทุกอำเภอ</option>'+filteredDists.map(d=>`<option ${d===curD?'selected':''}>${d}</option>`).join('');
+
+  const sEl=document.getElementById('filterSales'),curS=sEl.value;
+  sEl.innerHTML='<option value="">ทุกเซลล์</option>'+allSales.map(s=>`<option ${s===curS?'selected':''}>${s}</option>`).join('');
+}
+
+// Refresh district dropdown when province changes
+document.getElementById('filterProv').addEventListener('change',()=>{
+  document.getElementById('filterDistrict').value='';
+  updateFilters();renderTable();
+});
+
+function renderTable(){
+  const filtered=getFiltered(),tbody=document.getElementById('tableBody');
+  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="10" class="empty-state">${shops.length?'🔍 ไม่พบ':'📍 ยังไม่มีข้อมูล'}</td></tr>`;updateSelection();return;}
+  tbody.innerHTML=filtered.map(s=>{
+    const d=new Date(s.createdAt);const ds=d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+    return `<tr class="${selected.has(s.id)?'selected':''}" ondblclick="editShop('${s.id}')">
+      <td class="cb-cell"><input type="checkbox" ${selected.has(s.id)?'checked':''} onchange="toggleSelect('${s.id}')"></td>
+      <td class="cell-name">${s.name}</td>
+      <td>${s.province?`<span class="cell-loc">${s.province}</span>`:'-'}</td>
+      <td>${s.district?`<span class="cell-loc">${s.district}</span>`:'-'}</td>
+      <td class="cell-sales">${s.sales||'-'}</td>
+      <td>${s.phone||'-'}</td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--text-dim);font-size:12px">${s.note||'-'}</td>
+      <td class="cell-coord">${parseFloat(s.lat).toFixed(5)}, ${parseFloat(s.lng).toFixed(5)}</td>
+      <td class="cell-date">${ds}</td>
+      <td><div class="row-actions">
+        <button class="row-btn" onclick="focusMap('${s.id}')">🗺️</button>
+        <button class="row-btn" onclick="window.open('https://www.google.com/maps?q=${s.lat},${s.lng}','_blank')">🧭</button>
+        <button class="row-btn" onclick="editShop('${s.id}')">✏️</button>
+      </div></td></tr>`;
+  }).join('');
+  updateSelection();renderMarkers();
+}
+
+function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);renderTable();}
+function toggleSelectAll(){const a=document.getElementById('selectAll').checked;if(a)getFiltered().forEach(s=>selected.add(s.id));else selected.clear();renderTable();}
+function updateSelection(){const i=document.getElementById('selectionInfo'),b=document.getElementById('bulkDeleteBtn');if(selected.size){i.innerHTML=`เลือก <b>${selected.size}</b> รายการ`;b.style.display='flex';}else{i.textContent=`${getFiltered().length} / ${shops.length}`;b.style.display='none';}}
+async function bulkDelete(){if(!confirm(`ลบ ${selected.size} รายการ?`))return;const ids=[...selected];shops=shops.filter(s=>!selected.has(s.id));selected.clear();renderAll();await apiPost('deleteShops',{ids});showToast('ลบเรียบร้อย');}
+
+function focusMap(id){const s=shops.find(x=>x.id===id);if(s){switchRight('map');setTimeout(()=>{map.invalidateSize();map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();},150);}}
+async function deleteShop(id){const s=shops.find(x=>x.id===id);if(!s||!confirm(`ลบ "${s.name}" ?`))return;shops=shops.filter(x=>x.id!==id);selected.delete(id);renderAll();await apiPost('deleteShop',{id});showToast('ลบแล้ว');}
+
+// ══════ MODAL ══════
+function populateModalSales(){
+  const sel=document.getElementById('mSales'),cur=sel.value;
+  const all=[...new Set([...salesTeam,...shops.map(s=>s.sales).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'th'));
+  sel.innerHTML='<option value="">เลือก</option>'+all.map(s=>`<option ${s===cur?'selected':''}>${s}</option>`).join('');
+}
+
+function showAddModal(){
+  editingId='__new__';document.getElementById('modalTitle').textContent='➕ เพิ่มร้านค้าใหม่';
+  ['mName','mPhone','mLat','mLng','mNote','mProvince','mDistrict'].forEach(id=>document.getElementById(id).value='');
+  populateModalSales();document.getElementById('mSales').value='';
+  document.getElementById('editModal').classList.add('show');
+}
+function editShop(id){
+  const s=shops.find(x=>x.id===id);if(!s)return;editingId=id;
+  document.getElementById('modalTitle').textContent='✏️ แก้ไขร้านค้า';
+  document.getElementById('mName').value=s.name;document.getElementById('mLat').value=s.lat;document.getElementById('mLng').value=s.lng;
+  document.getElementById('mProvince').value=s.province||'';document.getElementById('mDistrict').value=s.district||'';
+  populateModalSales();document.getElementById('mSales').value=s.sales||'';
+  document.getElementById('mPhone').value=s.phone||'';document.getElementById('mNote').value=s.note||'';
+  document.getElementById('editModal').classList.add('show');
+}
+
+async function geocodeModal(){
+  const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
+  if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัดก่อน',true);return;}
+  showToast('กำลังหาที่ตั้ง...');
+  const r=await reverseGeocode(lat,lng);
+  document.getElementById('mProvince').value=r.province;
+  document.getElementById('mDistrict').value=r.district;
+  showToast(r.province?`พบ: อ.${r.district} จ.${r.province}`:'ไม่พบข้อมูล');
+}
+
+async function saveModal(){
+  const name=document.getElementById('mName').value.trim();
+  const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
+  if(!name){showToast('ใส่ชื่อร้าน',true);return;}if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัด',true);return;}
+  const data={
+    id:editingId==='__new__'?Date.now().toString(36)+Math.random().toString(36).substr(2,5):editingId,
+    name,lat,lng,
+    province:document.getElementById('mProvince').value.trim(),
+    district:document.getElementById('mDistrict').value.trim(),
+    sales:document.getElementById('mSales').value,
+    phone:document.getElementById('mPhone').value.trim(),
+    note:document.getElementById('mNote').value.trim(),
+    createdAt:editingId==='__new__'?new Date().toISOString():(shops.find(x=>x.id===editingId)||{}).createdAt||new Date().toISOString()
+  };
+  if(editingId==='__new__'){shops.push(data);await apiPost('addShop',{data});showToast(`เพิ่ม "${name}"`);}
+  else{const i=shops.findIndex(x=>x.id===editingId);if(i>-1)shops[i]=data;await apiPost('updateShop',{data});showToast('อัปเดตแล้ว');}
+  closeModal('editModal');renderAll();
+}
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+
+// ══════ EXPORT ══════
+function exportCSV(){
+  const f=getFiltered();if(!f.length){showToast('ไม่มีข้อมูล',true);return;}
+  const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
+  const rows=f.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
+  dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-${ds()}.csv`,'text/csv;charset=utf-8');showToast(`Export ${f.length} รายการ`);
+}
+function exportJSON(){const f=getFiltered();if(!f.length){showToast('ไม่มีข้อมูล',true);return;}dl(JSON.stringify(f,null,2),`shops-${ds()}.json`,'application/json');showToast(`Export ${f.length}`);}
+function dl(c,fn,t){const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
+function ds(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
+
+// ══════ IMPORT ══════
+function showImportModal(){csvRows=[];document.getElementById('csvFile').value='';document.getElementById('importPreview').textContent='';document.getElementById('importBtn').style.display='none';document.getElementById('geocodeCheck').style.display='none';document.getElementById('importProgress').style.display='none';document.getElementById('importModal').classList.add('show');}
+
+function handleCSV(e){
+  const f=e.target.files[0];if(!f)return;
+
+  // อ่านเป็น ArrayBuffer แล้วใช้ TextDecoder — รองรับ encoding ไทยจาก Excel
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const buf=ev.target.result;
+    const bytes=new Uint8Array(buf);
+
+    // ตรวจ BOM ของ UTF-8 (EF BB BF)
+    const hasUtf8Bom=(bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF);
+
+    let text;
+    if(hasUtf8Bom){
+      // มี BOM = UTF-8 แน่นอน
+      text=new TextDecoder('utf-8').decode(buf);
+    } else {
+      // ลอง UTF-8 ก่อน
+      text=new TextDecoder('utf-8').decode(buf);
+
+      // ตรวจว่ามีภาษาไทยหรือเปล่า + มีตัวเพี้ยนหรือเปล่า
+      const hasThai=/[\u0E00-\u0E7F]/.test(text);
+      const hasGarbled=/[\u00C0-\u00FF]{2,}/.test(text) || /\uFFFD/.test(text);
+
+      if(!hasThai || hasGarbled){
+        // UTF-8 อ่านไม่ออก → ลอง windows-874 (Excel ภาษาไทย)
+        try{
+          text=new TextDecoder('windows-874').decode(buf);
+        }catch(e2){
+          // ถ้า browser ไม่รู้จัก windows-874 ลอง tis-620
+          try{
+            text=new TextDecoder('tis-620').decode(buf);
+          }catch(e3){
+            // fallback กลับ UTF-8
+            text=new TextDecoder('utf-8').decode(buf);
+          }
+        }
+      }
+    }
+
+    processCSVText(text);
+  };
+  reader.readAsArrayBuffer(f);
+}
+
+function processCSVText(text){
+  // Strip BOM
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+
+  const lines=text.split(/\r?\n/).filter(l=>l.trim());
+  if(lines.length<2){document.getElementById('importPreview').textContent='❌ ไฟล์ว่างหรืออ่านไม่ได้';return;}
+  csvRows=[];
+  for(let i=1;i<lines.length;i++){
+    const c=parseCSVLine(lines[i]);
+    if(c.length>=3){
+      csvRows.push({
+        name:(c[0]||'').trim(),
+        lat:parseFloat(c[1]),
+        lng:parseFloat(c[2]),
+        sales:(c[3]||'').trim(),
+        phone:(c[4]||'').trim(),
+        note:(c[5]||'').trim()
+      });
+    }
+  }
+  const valid=csvRows.filter(r=>r.name&&!isNaN(r.lat)&&!isNaN(r.lng));
+  document.getElementById('importPreview').innerHTML=`✅ พบ <b>${valid.length}</b> รายการ` +
+    (valid.length?` — ตัวอย่าง: "${valid[0].name}"`:' (ตรวจสอบรูปแบบไฟล์)');
+  document.getElementById('geocodeCheck').style.display=valid.length?'flex':'none';
+  document.getElementById('importBtn').style.display=valid.length?'block':'none';
+  csvRows=valid;
+}
+function parseCSVLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
+
+async function doImport(){
+  const doGeo=document.getElementById('autoGeocode').checked;
+  const prog=document.getElementById('importProgress');
+  const progText=document.getElementById('progressText');
+  const progFill=document.getElementById('progressFill');
+  const importBtn=document.getElementById('importBtn');
+  const cancelBtn=document.getElementById('importCancelBtn');
+
+  importBtn.style.display='none';
+  cancelBtn.style.display='none';
+  prog.style.display='block';
+
+  const newShops=[];
+
+  for(let i=0;i<csvRows.length;i++){
+    const row=csvRows[i];
+    progText.textContent=`กำลังประมวลผล ${i+1}/${csvRows.length}: ${row.name}`;
+    progFill.style.width=((i+1)/csvRows.length*100)+'%';
+
+    let province='',district='';
+    if(doGeo){
+      const geo=await reverseGeocode(row.lat,row.lng);
+      province=geo.province;district=geo.district;
+      // Nominatim rate limit: 1 request/sec
+      if(i<csvRows.length-1) await new Promise(r=>setTimeout(r,1100));
+    }
+
+    const shop={
+      id:Date.now().toString(36)+Math.random().toString(36).substr(2,8),
+      name:row.name,lat:row.lat,lng:row.lng,
+      province,district,
+      sales:row.sales,phone:row.phone||'',note:row.note||'',
+      createdAt:new Date().toISOString()
+    };
+    shops.push(shop);
+    newShops.push(shop);
+  }
+
+  // Batch save to Google Sheets
+  progText.textContent='กำลังบันทึกลง Google Sheets...';
+  await apiPost('addShops',{data:newShops});
+
+  closeModal('importModal');renderAll();
+  showToast(`นำเข้า ${newShops.length} ร้านเรียบร้อย!`);
+}
+
+// ══════ RIGHT PANEL ══════
+function switchRight(tab){
+  document.querySelectorAll('.right-tab').forEach((el,i)=>el.classList.toggle('active',(tab==='map'&&i===0)||(tab==='settings'&&i===1)));
+  document.getElementById('rightMap').classList.toggle('active',tab==='map');
+  document.getElementById('rightSettings').classList.toggle('active',tab==='settings');
+  if(tab==='map')setTimeout(()=>map.invalidateSize(),100);
+  if(tab==='settings')renderTeamList();
+}
+
+function showToast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),2500);}
+
+init();setTimeout(()=>map.invalidateSize(),150);
+</script>
+</body>
+</html>
