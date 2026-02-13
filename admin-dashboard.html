@@ -109,6 +109,65 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 .member-remove:hover{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 .empty-team{text-align:center;padding:30px;color:var(--text-dim);font-size:13px;background:var(--bg);border:1px dashed var(--border);border-radius:10px}
 
+/* ══ EXPORT FULL-SCREEN OVERLAY (warm tone) ══ */
+.export-overlay{display:none;position:fixed;inset:0;z-index:4000;background:#0d0f08}
+.export-overlay.show{display:flex;flex-direction:column}
+.export-overlay .ex-header{background:#1a1d10;border-bottom:1px solid #2e3318;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.export-overlay .ex-header-left{display:flex;align-items:center;gap:12px}
+.export-overlay .ex-logo{width:32px;height:32px;background:linear-gradient(135deg,#f59e0b,#ea580c);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.export-overlay .ex-header h2{font-size:15px;font-weight:600;color:#f5f0e0}
+.export-overlay .ex-header h2 small{font-weight:400;color:#8a8060;font-size:11px;margin-left:8px}
+.ex-count-badge{font-size:12px;padding:5px 14px;border-radius:12px;border:1px solid #f59e0b;color:#f59e0b;font-weight:600;background:rgba(245,158,11,0.08)}
+.ex-count-badge b{color:#fbbf24}
+.ex-h-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;border:1px solid #2e3318;background:#1e2212;color:#8a8060;transition:all 0.15s;display:flex;align-items:center;gap:5px}
+.ex-h-btn:hover{border-color:#f59e0b;color:#f59e0b}
+.ex-h-btn.primary{background:#f59e0b;color:#0d0f08;border-color:#f59e0b;font-weight:700}
+.ex-h-btn.primary:hover{filter:brightness(1.1)}
+.ex-h-btn.primary:disabled{opacity:0.3;pointer-events:none}
+
+.export-overlay .ex-stats{display:flex;gap:1px;background:#2e3318;border-bottom:1px solid #2e3318}
+.export-overlay .ex-stat{flex:1;background:#14170c;padding:14px 18px}
+.export-overlay .ex-stat .label{font-size:11px;color:#8a8060;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.export-overlay .ex-stat .val{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.export-overlay .ex-stat .val.orange{color:#f59e0b}
+.export-overlay .ex-stat .val.green{color:#34d399}
+.export-overlay .ex-stat .val.yellow{color:#fbbf24}
+
+.export-overlay .ex-toolbar{padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #2e3318;background:#14170c;flex-wrap:wrap}
+.ex-tool-input,.ex-tool-select{background:#0d0f08;border:1px solid #2e3318;color:#f5f0e0;padding:7px 12px;border-radius:8px;font-size:12px;font-family:inherit;outline:none}
+.ex-tool-input{min-width:180px}
+.ex-tool-select{min-width:110px}
+.ex-tool-input:focus,.ex-tool-select:focus{border-color:#f59e0b}
+.ex-tool-sep{width:1px;height:24px;background:#2e3318}
+.ex-date-input{background:#0d0f08;border:1px solid #2e3318;color:#f5f0e0;padding:5px 8px;border-radius:6px;font-size:11px;font-family:inherit;outline:none;width:130px;color-scheme:dark}
+.ex-date-input:focus{border-color:#f59e0b}
+.ex-date-sep{color:#8a8060;font-size:11px}
+.ex-date-clear{padding:4px 8px;border-radius:6px;font-size:11px;font-family:inherit;cursor:pointer;border:1px solid #2e3318;background:#1e2212;color:#8a8060}
+.ex-date-clear:hover{border-color:#ea580c;color:#ea580c}
+.ex-sel-info{font-size:12px;color:#8a8060;margin-left:auto}
+.ex-sel-info b{color:#f59e0b}
+
+.export-overlay .ex-table-wrap{flex:1;overflow:auto}
+.export-overlay .ex-table-wrap::-webkit-scrollbar{width:6px;height:6px}
+.export-overlay .ex-table-wrap::-webkit-scrollbar-thumb{background:#2e3318;border-radius:3px}
+.export-overlay table{width:100%;border-collapse:collapse;font-size:13px}
+.export-overlay thead{position:sticky;top:0;z-index:10}
+.export-overlay th{background:#1e2212;padding:10px 12px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#8a8060;border-bottom:1px solid #2e3318;white-space:nowrap;cursor:pointer;user-select:none}
+.export-overlay th:hover{color:#f5f0e0}
+.export-overlay td{padding:10px 12px;border-bottom:1px solid #1e2212;white-space:nowrap;color:#c8c0a8}
+.export-overlay tr:hover td{background:rgba(245,158,11,0.06)}
+.export-overlay tr.ex-selected td{background:rgba(245,158,11,0.12)}
+.export-overlay .cb-cell{width:36px;text-align:center}
+.export-overlay .cb-cell input{cursor:pointer;accent-color:#f59e0b;width:15px;height:15px}
+.export-overlay .ex-cell-name{font-weight:600;color:#f5f0e0}
+.export-overlay .ex-cell-loc{display:inline-block;background:#1e2212;padding:2px 8px;border-radius:6px;font-size:11px;color:#a89e80}
+.export-overlay .ex-cell-sales{color:#f59e0b;font-weight:500}
+.export-overlay .ex-cell-coord{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6a6248}
+.export-overlay .ex-cell-date{font-size:12px;color:#6a6248}
+.export-overlay .ex-empty{text-align:center;padding:60px 20px;color:#6a6248;font-size:14px}
+.ex-add-all-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.08);color:#f59e0b;transition:all 0.15s;white-space:nowrap}
+.ex-add-all-btn:hover{background:#f59e0b;color:#0d0f08}
+
 .api-url-row{display:flex;gap:8px}
 .api-url-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
 .api-url-input:focus{border-color:var(--blue)}
@@ -159,8 +218,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
   <div class="header-actions">
     <button class="h-btn" id="refreshBtn" onclick="refreshData()">🔄 รีเฟรช</button>
     <button class="h-btn" onclick="showImportModal()">📥 นำเข้า CSV</button>
-    <button class="h-btn" onclick="exportCSV()">📤 CSV</button>
-    <button class="h-btn" onclick="exportJSON()">📤 JSON</button>
+    <button class="h-btn" onclick="openExportPage()">📦 Export</button>
     <button class="h-btn primary" onclick="showAddModal()">➕ เพิ่มร้าน</button>
   </div>
 </div>
@@ -212,6 +270,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
     </div>
     <div class="right-content">
       <div class="right-screen active" id="rightMap"><div id="adminMap"></div></div>
+
       <div class="right-screen" id="rightSettings">
         <div class="settings-content">
           <div class="settings-section">
@@ -282,6 +341,47 @@ tr.selected td{background:rgba(79,140,255,0.12)}
     <button class="m-save" id="importBtn" onclick="doImport()" style="display:none">📥 นำเข้า</button>
   </div>
 </div></div>
+
+<!-- EXPORT FULL-SCREEN OVERLAY -->
+<div class="export-overlay" id="exportOverlay">
+  <div class="ex-header">
+    <div class="ex-header-left">
+      <div class="ex-logo">📦</div>
+      <h2>Export ร้านค้า <small>เลือกร้านที่ต้องการแล้วกด Export</small></h2>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="ex-count-badge" id="exportCount">เลือก <b>0</b> ร้าน</div>
+      <button class="ex-add-all-btn" onclick="addAllFiltered()">⊕ เพิ่มทั้งหมดที่กรอง</button>
+      <button class="ex-h-btn primary" id="expGoBtn" disabled onclick="doExportSelected()">📤 Export CSV</button>
+      <button class="ex-h-btn" onclick="clearExportList()">🗑️ ล้าง</button>
+      <button class="ex-h-btn" onclick="closeExportPage()">✕ ปิด</button>
+    </div>
+  </div>
+  <div class="ex-stats">
+    <div class="ex-stat"><div class="label">ร้านค้าทั้งหมด</div><div class="val orange" id="exStatTotal">-</div></div>
+    <div class="ex-stat"><div class="label">ตรง Filter</div><div class="val yellow" id="exStatFiltered">-</div></div>
+    <div class="ex-stat"><div class="label">เลือกแล้ว</div><div class="val green" id="exStatSelected">-</div></div>
+  </div>
+  <div class="ex-toolbar">
+    <input class="ex-tool-input" id="exSearch" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderExportTable()">
+    <select class="ex-tool-select" id="exFilterProv" onchange="onExProvChange();renderExportTable()"><option value="">ทุกจังหวัด</option></select>
+    <select class="ex-tool-select" id="exFilterDistrict" onchange="renderExportTable()"><option value="">ทุกอำเภอ</option></select>
+    <select class="ex-tool-select" id="exFilterSales" onchange="renderExportTable()"><option value="">ทุกเซลล์</option></select>
+    <div class="ex-tool-sep"></div>
+    <input type="date" class="ex-date-input" id="exDateFrom" onchange="renderExportTable()" title="ตั้งแต่">
+    <span class="ex-date-sep">ถึง</span>
+    <input type="date" class="ex-date-input" id="exDateTo" onchange="renderExportTable()">
+    <button class="ex-date-clear" id="exDateClear" onclick="clearExDateFilter()" style="display:none">✕</button>
+    <div class="ex-sel-info" id="exSelInfo"></div>
+  </div>
+  <div class="ex-table-wrap">
+    <table><thead><tr>
+      <th class="cb-cell"><input type="checkbox" id="exSelectAll" onchange="toggleExSelectAll()"></th>
+      <th>ชื่อร้านค้า</th><th>จังหวัด</th><th>อำเภอ</th><th>เซลล์</th>
+      <th>เบอร์โทร</th><th>หมายเหตุ</th><th>พิกัด</th><th>วันที่</th>
+    </tr></thead><tbody id="exTableBody"></tbody></table>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -674,6 +774,114 @@ function switchRight(tab){
   document.getElementById('rightSettings').classList.toggle('active',tab==='settings');
   if(tab==='map')setTimeout(()=>map.invalidateSize(),100);
   if(tab==='settings')renderTeamList();
+}
+
+// ══════ EXPORT FULL-SCREEN ══════
+let exportSelected=new Set();
+
+function openExportPage(){
+  document.getElementById('exportOverlay').classList.add('show');
+  populateExFilters();renderExportTable();updateExCount();
+}
+function closeExportPage(){document.getElementById('exportOverlay').classList.remove('show');}
+
+function populateExFilters(){
+  const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
+  const selP=document.getElementById('exFilterProv'),curP=selP.value;
+  selP.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option value="${p}"${p===curP?' selected':''}>${p}</option>`).join('');
+  onExProvChange();
+  const sales=[...new Set(shops.map(s=>s.sales).filter(Boolean))].sort();
+  const selS=document.getElementById('exFilterSales'),curS=selS.value;
+  selS.innerHTML='<option value="">ทุกเซลล์</option>'+sales.map(s=>`<option value="${s}"${s===curS?' selected':''}>${s}</option>`).join('');
+}
+function onExProvChange(){
+  const prov=document.getElementById('exFilterProv').value;
+  const dists=[...new Set(shops.filter(s=>!prov||s.province===prov).map(s=>s.district).filter(Boolean))].sort();
+  const selD=document.getElementById('exFilterDistrict'),curD=selD.value;
+  selD.innerHTML='<option value="">ทุกอำเภอ</option>'+dists.map(d=>`<option value="${d}"${d===curD?' selected':''}>${d}</option>`).join('');
+}
+function getExFiltered(){
+  const prov=document.getElementById('exFilterProv').value;
+  const dist=document.getElementById('exFilterDistrict').value;
+  const sales=document.getElementById('exFilterSales').value;
+  const from=document.getElementById('exDateFrom').value;
+  const to=document.getElementById('exDateTo').value;
+  const q=(document.getElementById('exSearch').value||'').toLowerCase();
+  document.getElementById('exDateClear').style.display=(from||to)?'inline':'none';
+  return shops.filter(s=>{
+    if(prov && s.province!==prov) return false;
+    if(dist && s.district!==dist) return false;
+    if(sales && s.sales!==sales) return false;
+    if(from){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d<from) return false;}
+    if(to){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d>to) return false;}
+    if(q && !s.name.toLowerCase().includes(q) && !(s.district||'').toLowerCase().includes(q) && !(s.phone||'').includes(q)) return false;
+    return true;
+  });
+}
+function clearExDateFilter(){document.getElementById('exDateFrom').value='';document.getElementById('exDateTo').value='';document.getElementById('exDateClear').style.display='none';renderExportTable();}
+
+function renderExportTable(){
+  const list=getExFiltered();
+  const el=document.getElementById('exTableBody');
+  document.getElementById('exStatTotal').textContent=shops.length;
+  document.getElementById('exStatFiltered').textContent=list.length;
+  updateExCount();
+
+  if(!list.length){el.innerHTML=`<tr><td colspan="9" class="ex-empty">ไม่มีข้อมูลตามเงื่อนไข</td></tr>`;return;}
+  el.innerHTML=list.map(s=>{
+    const checked=exportSelected.has(s.id);
+    const d=s.createdAt?new Date(s.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):'';
+    return `<tr class="${checked?'ex-selected':''}">
+      <td class="cb-cell"><input type="checkbox" ${checked?'checked':''} onchange="toggleExItem('${s.id}',this.checked)"></td>
+      <td class="ex-cell-name">${s.name}</td>
+      <td>${s.province?`<span class="ex-cell-loc">${s.province}</span>`:'-'}</td>
+      <td>${s.district?`<span class="ex-cell-loc">${s.district}</span>`:'-'}</td>
+      <td class="ex-cell-sales">${s.sales||'-'}</td>
+      <td>${s.phone||'-'}</td>
+      <td>${s.note||'-'}</td>
+      <td class="ex-cell-coord">${s.lat}, ${s.lng}</td>
+      <td class="ex-cell-date">${d}</td>
+    </tr>`;
+  }).join('');
+
+  // update select-all checkbox
+  const allVisible=list.every(s=>exportSelected.has(s.id));
+  document.getElementById('exSelectAll').checked=allVisible&&list.length>0;
+}
+
+function toggleExItem(id,checked){
+  if(checked) exportSelected.add(id); else exportSelected.delete(id);
+  renderExportTable();
+}
+function toggleExSelectAll(){
+  const list=getExFiltered();
+  const allChecked=list.every(s=>exportSelected.has(s.id));
+  if(allChecked) list.forEach(s=>exportSelected.delete(s.id));
+  else list.forEach(s=>exportSelected.add(s.id));
+  renderExportTable();
+}
+function addAllFiltered(){
+  const list=getExFiltered();
+  list.forEach(s=>exportSelected.add(s.id));
+  renderExportTable();
+  showToast(`เพิ่ม ${exportSelected.size} ร้าน`);
+}
+function clearExportList(){exportSelected.clear();document.getElementById('exSearch').value='';renderExportTable();}
+function updateExCount(){
+  document.getElementById('exStatSelected').textContent=exportSelected.size;
+  document.getElementById('exportCount').innerHTML=`เลือก <b>${exportSelected.size}</b> ร้าน`;
+  document.getElementById('expGoBtn').disabled=!exportSelected.size;
+  const filtered=getExFiltered();
+  const selInView=filtered.filter(s=>exportSelected.has(s.id)).length;
+  document.getElementById('exSelInfo').innerHTML=selInView?`เลือกในหน้านี้ <b>${selInView}</b>`:'';
+}
+function doExportSelected(){
+  const items=shops.filter(s=>exportSelected.has(s.id));
+  if(!items.length){showToast('ยังไม่ได้เลือกร้าน',true);return;}
+  const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
+  const rows=items.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
+  dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-export-${ds()}.csv`,'text/csv;charset=utf-8');
+  showToast(`📤 Export ${items.length} ร้านค้าแล้ว`);
 }
 
 function showToast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),2500);}
