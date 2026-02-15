@@ -63,6 +63,13 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .save-btn:disabled{opacity:0.3;pointer-events:none}
 .save-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
 
+/* ═ NEW SHOP FORM HEADER ═ */
+.new-shop-form{margin-top:8px}
+.form-header{display:flex;align-items:center;gap:10px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:12px;padding:12px;margin-bottom:10px}
+.form-header-icon{width:36px;height:36px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:white}
+.form-header-title{font-size:14px;font-weight:700;color:var(--blue)}
+.form-header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
+
 .search-bar{position:relative;margin-bottom:8px}
 .search-bar input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px 10px 36px;border-radius:10px;font-size:13px;font-family:inherit;outline:none}
 .search-bar::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px}
@@ -83,7 +90,8 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .checkin-shop-card:active{transform:scale(0.98)}
 .checkin-shop-card .csc-name{font-size:15px;font-weight:700;margin-bottom:3px}
 .checkin-shop-card .csc-info{font-size:12px;color:var(--text-dim)}
-.checkin-shop-card .csc-dist{font-size:12px;color:var(--green);font-weight:600;margin-top:4px}
+.checkin-shop-card .csc-dist{font-size:12px;color:var(--text-dim);margin-top:4px}
+.checkin-shop-card .csc-action{margin-top:8px;padding:8px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.3);border-radius:8px;text-align:center;font-size:13px;font-weight:700;color:var(--green)}
 .checkin-divider{text-align:center;color:var(--text-dim);font-size:12px;margin:14px 0;position:relative}
 .checkin-divider::before,.checkin-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 40px);height:1px;background:var(--border)}
 .checkin-divider::before{left:0}.checkin-divider::after{right:0}
@@ -169,23 +177,34 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 
 <div class="bottom-panel">
   <div class="nav-bar">
-    <div class="nav-item active" onclick="switchScreen('pin')"><span class="nav-icon">📌</span> ปักหมุด</div>
-    <div class="nav-item" onclick="switchScreen('shops')"><span class="nav-icon">📋</span> ร้านค้า</div>
+    <div class="nav-item active" onclick="switchScreen('pin')"><span class="nav-icon">📍</span> ระบุร้านค้า</div>
+    <div class="nav-item" onclick="switchScreen('shops')"><span class="nav-icon">📋</span> ร้านใกล้เคียง</div>
   </div>
 
   <!-- ══ ปักหมุด ══ -->
   <div class="screen active" id="screenPin">
-    <button class="big-gps-btn" id="gpsBtn" onclick="captureGPS()">📡 จับพิกัดปัจจุบัน</button>
-    <div class="pick-map-label">หรือแตะที่แผนที่ด้านบน</div>
-    <div class="coord-display" id="coordDisplay"><span class="coord-text empty" id="coordText">ยังไม่ได้เลือกพิกัด</span></div>
-    <div class="location-info" id="locationInfo"><div class="loc-label">📍 ที่ตั้งอัตโนมัติ</div><div class="loc-value" id="locValue">-</div></div>
-    <input class="form-input" id="fName" placeholder="ชื่อร้านค้า *" oninput="checkReady()">
-    <input class="form-input" id="fPhone" placeholder="เบอร์โทรร้าน">
-    <input class="form-input" id="fNote" placeholder="หมายเหตุ (ไม่บังคับ)">
-    <button class="save-btn" id="saveBtn" disabled>
-      📷 ถ่ายรูป & บันทึก
-      <input type="file" id="savePhotoInput" accept="image/*" capture="environment" onchange="onSavePhoto(event)">
-    </button>
+    <button class="big-gps-btn" id="gpsBtn" onclick="captureGPS()">📍 ถึงร้านแล้ว — กดระบุร้านค้า</button>
+    <div class="pick-map-label">หรือแตะที่แผนที่ด้านบนเพื่อเลือกตำแหน่ง</div>
+
+    <!-- ฟอร์มเพิ่มร้านใหม่ (ซ่อนไว้ก่อน จนกว่าจะกดจับพิกัดแล้วไม่มีร้านใกล้ หรือเลือก "เพิ่มร้านใหม่") -->
+    <div class="new-shop-form" id="newShopForm" style="display:none">
+      <div class="form-header">
+        <div class="form-header-icon">➕</div>
+        <div class="form-header-text">
+          <div class="form-header-title">เพิ่มร้านค้าใหม่</div>
+          <div class="form-header-sub" id="formHeaderSub">กรอกข้อมูลร้านแล้วถ่ายรูปเพื่อบันทึก</div>
+        </div>
+      </div>
+      <div class="coord-display" id="coordDisplay"><span class="coord-text empty" id="coordText">ยังไม่ได้เลือกพิกัด</span></div>
+      <div class="location-info" id="locationInfo"><div class="loc-label">📍 ที่ตั้งอัตโนมัติ</div><div class="loc-value" id="locValue">-</div></div>
+      <input class="form-input" id="fName" placeholder="ชื่อร้านค้า *" oninput="checkReady()">
+      <input class="form-input" id="fPhone" placeholder="เบอร์โทรร้าน">
+      <input class="form-input" id="fNote" placeholder="หมายเหตุ (ไม่บังคับ)">
+      <button class="save-btn" id="saveBtn" disabled>
+        📷 ถ่ายรูป & บันทึกร้านใหม่
+        <input type="file" id="savePhotoInput" accept="image/*" capture="environment" onchange="onSavePhoto(event)">
+      </button>
+    </div>
   </div>
 
   <!-- ══ ร้านค้า (เฉพาะ 100 เมตร) ══ -->
@@ -200,8 +219,8 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 <div class="checkin-modal" id="checkinModal">
   <div class="checkin-sheet">
     <div class="checkin-sheet-handle"></div>
-    <div class="checkin-title">📍 พบร้านค้าใกล้เคียง</div>
-    <div class="checkin-subtitle">คุณอยู่ใกล้ร้านด้านล่าง — ต้องการเช็คอินหรือเพิ่มร้านใหม่?</div>
+    <div class="checkin-title">✅ พบร้านค้าใกล้เคียง!</div>
+    <div class="checkin-subtitle">เลือกร้านเพื่อ <b>เช็คอิน</b> หรือกด <b>เพิ่มร้านใหม่</b> ถ้าไม่ใช่ร้านเหล่านี้</div>
     <div id="checkinShopList"></div>
     <div class="checkin-divider">หรือ</div>
     <button class="checkin-new-btn" onclick="closeCheckinModal();proceedAddNew()">➕ เพิ่มร้านค้าใหม่</button>
@@ -241,7 +260,8 @@ L.control.zoom({position:'topright'}).addTo(map);
 
 map.on('click',e=>{
   selectedLat=+e.latlng.lat.toFixed(6);selectedLng=+e.latlng.lng.toFixed(6);
-  updateCoord();placeTempPin(selectedLat,selectedLng);checkReady();switchScreen('pin');
+  updateCoord();placeTempPin(selectedLat,selectedLng);switchScreen('pin');
+  showNewShopForm('เลือกตำแหน่งจากแผนที่แล้ว — กรอกข้อมูลเพื่อเพิ่มร้านใหม่');
   reverseGeocode(selectedLat,selectedLng);
 });
 
@@ -342,7 +362,8 @@ function haversine(lat1,lon1,lat2,lon2){const R=6371000,dLat=(lat2-lat1)*Math.PI
 
 // ══════ GPS — จับพิกัด + ตรวจร้านใกล้ ══════
 function captureGPS(){
-  const btn=document.getElementById('gpsBtn');btn.classList.add('loading');btn.textContent='⏳ กำลังจับพิกัด...';
+  const btn=document.getElementById('gpsBtn');btn.classList.add('loading');btn.textContent='⏳ กำลังระบุตำแหน่ง...';
+  document.getElementById('newShopForm').style.display='none'; // ซ่อนฟอร์มก่อน
   if(!navigator.geolocation){showToast('เบราว์เซอร์ไม่รองรับ GPS',true);resetGps();return;}
   navigator.geolocation.getCurrentPosition(p=>{
     selectedLat=+p.coords.latitude.toFixed(6);selectedLng=+p.coords.longitude.toFixed(6);
@@ -355,7 +376,9 @@ function captureGPS(){
     if(nearby.length>0){
       showCheckinModal(nearby);
     }else{
-      checkReady();showToast('จับพิกัดสำเร็จ! (ไม่พบร้านใกล้เคียง)');
+      // ไม่พบร้านใกล้ → แสดงฟอร์มเพิ่มร้านใหม่
+      showNewShopForm('ไม่พบร้านค้าใกล้เคียง — กรอกข้อมูลเพื่อเพิ่มร้านใหม่');
+      showToast('ไม่พบร้านใกล้เคียง → เพิ่มร้านใหม่');
     }
   },e=>{
     let msg='';
@@ -368,7 +391,12 @@ function captureGPS(){
     showToast(msg,true);resetGps();
   },{enableHighAccuracy:true,timeout:15000});
 }
-function resetGps(){const b=document.getElementById('gpsBtn');b.classList.remove('loading');b.textContent='📡 จับพิกัดปัจจุบัน';}
+function resetGps(){const b=document.getElementById('gpsBtn');b.classList.remove('loading');b.textContent='📍 ถึงร้านแล้ว — กดระบุร้านค้า';}
+function showNewShopForm(subtitle){
+  document.getElementById('newShopForm').style.display='block';
+  document.getElementById('formHeaderSub').textContent=subtitle||'กรอกข้อมูลร้านแล้วถ่ายรูปเพื่อบันทึก';
+  checkReady();
+}
 
 // ══════ CHECK-IN MODAL — แสดงร้านใกล้ถาม เช็คอิน? ══════
 let pendingCheckinShops=[];
@@ -383,16 +411,17 @@ function showCheckinModal(nearbyShops){
     return `<div class="checkin-shop-card" onclick="doCheckin('${s.id}')">
       <div class="csc-name">${s.name}</div>
       <div class="csc-info">${info.join(' · ')}</div>
-      <div class="csc-dist">📏 ${Math.round(s.dist)} เมตร — กดเพื่อเช็คอิน</div>
+      <div class="csc-dist">📏 ${Math.round(s.dist)} เมตร</div>
+      <div class="csc-action">✅ กดเพื่อเช็คอินร้านนี้</div>
     </div>`;
   }).join('');
   document.getElementById('checkinModal').classList.add('show');
 }
 function closeCheckinModal(){document.getElementById('checkinModal').classList.remove('show');}
 
-// กด "เพิ่มร้านใหม่" → ปิด modal แล้ว flow ปกติ
+// กด "เพิ่มร้านใหม่" → ปิด modal แล้วแสดงฟอร์ม
 function proceedAddNew(){
-  checkReady();
+  showNewShopForm('ร้านนี้ยังไม่มีในระบบ — กรอกข้อมูลเพื่อเพิ่มร้านใหม่');
   showToast('กรอกข้อมูลร้านใหม่ แล้วกดถ่ายรูป & บันทึก');
 }
 
@@ -466,6 +495,7 @@ function onSavePhoto(e){
       // Clear form
       document.getElementById('fName').value='';document.getElementById('fPhone').value='';document.getElementById('fNote').value='';
       selectedLat=null;selectedLng=null;detectedProvince='';detectedDistrict='';updateCoord();document.getElementById('saveBtn').disabled=true;
+      document.getElementById('newShopForm').style.display='none'; // ซ่อนฟอร์ม
       if(tempMarker){map.removeLayer(tempMarker);tempMarker=null;}
 
       apiPost('addShop',{data:shop}).then(r=>{if(!r)showToast('⚠️ บันทึกลง Sheet ไม่สำเร็จ',true);});
