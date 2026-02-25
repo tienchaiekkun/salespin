@@ -136,6 +136,11 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
 .setup-select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:12px;font-size:15px;font-family:inherit;text-align:center;outline:none;margin-bottom:14px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237b829e'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center}
 .setup-btn{width:100%;padding:13px;background:var(--blue);border:none;border-radius:12px;color:white;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer}
 .setup-btn:disabled{opacity:0.3}
+.setup-btn.loading{opacity:0.6;pointer-events:none}
+.setup-pin{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:14px 16px;border-radius:12px;font-size:22px;font-family:inherit;text-align:center;outline:none;margin-bottom:14px;letter-spacing:12px;font-weight:700}
+.setup-pin:focus{border-color:var(--blue)}
+.setup-pin.error{border-color:var(--red);animation:shake 0.4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .setup-warning{font-size:12px;color:var(--orange);margin-bottom:14px;padding:10px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:10px;display:none}
 .setup-loading{font-size:12px;color:var(--text-dim);margin-bottom:14px}
 
@@ -154,10 +159,11 @@ body{font-family:'IBM Plex Sans Thai',sans-serif;background:var(--bg);color:var(
   <div class="setup-card">
     <div class="app-icon">📍</div>
     <h2>Sales Pin</h2>
-    <p>เลือกชื่อของคุณเพื่อเริ่มใช้งาน</p>
+    <p>เลือกชื่อแล้วกรอกรหัสผ่านเพื่อเข้าใช้งาน</p>
     <div class="setup-loading" id="setupLoading">⏳ กำลังโหลดรายชื่อ...</div>
     <div class="setup-warning" id="setupWarning"></div>
-    <select class="setup-select" id="setupSelect" onchange="document.getElementById('setupBtn').disabled=!this.value" style="display:none"><option value="">-- เลือกชื่อเซลล์ --</option></select>
+    <select class="setup-select" id="setupSelect" onchange="onSetupChange()" style="display:none"><option value="">-- เลือกชื่อเซลล์ --</option></select>
+    <input class="setup-pin" id="setupPin" type="tel" inputmode="numeric" maxlength="4" placeholder="รหัสผ่าน 4 หลัก" oninput="onSetupChange()" style="display:none">
     <button class="setup-btn" id="setupBtn" disabled onclick="completeSetup()" style="display:none">เข้าใช้งาน</button>
   </div>
 </div>
@@ -284,13 +290,27 @@ async function reverseGeocode(lat,lng){
 }
 
 // ══════ API (มี timeout 10 วินาที) ══════
-function fetchWithTimeout(url,opts={},ms=10000){
+function fetchWithTimeout(url,opts={},ms=15000){
   const ctrl=new AbortController();
   const timer=setTimeout(()=>ctrl.abort(),ms);
   return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
 }
-async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetchWithTimeout(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('API error:',e);return null;}}
-async function apiPost(action,data){if(!API_URL)return null;try{const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('API error:',e);return null;}}
+async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetchWithTimeout(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('GET error ['+action+']:',e.message);return null;}}
+async function apiPost(action,data){
+  if(!API_URL)return {_err:'NO_API_URL'};
+  try{
+    const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});
+    const txt=await r.text();
+    try{
+      const j=JSON.parse(txt);
+      if(j.ok)return j.data;
+      return {_err:'SERVER: '+(j.error||'unknown')};
+    }catch(pe){return {_err:'PARSE: '+txt.substring(0,100)};}
+  }catch(e){
+    if(e.name==='AbortError')return {_err:'TIMEOUT (15วินาที)'};
+    return {_err:e.message||'NETWORK'};
+  }
+}
 
 // ══════ SHOP CACHE (localStorage 30 นาที) ══════
 function getCachedShops(){
@@ -347,14 +367,60 @@ async function loadAllShops(){
 }
 
 function populateDropdown(){
-  const sel=document.getElementById('setupSelect'),ld=document.getElementById('setupLoading'),w=document.getElementById('setupWarning');ld.style.display='none';
+  const sel=document.getElementById('setupSelect'),ld=document.getElementById('setupLoading'),w=document.getElementById('setupWarning'),pin=document.getElementById('setupPin');
+  ld.style.display='none';
   if(!salesTeam.length){w.style.display='block';w.innerHTML='⚠️ ยังไม่มีรายชื่อเซลล์<br>กรุณาแจ้งแอดมินเพิ่มชื่อก่อน';return;}
-  w.style.display='none';sel.style.display='block';document.getElementById('setupBtn').style.display='block';
+  w.style.display='none';sel.style.display='block';pin.style.display='block';document.getElementById('setupBtn').style.display='block';
   sel.innerHTML='<option value="">-- เลือกชื่อเซลล์ --</option>';
   salesTeam.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;if(n===salesName)o.selected=true;sel.appendChild(o);});
-  if(salesName&&salesTeam.includes(salesName))document.getElementById('setupBtn').disabled=false;
+  pin.value='';pin.classList.remove('error');
+  onSetupChange();
 }
-function completeSetup(){const v=document.getElementById('setupSelect').value;if(!v)return;salesName=v;localStorage.setItem('salespin-myname',salesName);document.getElementById('setupOverlay').classList.add('hidden');document.getElementById('salesNameDisplay').textContent='👤 '+salesName;showToast('สวัสดี '+salesName+'!');loadAllShops();}
+function onSetupChange(){
+  const name=document.getElementById('setupSelect').value;
+  const pin=document.getElementById('setupPin').value;
+  document.getElementById('setupBtn').disabled=!(name && pin.length===4);
+  document.getElementById('setupPin').classList.remove('error');
+  document.getElementById('setupWarning').style.display='none';
+}
+async function completeSetup(){
+  const name=document.getElementById('setupSelect').value;
+  const pin=document.getElementById('setupPin').value;
+  if(!name||pin.length!==4)return;
+
+  const btn=document.getElementById('setupBtn');
+  btn.classList.add('loading');btn.textContent='⏳ กำลังตรวจสอบ...';
+
+  const result=await apiPost('verifyPin',{name,pin});
+  btn.classList.remove('loading');btn.textContent='เข้าใช้งาน';
+
+  if(result&&result._err){
+    // Network/server error
+    document.getElementById('setupWarning').style.display='block';
+    document.getElementById('setupWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+result._err;
+    document.getElementById('setupBtn').disabled=false;
+    return;
+  }
+
+  if(!result||!result.valid){
+    // PIN ไม่ถูก
+    const msg=(result&&result.message)||'รหัสผ่านไม่ถูกต้อง';
+    document.getElementById('setupPin').classList.add('error');
+    document.getElementById('setupPin').value='';
+    document.getElementById('setupWarning').style.display='block';
+    document.getElementById('setupWarning').textContent='❌ '+msg;
+    document.getElementById('setupBtn').disabled=true;
+    return;
+  }
+
+  // สำเร็จ!
+  salesName=name;
+  localStorage.setItem('salespin-myname',salesName);
+  document.getElementById('setupOverlay').classList.add('hidden');
+  document.getElementById('salesNameDisplay').textContent='👤 '+salesName;
+  showToast('สวัสดี '+salesName+'!');
+  loadAllShops();
+}
 function showSetup(){populateDropdown();document.getElementById('setupOverlay').classList.remove('hidden');}
 
 // ══════ HAVERSINE ══════
@@ -450,7 +516,7 @@ function doCheckin(shopId){
           checkinAt:new Date().toISOString()
         };
         apiPost('addCheckin',{data:checkinData}).then(r=>{
-          if(!r)showToast('⚠️ บันทึกเช็คอินไม่สำเร็จ',true);
+          if(r&&r._err)showToast('⚠️ เช็คอินไม่สำเร็จ: '+r._err,true);
         });
 
         lastPhotoShop=shop;
@@ -498,7 +564,10 @@ function onSavePhoto(e){
       document.getElementById('newShopForm').style.display='none'; // ซ่อนฟอร์ม
       if(tempMarker){map.removeLayer(tempMarker);tempMarker=null;}
 
-      apiPost('addShop',{data:shop}).then(r=>{if(!r)showToast('⚠️ บันทึกลง Sheet ไม่สำเร็จ',true);});
+      apiPost('addShop',{data:shop}).then(r=>{
+        if(r&&r._err)showToast('⚠️ บันทึกไม่สำเร็จ: '+r._err,true);
+        else if(r)showToast('✅ บันทึกร้านลงระบบแล้ว');
+      });
 
       lastPhotoShop=shop;
       showPhotoModal(shop,false);
