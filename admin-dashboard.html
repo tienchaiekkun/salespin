@@ -141,6 +141,23 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 .pin-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:14px;font-family:inherit;outline:none;letter-spacing:4px;text-align:center}
 .pin-input:focus{border-color:var(--blue)}
 
+/* ══ ADMIN MANAGEMENT (owner only) ══ */
+.admin-card{display:flex;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:6px}
+.admin-card .admin-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.admin-card .admin-avatar.owner-av{background:var(--orange-bg);border:1px solid rgba(251,191,36,0.3)}
+.admin-card .admin-avatar.admin-av{background:var(--blue-bg);border:1px solid var(--blue-border)}
+.admin-card .admin-card-info{flex:1}
+.admin-card .admin-card-name{font-size:14px;font-weight:600}
+.admin-card .admin-card-meta{font-size:12px;color:var(--text-dim)}
+.role-badge{display:inline-block;padding:1px 8px;border-radius:6px;font-size:10px;font-weight:600;margin-left:6px}
+.role-badge.owner{background:var(--orange-bg);color:var(--orange);border:1px solid rgba(251,191,36,0.3)}
+.role-badge.admin{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.admin-add-form{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.admin-add-form input,.admin-add-form select{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit;outline:none}
+.admin-add-form input:focus,.admin-add-form select:focus{border-color:var(--blue)}
+.owner-only{display:none}
+.owner-only.show{display:block}
+
 /* ══ EXPORT FULL-SCREEN OVERLAY (warm tone) ══ */
 .export-overlay{display:none;position:fixed;inset:0;z-index:4000;background:#0d0f08;flex-direction:column}
 .export-overlay.show{display:flex}
@@ -295,7 +312,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
   </div>
   <div class="header-actions">
     <button class="h-btn" id="refreshBtn" onclick="refreshData()">🔄 รีเฟรช</button>
-    <button class="h-btn" onclick="checkDuplicates()">🔍 ตรวจร้านซ้ำ</button>
+    <button class="h-btn" id="dupCheckBtn" onclick="checkDuplicates()" style="display:none">🔍 ตรวจร้านซ้ำ</button>
     <button class="h-btn" onclick="showImportModal()">📥 นำเข้า CSV</button>
     <button class="h-btn" onclick="openExportPage()">📦 Export</button>
     <button class="h-btn danger" id="bulkDeleteBtn" onclick="bulkDelete()">🗑️ ลบที่เลือก</button>
@@ -363,14 +380,32 @@ tr.selected td{background:rgba(79,140,255,0.12)}
             </div>
           </div>
 
-          <div class="settings-section">
-            <div class="settings-section-title">🔐 เปลี่ยนรหัสแอดมิน</div>
-            <div class="settings-section-desc">เปลี่ยนรหัสผ่านเข้าหน้าแอดมิน (แนะนำให้เปลี่ยนเมื่อมีคนลาออก)</div>
+          <div class="settings-section" id="changePinSection" style="display:none">
+            <div class="settings-section-title">🔐 เปลี่ยนรหัสของฉัน</div>
+            <div class="settings-section-desc">เปลี่ยนรหัสผ่านเข้าหน้าแอดมินของคุณ</div>
             <div class="pin-row">
               <input class="pin-input" id="oldPinInput" type="password" placeholder="รหัสเดิม">
               <input class="pin-input" id="newPinInput" type="password" placeholder="รหัสใหม่">
               <button class="add-sales-btn" onclick="changePin()">🔄 เปลี่ยน</button>
             </div>
+          </div>
+
+          <div class="settings-section owner-only" id="adminMgmtSection">
+            <div class="settings-section-title">🛡️ จัดการแอดมิน <span class="role-badge owner">เจ้าของเท่านั้น</span></div>
+            <div class="settings-section-desc">เพิ่ม/ลบแอดมินที่สามารถเข้าหน้า Admin ได้ แต่ละคนมีรหัสแยก</div>
+            <div class="admin-add-form" id="adminAddForm">
+              <input id="newAdminName" placeholder="ชื่อแอดมิน" style="flex:1">
+              <input id="newAdminPin" type="password" placeholder="รหัส (≥4 หลัก)" style="width:130px">
+              <select id="newAdminProv">
+                <option value="">จังหวัดที่ดูแล</option>
+                <option value="เชียงใหม่">เชียงใหม่</option>
+                <option value="เชียงราย">เชียงราย</option>
+                <option value="แพร่">แพร่</option>
+                <option value="ทั้งหมด">ทั้งหมด</option>
+              </select>
+              <button class="add-sales-btn" onclick="addNewAdmin()">➕ เพิ่ม</button>
+            </div>
+            <div id="adminCardList"></div>
           </div>
 
           <div class="settings-section">
@@ -503,7 +538,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 
 <script>
 let shops=[],salesTeam=[],selected=new Set(),sortField='createdAt',sortDir=-1,editingId=null,csvRows=[];
-let adminName='';
+let adminName='',adminRole='',adminProvince='';
 let API_URL=localStorage.getItem('salesmap-api-url')||'https://script.google.com/macros/s/AKfycbyWJGCku3wxI0tR0l0CX3RGj7P8OT_ccbTaCVu82Cuqe3tJC4ar7SZDfsuCLO8Yeb8J/exec';
 
 // ══════ XSS PROTECTION ══════
@@ -513,7 +548,7 @@ function esc(s){if(!s)return '';const d=document.createElement('div');d.textCont
 function checkAdminAuth(){
   const auth=sessionStorage.getItem('salesmap-admin-auth');
   if(auth){
-    try{const d=JSON.parse(auth);if(d&&d.loggedIn){adminName=d.adminName||'Admin';return true;}}catch(e){}
+    try{const d=JSON.parse(auth);if(d&&d.loggedIn){adminName=d.adminName||'Admin';adminRole=d.role||'admin';adminProvince=d.province||'';return true;}}catch(e){}
   }
   return false;
 }
@@ -550,33 +585,54 @@ async function doAdminLogin(){
 
   // สำเร็จ
   adminName=name;
-  sessionStorage.setItem('salesmap-admin-auth',JSON.stringify({loggedIn:true,adminName:name}));
+  adminRole=result.role||'admin';
+  adminProvince=result.province||'';
+  sessionStorage.setItem('salesmap-admin-auth',JSON.stringify({loggedIn:true,adminName:name,role:adminRole,province:adminProvince}));
   document.getElementById('adminLoginOverlay').classList.add('hidden');
-  document.getElementById('adminBadge').textContent='👤 '+esc(adminName);
+  const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
+  const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
+  document.getElementById('adminBadge').textContent='👤 '+esc(adminName)+' ('+roleLabel+provLabel+')';
   showToast('สวัสดี '+name+'!');
+  // แสดงส่วนจัดการแอดมินถ้าเป็น owner
+  if(adminRole==='owner'){
+    document.getElementById('adminMgmtSection').classList.add('show');
+    document.getElementById('dupCheckBtn').style.display='';
+    document.getElementById('changePinSection').style.display='';
+  }else{
+    document.getElementById('adminMgmtSection').classList.remove('show');
+    document.getElementById('dupCheckBtn').style.display='none';
+    document.getElementById('changePinSection').style.display='none';
+  }
 
-  // บันทึก audit
-  apiPost('logAudit',{data:{adminName:name,action:'login',details:'เข้าสู่ระบบ'}});
+  apiPost('logAudit',{data:{adminName:name,action:'login',details:'เข้าสู่ระบบ ('+roleLabel+provLabel+')'}});
 
   init();
+  if(adminRole==='owner')setTimeout(()=>loadAdminList(),500);
 }
 function doAdminLogout(){
   if(!confirm('ออกจากระบบ?'))return;
   apiPost('logAudit',{data:{adminName,action:'logout',details:'ออกจากระบบ'}});
   sessionStorage.removeItem('salesmap-admin-auth');
-  adminName='';
+  adminName='';adminRole='';adminProvince='';
   document.getElementById('adminLoginOverlay').classList.remove('hidden');
+  document.getElementById('adminMgmtSection').classList.remove('show');
   document.getElementById('loginPin').value='';
   document.getElementById('loginName').value='';
   document.getElementById('loginWarning').style.display='none';
 }
 
-// ══════ MAP ══════
-const map=L.map('adminMap',{center:[18.7883,98.9853],zoom:9});
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
-let markers={};
+// ══════ MAP (LAZY LOAD — ไม่โหลดจนกว่าจะกดแท็บแผนที่) ══════
+let map=null,markers={},mapInitialized=false;
+function initMapIfNeeded(){
+  if(mapInitialized)return;
+  mapInitialized=true;
+  map=L.map('adminMap',{center:[18.7883,98.9853],zoom:9});
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
+  setTimeout(()=>{map.invalidateSize();renderMarkers();},200);
+}
 function pinIcon(){return L.divIcon({className:'',html:'<div class="admin-pin"></div>',iconSize:[22,22],iconAnchor:[11,22],popupAnchor:[0,-22]})}
 function renderMarkers(){
+  if(!map)return;
   Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
   getFiltered().forEach(s=>{
     const m=L.marker([s.lat,s.lng],{icon:pinIcon()}).addTo(map);
@@ -636,11 +692,11 @@ async function changePin(){
   const newP=document.getElementById('newPinInput').value.trim();
   if(!oldP||!newP){showToast('กรุณากรอกรหัสเดิมและใหม่',true);return;}
   if(newP.length<4){showToast('รหัสใหม่ต้องมีอย่างน้อย 4 หลัก',true);return;}
-  const r=await apiPost('changeAdminPin',{oldPin:oldP,newPin:newP});
+  const r=await apiPost('changeAdminPin',{name:adminName,oldPin:oldP,newPin:newP});
   if(r&&r.ok){
     showToast('✅ เปลี่ยนรหัสสำเร็จ');
     document.getElementById('oldPinInput').value='';document.getElementById('newPinInput').value='';
-    apiPost('logAudit',{data:{adminName,action:'changePin',details:'เปลี่ยนรหัสแอดมิน'}});
+    apiPost('logAudit',{data:{adminName,action:'changePin',details:'เปลี่ยนรหัสของตัวเอง'}});
   }else{
     showToast('❌ '+(r&&r.message?r.message:'เปลี่ยนไม่ได้'),true);
   }
@@ -759,7 +815,7 @@ function renderTable(){
         <button class="row-btn" onclick="focusMap('${esc(s.id)}')">🗺️</button>
         <button class="row-btn" onclick="window.open('https://www.google.com/maps?q=${s.lat},${s.lng}','_blank')">🧭</button>
         <button class="row-btn" onclick="editShop('${esc(s.id)}')">✏️</button>
-        <button class="row-btn del" onclick="deleteShop('${esc(s.id)}')">🗑️</button>
+        ${adminRole==='owner'?'<button class="row-btn del" onclick="deleteShop(\''+esc(s.id)+'\')">🗑️</button>':''}
       </div></td></tr>`;
   }).join('');
   updateSelection();renderMarkers();
@@ -769,10 +825,11 @@ function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.
 function toggleSelectAll(){const a=document.getElementById('selectAll').checked;if(a)getFiltered().forEach(s=>selected.add(s.id));else selected.clear();renderTable();}
 function updateSelection(){
   const i=document.getElementById('selectionInfo'),b=document.getElementById('bulkDeleteBtn');
-  if(selected.size){i.innerHTML=`เลือก <b>${selected.size}</b> รายการ`;b.style.display='flex';}
+  if(selected.size&&adminRole==='owner'){i.innerHTML=`เลือก <b>${selected.size}</b> รายการ`;b.style.display='flex';}
   else{i.textContent=`${getFiltered().length} / ${shops.length}`;b.style.display='none';}
 }
 async function bulkDelete(){
+  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
   if(!confirm(`ลบ ${selected.size} รายการ?`))return;
   const ids=[...selected];const count=ids.length;
   shops=shops.filter(s=>!selected.has(s.id));selected.clear();renderAll();
@@ -781,8 +838,9 @@ async function bulkDelete(){
   showToast('ลบเรียบร้อย');
 }
 
-function focusMap(id){const s=shops.find(x=>x.id===id);if(s){switchRight('map');setTimeout(()=>{map.invalidateSize();map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();},150);}}
+function focusMap(id){const s=shops.find(x=>x.id===id);if(s){switchRight('map');setTimeout(()=>{initMapIfNeeded();if(map){map.invalidateSize();map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();}},200);}}
 async function deleteShop(id){
+  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
   const s=shops.find(x=>x.id===id);if(!s||!confirm(`ลบ "${s.name}" ?`))return;
   shops=shops.filter(x=>x.id!==id);selected.delete(id);renderAll();
   await apiPost('deleteShop',{id});
@@ -853,6 +911,7 @@ function closeModal(id){document.getElementById(id).classList.remove('show');}
 
 // ══════ DUPLICATE CHECK ══════
 async function checkDuplicates(){
+  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ตรวจร้านซ้ำได้',true);return;}
   document.getElementById('dupModal').classList.add('show');
   document.getElementById('dupContent').innerHTML='<div class="dup-loading">⏳ กำลังตรวจสอบร้านค้าทั้งหมด...</div>';
   const data=await apiGet('getDuplicates');
@@ -885,6 +944,7 @@ async function checkDuplicates(){
   document.getElementById('dupContent').innerHTML=html;
 }
 async function deleteDupShop(id,pairIdx,side){
+  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
   const s=shops.find(x=>x.id===id);
   if(!s||!confirm(`ลบ "${s.name}" ?`))return;
   shops=shops.filter(x=>x.id!==id);renderAll();
@@ -974,8 +1034,8 @@ function switchRight(tab){
   document.querySelectorAll('.right-tab').forEach((el,i)=>el.classList.toggle('active',(tab==='map'&&i===0)||(tab==='settings'&&i===1)));
   document.getElementById('rightMap').classList.toggle('active',tab==='map');
   document.getElementById('rightSettings').classList.toggle('active',tab==='settings');
-  if(tab==='map')setTimeout(()=>map.invalidateSize(),100);
-  if(tab==='settings')renderTeamList();
+  if(tab==='map'){initMapIfNeeded();setTimeout(()=>{if(map)map.invalidateSize();},100);}
+  if(tab==='settings'){renderTeamList();if(adminRole==='owner')loadAdminList();}
 }
 
 // ══════ EXPORT FULL-SCREEN ══════
@@ -1064,7 +1124,13 @@ function toggleExSelectAll(){
   if(allChecked)list.forEach(s=>exportSelected.delete(s.id));else list.forEach(s=>exportSelected.add(s.id));
   renderExportTable();renderExportRight();
 }
-function addAllFiltered(){const list=getExFiltered();list.forEach(s=>exportSelected.add(s.id));renderExportTable();renderExportRight();showToast(`เพิ่ม ${exportSelected.size} ร้าน`);}
+function addAllFiltered(){
+  const list=getExFiltered();list.forEach(s=>exportSelected.add(s.id));
+  // แจ้งเตือนถ้า admin เลือกเกิน 50
+  if(adminRole!=='owner'&&exportSelected.size>50){showToast('⚠️ เลือก '+exportSelected.size+' ร้าน — export ได้ไม่เกิน 50 ร้าน/ครั้ง',true);}
+  else{showToast(`เพิ่ม ${exportSelected.size} ร้าน`);}
+  renderExportTable();renderExportRight();
+}
 function clearExportList(){exportSelected.clear();document.getElementById('exSearch').value='';document.getElementById('exSearchRight').value='';renderExportTable();renderExportRight();}
 function updateExCount(){
   document.getElementById('exRightBadge').textContent=exportSelected.size+' ร้าน';
@@ -1074,6 +1140,8 @@ function updateExCount(){
 function doExportSelected(){
   const items=shops.filter(s=>exportSelected.has(s.id));
   if(!items.length){showToast('ยังไม่ได้เลือกร้าน',true);return;}
+  // ═══ จำกัด 50 ร้าน/ครั้ง สำหรับ admin (owner ไม่จำกัด) ═══
+  if(adminRole!=='owner'&&items.length>50){showToast('❌ ดึงข้อมูลได้ไม่เกิน 50 ร้าน/ครั้ง (เลือกอยู่ '+items.length+' ร้าน)',true);return;}
   const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
   const rows=items.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
   dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-export-${ds()}.csv`,'text/csv;charset=utf-8');
@@ -1083,15 +1151,70 @@ function doExportSelected(){
   showToast(`📤 Export ${items.length} ร้านค้าแล้ว`);
 }
 
+// ══════ ADMIN MANAGEMENT (owner only) ══════
+async function loadAdminList(){
+  const data=await apiGet('getAdminList');
+  if(data)renderAdminCards(data);
+}
+function renderAdminCards(list){
+  const el=document.getElementById('adminCardList');
+  if(!list||!list.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">ยังไม่มีรายชื่อแอดมิน</div>';return;}
+  el.innerHTML=list.map(a=>{
+    const isOwner=a.role==='owner';
+    const avClass=isOwner?'owner-av':'admin-av';
+    const roleClass=isOwner?'owner':'admin';
+    const roleText=isOwner?'เจ้าของ':'แอดมิน';
+    const removeBtn=isOwner?'':'<button class="member-remove" onclick="removeAdminMember(\''+esc(a.name).replace(/'/g,"\\'")+'\')">✕ ลบ</button>';
+    return `<div class="admin-card">
+      <div class="admin-avatar ${avClass}">${isOwner?'👑':'👤'}</div>
+      <div class="admin-card-info">
+        <div class="admin-card-name">${esc(a.name)} <span class="role-badge ${roleClass}">${roleText}</span></div>
+        <div class="admin-card-meta">📍 ${esc(a.province)||'-'}</div>
+      </div>
+      ${removeBtn}
+    </div>`;
+  }).join('');
+}
+async function addNewAdmin(){
+  const name=document.getElementById('newAdminName').value.trim();
+  const pin=document.getElementById('newAdminPin').value.trim();
+  const prov=document.getElementById('newAdminProv').value;
+  if(!name||!pin){showToast('กรุณากรอกชื่อและรหัสผ่าน',true);return;}
+  if(pin.length<4){showToast('รหัสต้องมีอย่างน้อย 4 หลัก',true);return;}
+  const r=await apiPost('addAdmin',{data:{name,pin,role:'admin',province:prov},requestedBy:adminName});
+  if(r&&r.ok){
+    showToast('✅ '+r.message);
+    document.getElementById('newAdminName').value='';document.getElementById('newAdminPin').value='';document.getElementById('newAdminProv').value='';
+    apiPost('logAudit',{data:{adminName,action:'addAdmin',details:'เพิ่มแอดมิน "'+name+'" ('+prov+')'}});
+    loadAdminList();
+  }else{showToast('❌ '+(r&&r.message?r.message:'เพิ่มไม่ได้'),true);}
+}
+async function removeAdminMember(name){
+  if(!confirm('ลบแอดมิน "'+name+'" ?\nแอดมินคนนี้จะเข้าระบบไม่ได้อีก'))return;
+  const r=await apiPost('removeAdmin',{name,requestedBy:adminName});
+  if(r&&r.ok){
+    showToast('✅ '+r.message);
+    apiPost('logAudit',{data:{adminName,action:'removeAdmin',details:'ลบแอดมิน "'+name+'"'}});
+    loadAdminList();
+  }else{showToast('❌ '+(r&&r.message?r.message:'ลบไม่ได้'),true);}
+}
+
 function showToast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ══════ START ══════
 if(checkAdminAuth()){
   document.getElementById('adminLoginOverlay').classList.add('hidden');
-  document.getElementById('adminBadge').textContent='👤 '+adminName;
+  const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
+  const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
+  document.getElementById('adminBadge').textContent='👤 '+adminName+' ('+roleLabel+provLabel+')';
+  if(adminRole==='owner'){
+    document.getElementById('adminMgmtSection').classList.add('show');
+    document.getElementById('dupCheckBtn').style.display='';
+    document.getElementById('changePinSection').style.display='';
+  }
   init();
+  setTimeout(()=>loadAdminList(),1000);
 }
-setTimeout(()=>map.invalidateSize(),150);
 </script>
 </body>
 </html>
