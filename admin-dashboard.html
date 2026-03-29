@@ -567,7 +567,7 @@ async function doAdminLogin(){
   const btn=document.getElementById('loginBtn');
   btn.classList.add('loading');btn.textContent='⏳ กำลังตรวจสอบ...';
 
-  const result=await apiPost('verifyAdminPin',{pin});
+  const result=await apiPost('verifyAdminPin',{name,pin});
   btn.classList.remove('loading');btn.textContent='🔐 เข้าสู่ระบบ';
 
   if(!result||result._err){
