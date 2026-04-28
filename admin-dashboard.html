@@ -292,246 +292,246 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 
 <!-- ══ ADMIN LOGIN OVERLAY ══ -->
 <div class="admin-login-overlay" id="adminLoginOverlay">
-  <div class="admin-login-card">
-    <div class="login-icon">🔐</div>
-    <h2>Sales Map Admin</h2>
-    <p>กรอกชื่อและรหัสผ่านแอดมินเพื่อเข้าใช้งาน</p>
-    <div class="login-warning" id="loginWarning"></div>
-    <input class="login-input" id="loginName" placeholder="ชื่อแอดมิน" oninput="onLoginInput()">
-    <input class="login-input" id="loginPin" type="password" placeholder="รหัสผ่านแอดมิน" oninput="onLoginInput()" onkeydown="if(event.key==='Enter')doAdminLogin()">
-    <button class="login-btn" id="loginBtn" disabled onclick="doAdminLogin()">🔐 เข้าสู่ระบบ</button>
-  </div>
+<div class="admin-login-card">
+<div class="login-icon">🔐</div>
+<h2>Sales Map Admin</h2>
+<p>กรอกชื่อและรหัสผ่านแอดมินเพื่อเข้าใช้งาน</p>
+<div class="login-warning" id="loginWarning"></div>
+<input class="login-input" id="loginName" placeholder="ชื่อแอดมิน" autocomplete="username" oninput="onLoginInput()">
+<input class="login-input" id="loginPin" type="password" placeholder="รหัสผ่านแอดมิน" autocomplete="current-password" oninput="onLoginInput()" onkeydown="if(event.key==='Enter')doAdminLogin()">
+<button class="login-btn" id="loginBtn" disabled onclick="doAdminLogin()">🔐 เข้าสู่ระบบ</button>
+</div>
 </div>
 
 <div class="header">
-  <div class="header-left">
-    <div class="logo-mark">📍</div>
-    <h1>Sales Map Admin <small>ระบบจัดการข้อมูลร้านค้า</small></h1>
-    <span class="conn-status" id="connStatus">⏳ กำลังเชื่อมต่อ...</span>
-    <span class="admin-name-badge" id="adminBadge" onclick="doAdminLogout()" title="คลิกเพื่อออกจากระบบ">👤 -</span>
-  </div>
-  <div class="header-actions">
-    <button class="h-btn" id="refreshBtn" onclick="refreshData()">🔄 รีเฟรช</button>
-    <button class="h-btn" id="dupCheckBtn" onclick="checkDuplicates()" style="display:none">🔍 ตรวจร้านซ้ำ</button>
-    <button class="h-btn" onclick="showImportModal()">📥 นำเข้า CSV</button>
-    <button class="h-btn" onclick="openExportPage()">📦 Export</button>
-    <button class="h-btn danger" id="bulkDeleteBtn" onclick="bulkDelete()">🗑️ ลบที่เลือก</button>
-    <button class="h-btn primary" onclick="showAddModal()">➕ เพิ่มร้าน</button>
-  </div>
+<div class="header-left">
+<div class="logo-mark">📍</div>
+<h1>Sales Map Admin <small>ระบบจัดการข้อมูลร้านค้า</small></h1>
+<span class="conn-status" id="connStatus">⏳ กำลังเชื่อมต่อ...</span>
+<span class="admin-name-badge" id="adminBadge" onclick="doAdminLogout()" title="คลิกเพื่อออกจากระบบ">👤 -</span>
+</div>
+<div class="header-actions">
+<button class="h-btn" id="refreshBtn" onclick="refreshData()">🔄 รีเฟรช</button>
+<button class="h-btn" id="dupCheckBtn" onclick="checkDuplicates()" style="display:none">🔍 ตรวจร้านซ้ำ</button>
+<button class="h-btn" onclick="showImportModal()">📥 นำเข้า CSV</button>
+<button class="h-btn" onclick="openExportPage()">📦 Export</button>
+<button class="h-btn danger" id="bulkDeleteBtn" onclick="bulkDelete()">🗑️ ลบที่เลือก</button>
+<button class="h-btn primary" onclick="showAddModal()">➕ เพิ่มร้าน</button>
+</div>
 </div>
 
 <div class="layout">
-  <div class="table-panel">
-    <div class="stats-strip">
-      <div class="stat-card"><div class="stat-label">ร้านค้าทั้งหมด</div><div class="stat-value blue" id="statTotal">-</div></div>
-      <div class="stat-card"><div class="stat-label">จังหวัด</div><div class="stat-value green" id="statProvince">-</div></div>
-      <div class="stat-card"><div class="stat-label">เซลล์ทั้งหมด</div><div class="stat-value purple" id="statSales">-</div></div>
-      <div class="stat-card"><div class="stat-label">เดือนนี้</div><div class="stat-value orange" id="statMonth">-</div></div>
-    </div>
-    <div class="toolbar">
-      <input class="tool-input" id="searchInput" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderTable()">
-      <select class="tool-select" id="filterProv" onchange="onProvChange();renderTable()"><option value="">ทุกจังหวัด</option></select>
-      <select class="tool-select" id="filterDistrict" onchange="renderTable()"><option value="">ทุกอำเภอ</option></select>
-      <select class="tool-select" id="filterSales" onchange="renderTable()"><option value="">ทุกเซลล์</option></select>
-      <div class="tool-sep"></div>
-      <div class="date-filter-group">
-        <button class="date-preset" onclick="setDatePreset('today',this)">วันนี้</button>
-        <button class="date-preset" onclick="setDatePreset('week',this)">7 วัน</button>
-        <button class="date-preset" onclick="setDatePreset('month',this)">30 วัน</button>
-        <span class="date-sep">│</span>
-        <input type="date" class="date-input" id="dateFrom" onchange="onDateChange()" title="ตั้งแต่">
-        <span class="date-sep">ถึง</span>
-        <input type="date" class="date-input" id="dateTo" onchange="onDateChange()" title="ถึง">
-        <button class="date-clear" id="dateClearBtn" onclick="clearDateFilter()" style="display:none">✕</button>
-      </div>
-      <div class="tool-sep"></div>
-      <div class="selection-info" id="selectionInfo"></div>
-    </div>
-    <div class="table-wrap">
-      <table><thead><tr>
-        <th class="cb-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
-        <th onclick="sortBy('name')">ชื่อร้านค้า</th>
-        <th onclick="sortBy('province')">จังหวัด</th>
-        <th onclick="sortBy('district')">อำเภอ</th>
-        <th onclick="sortBy('sales')">เซลล์</th>
-        <th>เบอร์โทร</th><th>หมายเหตุ</th><th>พิกัด</th>
-        <th onclick="sortBy('createdAt')">วันที่</th><th>จัดการ</th>
-      </tr></thead><tbody id="tableBody"></tbody></table>
-    </div>
-  </div>
+<div class="table-panel">
+<div class="stats-strip">
+<div class="stat-card"><div class="stat-label">ร้านค้าทั้งหมด</div><div class="stat-value blue" id="statTotal">-</div></div>
+<div class="stat-card"><div class="stat-label">จังหวัด</div><div class="stat-value green" id="statProvince">-</div></div>
+<div class="stat-card"><div class="stat-label">เซลล์ทั้งหมด</div><div class="stat-value purple" id="statSales">-</div></div>
+<div class="stat-card"><div class="stat-label">เดือนนี้</div><div class="stat-value orange" id="statMonth">-</div></div>
+</div>
+<div class="toolbar">
+<input class="tool-input" id="searchInput" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderTable()">
+<select class="tool-select" id="filterProv" onchange="onProvChange();renderTable()"><option value="">ทุกจังหวัด</option></select>
+<select class="tool-select" id="filterDistrict" onchange="renderTable()"><option value="">ทุกอำเภอ</option></select>
+<select class="tool-select" id="filterSales" onchange="renderTable()"><option value="">ทุกเซลล์</option></select>
+<div class="tool-sep"></div>
+<div class="date-filter-group">
+<button class="date-preset" onclick="setDatePreset('today',this)">วันนี้</button>
+<button class="date-preset" onclick="setDatePreset('week',this)">7 วัน</button>
+<button class="date-preset" onclick="setDatePreset('month',this)">30 วัน</button>
+<span class="date-sep">│</span>
+<input type="date" class="date-input" id="dateFrom" onchange="onDateChange()" title="ตั้งแต่">
+<span class="date-sep">ถึง</span>
+<input type="date" class="date-input" id="dateTo" onchange="onDateChange()" title="ถึง">
+<button class="date-clear" id="dateClearBtn" onclick="clearDateFilter()" style="display:none">✕</button>
+</div>
+<div class="tool-sep"></div>
+<div class="selection-info" id="selectionInfo"></div>
+</div>
+<div class="table-wrap">
+<table><thead><tr>
+<th class="cb-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th>
+<th onclick="sortBy('name')">ชื่อร้านค้า</th>
+<th onclick="sortBy('province')">จังหวัด</th>
+<th onclick="sortBy('district')">อำเภอ</th>
+<th onclick="sortBy('sales')">เซลล์</th>
+<th>เบอร์โทร</th><th>หมายเหตุ</th><th>พิกัด</th>
+<th onclick="sortBy('createdAt')">วันที่</th><th>จัดการ</th>
+</tr></thead><tbody id="tableBody"></tbody></table>
+</div>
+</div>
 
-  <div class="right-panel">
-    <div class="right-tabs">
-      <div class="right-tab active" onclick="switchRight('map')">🗺️ แผนที่</div>
-      <div class="right-tab" onclick="switchRight('settings')">⚙️ ตั้งค่า</div>
-    </div>
-    <div class="right-content">
-      <div class="right-screen active" id="rightMap"><div id="adminMap"></div></div>
+<div class="right-panel">
+<div class="right-tabs">
+<div class="right-tab active" onclick="switchRight('map')">🗺️ แผนที่</div>
+<div class="right-tab" onclick="switchRight('settings')">⚙️ ตั้งค่า</div>
+</div>
+<div class="right-content">
+<div class="right-screen active" id="rightMap"><div id="adminMap"></div></div>
 
-      <div class="right-screen" id="rightSettings">
-        <div class="settings-content">
+<div class="right-screen" id="rightSettings">
+<div class="settings-content">
 
-          <div class="settings-section">
-            <div class="settings-section-title">🔗 เชื่อมต่อ Google Sheets</div>
-            <div class="settings-section-desc">วาง URL ของ Google Apps Script Web App ที่นี่</div>
-            <div class="api-url-row">
-              <input class="api-url-input" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxxxx/exec">
-              <button class="add-sales-btn" onclick="saveApiUrl()">💾 บันทึก</button>
-            </div>
-          </div>
+<div class="settings-section">
+<div class="settings-section-title">🔗 เชื่อมต่อ Google Sheets</div>
+<div class="settings-section-desc">วาง URL ของ Google Apps Script Web App ที่นี่</div>
+<div class="api-url-row">
+<input class="api-url-input" id="apiUrlInput" placeholder="https://script.google.com/macros/s/xxxxx/exec">
+<button class="add-sales-btn" onclick="saveApiUrl()">💾 บันทึก</button>
+</div>
+</div>
 
-          <div class="settings-section" id="changePinSection" style="display:none">
-            <div class="settings-section-title">🔐 เปลี่ยนรหัสของฉัน</div>
-            <div class="settings-section-desc">เปลี่ยนรหัสผ่านเข้าหน้าแอดมินของคุณ</div>
-            <div class="pin-row">
-              <input class="pin-input" id="oldPinInput" type="password" placeholder="รหัสเดิม">
-              <input class="pin-input" id="newPinInput" type="password" placeholder="รหัสใหม่">
-              <button class="add-sales-btn" onclick="changePin()">🔄 เปลี่ยน</button>
-            </div>
-          </div>
+<div class="settings-section" id="changePinSection" style="display:none">
+<div class="settings-section-title">🔐 เปลี่ยนรหัสของฉัน</div>
+<div class="settings-section-desc">เปลี่ยนรหัสผ่านเข้าหน้าแอดมินของคุณ</div>
+<div class="pin-row">
+<input class="pin-input" id="oldPinInput" type="password" placeholder="รหัสเดิม" autocomplete="current-password">
+<input class="pin-input" id="newPinInput" type="password" placeholder="รหัสใหม่" autocomplete="new-password">
+<button class="add-sales-btn" onclick="changePin()">🔄 เปลี่ยน</button>
+</div>
+</div>
 
-          <div class="settings-section owner-only" id="adminMgmtSection">
-            <div class="settings-section-title">🛡️ จัดการแอดมิน <span class="role-badge owner">เจ้าของเท่านั้น</span></div>
-            <div class="settings-section-desc">เพิ่ม/ลบแอดมินที่สามารถเข้าหน้า Admin ได้ แต่ละคนมีรหัสแยก</div>
-            <div class="admin-add-form" id="adminAddForm">
-              <input id="newAdminName" placeholder="ชื่อแอดมิน" style="flex:1">
-              <input id="newAdminPin" type="password" placeholder="รหัส (≥4 หลัก)" style="width:130px">
-              <select id="newAdminProv">
-                <option value="">จังหวัดที่ดูแล</option>
-                <option value="เชียงใหม่">เชียงใหม่</option>
-                <option value="เชียงราย">เชียงราย</option>
-                <option value="แพร่">แพร่</option>
-                <option value="ทั้งหมด">ทั้งหมด</option>
-              </select>
-              <button class="add-sales-btn" onclick="addNewAdmin()">➕ เพิ่ม</button>
-            </div>
-            <div id="adminCardList"></div>
-          </div>
+<div class="settings-section owner-only" id="adminMgmtSection">
+<div class="settings-section-title">🛡️ จัดการแอดมิน <span class="role-badge owner">เจ้าของเท่านั้น</span></div>
+<div class="settings-section-desc">เพิ่ม/ลบแอดมินที่สามารถเข้าหน้า Admin ได้ แต่ละคนมีรหัสแยก</div>
+<div class="admin-add-form" id="adminAddForm">
+<input id="newAdminName" placeholder="ชื่อแอดมิน" style="flex:1">
+<input id="newAdminPin" type="password" placeholder="รหัส (≥4 หลัก)" autocomplete="new-password" style="width:130px">
+<select id="newAdminProv">
+<option value="">จังหวัดที่ดูแล</option>
+<option value="เชียงใหม่">เชียงใหม่</option>
+<option value="เชียงราย">เชียงราย</option>
+<option value="แพร่">แพร่</option>
+<option value="ทั้งหมด">ทั้งหมด</option>
+</select>
+<button class="add-sales-btn" onclick="addNewAdmin()">➕ เพิ่ม</button>
+</div>
+<div id="adminCardList"></div>
+</div>
 
-          <div class="settings-section">
-            <div class="settings-section-title">👥 จัดการรายชื่อเซลล์</div>
-            <div class="settings-section-desc">เพิ่มหรือลบรายชื่อเซลล์ที่นี่ รายชื่อจะแสดงในแอป Sales Pin</div>
-            <div class="add-sales-row">
-              <input class="add-sales-input" id="newSalesName" placeholder="พิมพ์ชื่อเซลล์ใหม่..." oninput="document.getElementById('addSalesBtn').disabled=!this.value.trim()" onkeydown="if(event.key==='Enter')addSalesMember()">
-              <button class="add-sales-btn" id="addSalesBtn" disabled onclick="addSalesMember()">➕ เพิ่ม</button>
-            </div>
-            <div class="sales-team-list" id="salesTeamList"></div>
-          </div>
+<div class="settings-section">
+<div class="settings-section-title">👥 จัดการรายชื่อเซลล์</div>
+<div class="settings-section-desc">เพิ่มหรือลบรายชื่อเซลล์ที่นี่ รายชื่อจะแสดงในแอป Sales Pin</div>
+<div class="add-sales-row">
+<input class="add-sales-input" id="newSalesName" placeholder="พิมพ์ชื่อเซลล์ใหม่..." oninput="document.getElementById('addSalesBtn').disabled=!this.value.trim()" onkeydown="if(event.key==='Enter')addSalesMember()">
+<button class="add-sales-btn" id="addSalesBtn" disabled onclick="addSalesMember()">➕ เพิ่ม</button>
+</div>
+<div class="sales-team-list" id="salesTeamList"></div>
+</div>
 
-          <div class="settings-section">
-            <div class="settings-section-title">📋 ประวัติการใช้งาน</div>
-            <div class="settings-section-desc">บันทึกการ export ข้อมูล, ลบร้าน, และการดำเนินงานต่างๆ ของแอดมิน</div>
-            <button class="h-btn" onclick="loadAuditLog()" style="margin-bottom:10px">🔄 โหลดประวัติ</button>
-            <div class="audit-list" id="auditList"><div class="audit-empty">กดปุ่มด้านบนเพื่อโหลดประวัติ</div></div>
-          </div>
+<div class="settings-section">
+<div class="settings-section-title">📋 ประวัติการใช้งาน</div>
+<div class="settings-section-desc">บันทึกการ export ข้อมูล, ลบร้าน, และการดำเนินงานต่างๆ ของแอดมิน</div>
+<button class="h-btn" onclick="loadAuditLog()" style="margin-bottom:10px">🔄 โหลดประวัติ</button>
+<div class="audit-list" id="auditList"><div class="audit-empty">กดปุ่มด้านบนเพื่อโหลดประวัติ</div></div>
+</div>
 
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- EDIT MODAL -->
 <div class="modal-bg" id="editModal"><div class="modal">
-  <h2 id="modalTitle">✏️ แก้ไขร้านค้า</h2>
-  <div class="form-group"><label>ชื่อร้านค้า</label><input id="mName"></div>
-  <div class="modal-row">
-    <div class="form-group"><label>ละติจูด</label><input id="mLat" type="number" step="any"></div>
-    <div class="form-group"><label>ลองจิจูด</label><input id="mLng" type="number" step="any"></div>
-    <div class="form-group" style="flex:0.6;display:flex;align-items:flex-end"><button class="h-btn" onclick="geocodeModal()" style="width:100%;justify-content:center;padding:9px 8px">📍 หาที่ตั้ง</button></div>
-  </div>
-  <div class="modal-row">
-    <div class="form-group"><label>จังหวัด</label><input id="mProvince" placeholder="อัตโนมัติจากพิกัด"></div>
-    <div class="form-group"><label>อำเภอ</label><input id="mDistrict" placeholder="อัตโนมัติจากพิกัด"></div>
-  </div>
-  <div class="modal-row">
-    <div class="form-group"><label>เซลล์</label><select id="mSales"><option value="">เลือก</option></select></div>
-    <div class="form-group"><label>เบอร์โทร</label><input id="mPhone"></div>
-  </div>
-  <div class="form-group"><label>หมายเหตุ</label><textarea id="mNote"></textarea></div>
-  <div class="modal-footer"><button class="m-cancel" onclick="closeModal('editModal')">ยกเลิก</button><button class="m-save" onclick="saveModal()">💾 บันทึก</button></div>
+<h2 id="modalTitle">✏️ แก้ไขร้านค้า</h2>
+<div class="form-group"><label>ชื่อร้านค้า</label><input id="mName"></div>
+<div class="modal-row">
+<div class="form-group"><label>ละติจูด</label><input id="mLat" type="number" step="any"></div>
+<div class="form-group"><label>ลองจิจูด</label><input id="mLng" type="number" step="any"></div>
+<div class="form-group" style="flex:0.6;display:flex;align-items:flex-end"><button class="h-btn" onclick="geocodeModal()" style="width:100%;justify-content:center;padding:9px 8px">📍 หาที่ตั้ง</button></div>
+</div>
+<div class="modal-row">
+<div class="form-group"><label>จังหวัด</label><input id="mProvince" placeholder="อัตโนมัติจากพิกัด"></div>
+<div class="form-group"><label>อำเภอ</label><input id="mDistrict" placeholder="อัตโนมัติจากพิกัด"></div>
+</div>
+<div class="modal-row">
+<div class="form-group"><label>เซลล์</label><select id="mSales"><option value="">เลือก</option></select></div>
+<div class="form-group"><label>เบอร์โทร</label><input id="mPhone"></div>
+</div>
+<div class="form-group"><label>หมายเหตุ</label><textarea id="mNote"></textarea></div>
+<div class="modal-footer"><button class="m-cancel" onclick="closeModal('editModal')">ยกเลิก</button><button class="m-save" onclick="saveModal()">💾 บันทึก</button></div>
 </div></div>
 
 <!-- IMPORT MODAL -->
 <div class="modal-bg" id="importModal"><div class="modal">
-  <h2>📥 นำเข้าข้อมูลจาก CSV</h2>
-  <div class="import-zone" onclick="document.getElementById('csvFile').click()">
-    <div style="font-size:32px;margin-bottom:8px">📄</div>
-    <div>คลิกเพื่อเลือกไฟล์ CSV</div>
-    <div style="font-size:12px;margin-top:6px;color:var(--text-dim)">รูปแบบ: name, lat, lng, sales (ระบบจะหาจังหวัดและอำเภอให้อัตโนมัติ)</div>
-    <div style="font-size:11px;margin-top:4px;color:var(--orange)">💡 ถ้าสร้างจาก Excel ให้ Save As เลือก "CSV UTF-8"</div>
-    <input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)">
-  </div>
-  <div id="importPreview" style="font-size:13px;color:var(--text-dim);margin-bottom:8px"></div>
-  <div class="geocode-check" id="geocodeCheck" style="display:none">
-    <input type="checkbox" id="autoGeocode" checked>
-    <label for="autoGeocode">หาจังหวัด/อำเภออัตโนมัติจากพิกัด (ใช้เวลาประมาณ 1 วินาที/ร้าน)</label>
-  </div>
-  <div class="import-progress" id="importProgress" style="display:none">
-    <span id="progressText"></span>
-    <div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0"></div></div>
-  </div>
-  <div class="modal-footer">
-    <button class="m-cancel" id="importCancelBtn" onclick="closeModal('importModal')">ยกเลิก</button>
-    <button class="m-save" id="importBtn" onclick="doImport()" style="display:none">📥 นำเข้า</button>
-  </div>
+<h2>📥 นำเข้าข้อมูลจาก CSV</h2>
+<div class="import-zone" onclick="document.getElementById('csvFile').click()">
+<div style="font-size:32px;margin-bottom:8px">📄</div>
+<div>คลิกเพื่อเลือกไฟล์ CSV</div>
+<div style="font-size:12px;margin-top:6px;color:var(--text-dim)">รูปแบบ: name, lat, lng, sales (ระบบจะหาจังหวัดและอำเภอให้อัตโนมัติ)</div>
+<div style="font-size:11px;margin-top:4px;color:var(--orange)">💡 ถ้าสร้างจาก Excel ให้ Save As เลือก "CSV UTF-8"</div>
+<input type="file" id="csvFile" accept=".csv" onchange="handleCSV(event)">
+</div>
+<div id="importPreview" style="font-size:13px;color:var(--text-dim);margin-bottom:8px"></div>
+<div class="geocode-check" id="geocodeCheck" style="display:none">
+<input type="checkbox" id="autoGeocode" checked>
+<label for="autoGeocode">หาจังหวัด/อำเภออัตโนมัติจากพิกัด (ใช้เวลาประมาณ 1 วินาที/ร้าน)</label>
+</div>
+<div class="import-progress" id="importProgress" style="display:none">
+<span id="progressText"></span>
+<div class="progress-bar"><div class="progress-bar-fill" id="progressFill" style="width:0"></div></div>
+</div>
+<div class="modal-footer">
+<button class="m-cancel" id="importCancelBtn" onclick="closeModal('importModal')">ยกเลิก</button>
+<button class="m-save" id="importBtn" onclick="doImport()" style="display:none">📥 นำเข้า</button>
+</div>
 </div></div>
 
 <!-- DUPLICATE MODAL -->
 <div class="modal-bg" id="dupModal"><div class="dup-modal">
-  <h2>🔍 ตรวจร้านค้าที่อาจซ้ำกัน</h2>
-  <div id="dupContent"><div class="dup-loading">⏳ กำลังตรวจสอบ...</div></div>
-  <div class="modal-footer" style="margin-top:14px"><button class="m-cancel" onclick="closeModal('dupModal')">ปิด</button></div>
+<h2>🔍 ตรวจร้านค้าที่อาจซ้ำกัน</h2>
+<div id="dupContent"><div class="dup-loading">⏳ กำลังตรวจสอบ...</div></div>
+<div class="modal-footer" style="margin-top:14px"><button class="m-cancel" onclick="closeModal('dupModal')">ปิด</button></div>
 </div></div>
 
 <!-- EXPORT FULL-SCREEN OVERLAY -->
 <div class="export-overlay" id="exportOverlay">
-  <div class="ex-header">
-    <div class="ex-header-left">
-      <div class="ex-logo">📦</div>
-      <h2>Export ร้านค้า <small>เลือกร้านจากฝั่งซ้าย → ตรวจสอบฝั่งขวา → กด Export</small></h2>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="ex-h-btn primary" id="expGoBtn" disabled onclick="doExportSelected()">📤 Export CSV</button>
-      <button class="ex-h-btn" onclick="closeExportPage()">✕ ปิด</button>
-    </div>
-  </div>
-  <div class="ex-body">
-    <div class="ex-left">
-      <div class="ex-left-head"><span>📋 ร้านค้าทั้งหมด</span><div class="ex-count-badge" id="exLeftBadge">0 ร้าน</div></div>
-      <div class="ex-toolbar">
-        <input class="ex-tool-input" id="exSearch" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderExportTable()">
-        <select class="ex-tool-select" id="exFilterProv" onchange="onExProvChange();renderExportTable()"><option value="">ทุกจังหวัด</option></select>
-        <select class="ex-tool-select" id="exFilterDistrict" onchange="renderExportTable()"><option value="">ทุกอำเภอ</option></select>
-        <select class="ex-tool-select" id="exFilterSales" onchange="renderExportTable()"><option value="">ทุกเซลล์</option></select>
-        <div class="ex-tool-sep"></div>
-        <input type="date" class="ex-date-input" id="exDateFrom" onchange="renderExportTable()" title="ตั้งแต่">
-        <span class="ex-date-sep">ถึง</span>
-        <input type="date" class="ex-date-input" id="exDateTo" onchange="renderExportTable()">
-        <button class="ex-date-clear" id="exDateClear" onclick="clearExDateFilter()" style="display:none">✕</button>
-        <div style="margin-left:auto"><button class="ex-add-all-btn" onclick="addAllFiltered()">⊕ เพิ่มทั้งหมดที่กรอง</button></div>
-      </div>
-      <div class="ex-table-wrap">
-        <table><thead><tr>
-          <th class="cb-cell"><input type="checkbox" id="exSelectAll" onchange="toggleExSelectAll()"></th>
-          <th>ชื่อร้านค้า</th><th>จังหวัด</th><th>อำเภอ</th><th>เซลล์</th>
-          <th>เบอร์โทร</th><th>พิกัด</th><th>วันที่</th>
-        </tr></thead><tbody id="exTableBody"></tbody></table>
-      </div>
-    </div>
-    <div class="ex-right">
-      <div class="ex-right-head"><span>📦 จะ Export</span><div class="ex-count-badge selected" id="exRightBadge">0 ร้าน</div></div>
-      <div class="ex-right-toolbar">
-        <input class="ex-tool-input" id="exSearchRight" placeholder="🔍 ค้นหาในรายการ..." oninput="renderExportRight()" style="flex:1">
-        <button class="ex-clear-btn" onclick="clearExportList()">🗑️ ล้าง</button>
-      </div>
-      <div class="ex-right-list" id="exRightList"></div>
-      <div class="ex-right-footer">
-        <div class="ex-right-summary" id="exRightSummary"></div>
-        <button class="ex-export-btn" id="expGoBtn2" disabled onclick="doExportSelected()">📤 Export CSV</button>
-      </div>
-    </div>
-  </div>
+<div class="ex-header">
+<div class="ex-header-left">
+<div class="ex-logo">📦</div>
+<h2>Export ร้านค้า <small>เลือกร้านจากฝั่งซ้าย → ตรวจสอบฝั่งขวา → กด Export</small></h2>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<button class="ex-h-btn primary" id="expGoBtn" disabled onclick="doExportSelected()">📤 Export CSV</button>
+<button class="ex-h-btn" onclick="closeExportPage()">✕ ปิด</button>
+</div>
+</div>
+<div class="ex-body">
+<div class="ex-left">
+<div class="ex-left-head"><span>📋 ร้านค้าทั้งหมด</span><div class="ex-count-badge" id="exLeftBadge">0 ร้าน</div></div>
+<div class="ex-toolbar">
+<input class="ex-tool-input" id="exSearch" placeholder="🔍 ค้นหาชื่อร้าน / อำเภอ / เบอร์โทร..." oninput="renderExportTable()">
+<select class="ex-tool-select" id="exFilterProv" onchange="onExProvChange();renderExportTable()"><option value="">ทุกจังหวัด</option></select>
+<select class="ex-tool-select" id="exFilterDistrict" onchange="renderExportTable()"><option value="">ทุกอำเภอ</option></select>
+<select class="ex-tool-select" id="exFilterSales" onchange="renderExportTable()"><option value="">ทุกเซลล์</option></select>
+<div class="ex-tool-sep"></div>
+<input type="date" class="ex-date-input" id="exDateFrom" onchange="renderExportTable()" title="ตั้งแต่">
+<span class="ex-date-sep">ถึง</span>
+<input type="date" class="ex-date-input" id="exDateTo" onchange="renderExportTable()">
+<button class="ex-date-clear" id="exDateClear" onclick="clearExDateFilter()" style="display:none">✕</button>
+<div style="margin-left:auto"><button class="ex-add-all-btn" onclick="addAllFiltered()">⊕ เพิ่มทั้งหมดที่กรอง</button></div>
+</div>
+<div class="ex-table-wrap">
+<table><thead><tr>
+<th class="cb-cell"><input type="checkbox" id="exSelectAll" onchange="toggleExSelectAll()"></th>
+<th>ชื่อร้านค้า</th><th>จังหวัด</th><th>อำเภอ</th><th>เซลล์</th>
+<th>เบอร์โทร</th><th>พิกัด</th><th>วันที่</th>
+</tr></thead><tbody id="exTableBody"></tbody></table>
+</div>
+</div>
+<div class="ex-right">
+<div class="ex-right-head"><span>📦 จะ Export</span><div class="ex-count-badge selected" id="exRightBadge">0 ร้าน</div></div>
+<div class="ex-right-toolbar">
+<input class="ex-tool-input" id="exSearchRight" placeholder="🔍 ค้นหาในรายการ..." oninput="renderExportRight()" style="flex:1">
+<button class="ex-clear-btn" onclick="clearExportList()">🗑️ ล้าง</button>
+</div>
+<div class="ex-right-list" id="exRightList"></div>
+<div class="ex-right-footer">
+<div class="ex-right-summary" id="exRightSummary"></div>
+<button class="ex-export-btn" id="expGoBtn2" disabled onclick="doExportSelected()">📤 Export CSV</button>
+</div>
+</div>
+</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -546,195 +546,195 @@ function esc(s){if(!s)return '';const d=document.createElement('div');d.textCont
 
 // ══════ ADMIN AUTH ══════
 function checkAdminAuth(){
-  const auth=sessionStorage.getItem('salesmap-admin-auth');
-  if(auth){
-    try{const d=JSON.parse(auth);if(d&&d.loggedIn){adminName=d.adminName||'Admin';adminRole=d.role||'admin';adminProvince=d.province||'';return true;}}catch(e){}
-  }
-  return false;
+const auth=sessionStorage.getItem('salesmap-admin-auth');
+if(auth){
+try{const d=JSON.parse(auth);if(d&&d.loggedIn){adminName=d.adminName||'Admin';adminRole=d.role||'admin';adminProvince=d.province||'';return true;}}catch(e){}
+}
+return false;
 }
 function onLoginInput(){
-  const name=document.getElementById('loginName').value.trim();
-  const pin=document.getElementById('loginPin').value.trim();
-  document.getElementById('loginBtn').disabled=!(name&&pin.length>=4);
-  document.getElementById('loginPin').classList.remove('error');
-  document.getElementById('loginWarning').style.display='none';
+const name=document.getElementById('loginName').value.trim();
+const pin=document.getElementById('loginPin').value.trim();
+document.getElementById('loginBtn').disabled=!(name&&pin.length>=4);
+document.getElementById('loginPin').classList.remove('error');
+document.getElementById('loginWarning').style.display='none';
 }
 async function doAdminLogin(){
-  const name=document.getElementById('loginName').value.trim();
-  const pin=document.getElementById('loginPin').value.trim();
-  if(!name||pin.length<4)return;
+const name=document.getElementById('loginName').value.trim();
+const pin=document.getElementById('loginPin').value.trim();
+if(!name||pin.length<4)return;
 
-  const btn=document.getElementById('loginBtn');
-  btn.classList.add('loading');btn.textContent='⏳ กำลังตรวจสอบ...';
+const btn=document.getElementById('loginBtn');
+btn.classList.add('loading');btn.textContent='⏳ กำลังตรวจสอบ...';
 
-  const result=await apiPost('verifyAdminPin',{name,pin});
-  btn.classList.remove('loading');btn.textContent='🔐 เข้าสู่ระบบ';
+const result=await apiPost('verifyAdminPin',{name,pin});
+btn.classList.remove('loading');btn.textContent='🔐 เข้าสู่ระบบ';
 
-  if(!result||result._err){
-    document.getElementById('loginWarning').style.display='block';
-    document.getElementById('loginWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+(result?result._err:'ไม่ทราบสาเหตุ');
-    btn.disabled=false;return;
-  }
-  if(!result.valid){
-    document.getElementById('loginPin').classList.add('error');
-    document.getElementById('loginPin').value='';
-    document.getElementById('loginWarning').style.display='block';
-    document.getElementById('loginWarning').textContent='❌ '+(result.message||'รหัสผ่านไม่ถูกต้อง');
-    btn.disabled=true;return;
-  }
+if(!result||result._err){
+document.getElementById('loginWarning').style.display='block';
+document.getElementById('loginWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+(result?result._err:'ไม่ทราบสาเหตุ');
+btn.disabled=false;return;
+}
+if(!result.valid){
+document.getElementById('loginPin').classList.add('error');
+document.getElementById('loginPin').value='';
+document.getElementById('loginWarning').style.display='block';
+document.getElementById('loginWarning').textContent='❌ '+(result.message||'รหัสผ่านไม่ถูกต้อง');
+btn.disabled=true;return;
+}
 
-  // สำเร็จ
-  adminName=name;
-  adminRole=result.role||'admin';
-  adminProvince=result.province||'';
-  sessionStorage.setItem('salesmap-admin-auth',JSON.stringify({loggedIn:true,adminName:name,role:adminRole,province:adminProvince}));
-  document.getElementById('adminLoginOverlay').classList.add('hidden');
-  const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
-  const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
-  document.getElementById('adminBadge').textContent='👤 '+esc(adminName)+' ('+roleLabel+provLabel+')';
-  showToast('สวัสดี '+name+'!');
-  // แสดงส่วนจัดการแอดมินถ้าเป็น owner
-  if(adminRole==='owner'){
-    document.getElementById('adminMgmtSection').classList.add('show');
-    document.getElementById('dupCheckBtn').style.display='';
-    document.getElementById('changePinSection').style.display='';
-  }else{
-    document.getElementById('adminMgmtSection').classList.remove('show');
-    document.getElementById('dupCheckBtn').style.display='none';
-    document.getElementById('changePinSection').style.display='none';
-  }
+// สำเร็จ
+adminName=name;
+adminRole=result.role||'admin';
+adminProvince=result.province||'';
+sessionStorage.setItem('salesmap-admin-auth',JSON.stringify({loggedIn:true,adminName:name,role:adminRole,province:adminProvince}));
+document.getElementById('adminLoginOverlay').classList.add('hidden');
+const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
+const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
+document.getElementById('adminBadge').textContent='👤 '+esc(adminName)+' ('+roleLabel+provLabel+')';
+showToast('สวัสดี '+name+'!');
+// แสดงส่วนจัดการแอดมินถ้าเป็น owner
+if(adminRole==='owner'){
+document.getElementById('adminMgmtSection').classList.add('show');
+document.getElementById('dupCheckBtn').style.display='';
+document.getElementById('changePinSection').style.display='';
+}else{
+document.getElementById('adminMgmtSection').classList.remove('show');
+document.getElementById('dupCheckBtn').style.display='none';
+document.getElementById('changePinSection').style.display='none';
+}
 
-  apiPost('logAudit',{data:{adminName:name,action:'login',details:'เข้าสู่ระบบ ('+roleLabel+provLabel+')'}});
+apiPost('logAudit',{data:{adminName:name,action:'login',details:'เข้าสู่ระบบ ('+roleLabel+provLabel+')'}});
 
-  init();
-  if(adminRole==='owner')setTimeout(()=>loadAdminList(),500);
+init();
+if(adminRole==='owner')setTimeout(()=>loadAdminList(),500);
 }
 function doAdminLogout(){
-  if(!confirm('ออกจากระบบ?'))return;
-  apiPost('logAudit',{data:{adminName,action:'logout',details:'ออกจากระบบ'}});
-  sessionStorage.removeItem('salesmap-admin-auth');
-  adminName='';adminRole='';adminProvince='';
-  document.getElementById('adminLoginOverlay').classList.remove('hidden');
-  document.getElementById('adminMgmtSection').classList.remove('show');
-  document.getElementById('loginPin').value='';
-  document.getElementById('loginName').value='';
-  document.getElementById('loginWarning').style.display='none';
+if(!confirm('ออกจากระบบ?'))return;
+apiPost('logAudit',{data:{adminName,action:'logout',details:'ออกจากระบบ'}});
+sessionStorage.removeItem('salesmap-admin-auth');
+adminName='';adminRole='';adminProvince='';
+document.getElementById('adminLoginOverlay').classList.remove('hidden');
+document.getElementById('adminMgmtSection').classList.remove('show');
+document.getElementById('loginPin').value='';
+document.getElementById('loginName').value='';
+document.getElementById('loginWarning').style.display='none';
 }
 
 // ══════ MAP (LAZY LOAD — ไม่โหลดจนกว่าจะกดแท็บแผนที่) ══════
 let map=null,markers={},mapInitialized=false;
 function initMapIfNeeded(){
-  if(mapInitialized)return;
-  mapInitialized=true;
-  map=L.map('adminMap',{center:[18.7883,98.9853],zoom:9});
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
-  setTimeout(()=>{map.invalidateSize();renderMarkers();},200);
+if(mapInitialized)return;
+mapInitialized=true;
+map=L.map('adminMap',{center:[18.7883,98.9853],zoom:9});
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:19}).addTo(map);
+setTimeout(()=>{map.invalidateSize();renderMarkers();},200);
 }
 function pinIcon(){return L.divIcon({className:'',html:'<div class="admin-pin"></div>',iconSize:[22,22],iconAnchor:[11,22],popupAnchor:[0,-22]})}
 function renderMarkers(){
-  if(!map)return;
-  Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
-  getFiltered().forEach(s=>{
-    const m=L.marker([s.lat,s.lng],{icon:pinIcon()}).addTo(map);
-    let loc='';if(s.district||s.province){let p=[];if(s.district)p.push('อ.'+esc(s.district));if(s.province)p.push('จ.'+esc(s.province));loc='📍 '+p.join(' ')+'<br>';}
-    m.bindPopup(`<div style="font-weight:600">${esc(s.name)}</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">${loc}${s.sales?'👤 '+esc(s.sales)+'<br>':''}${s.phone?'📞 '+esc(s.phone):''}</div>`);
-    markers[s.id]=m;
-  });
+if(!map)return;
+Object.values(markers).forEach(m=>map.removeLayer(m));markers={};
+getFiltered().forEach(s=>{
+const m=L.marker([s.lat,s.lng],{icon:pinIcon()}).addTo(map);
+let loc='';if(s.district||s.province){let p=[];if(s.district)p.push('อ.'+esc(s.district));if(s.province)p.push('จ.'+esc(s.province));loc='📍 '+p.join(' ')+'<br>';}
+m.bindPopup(`<div style="font-weight:600">${esc(s.name)}</div><div style="font-size:13px;color:var(--text-dim);margin-top:4px">${loc}${s.sales?'👤 '+esc(s.sales)+'<br>':''}${s.phone?'📞 '+esc(s.phone):''}</div>`);
+markers[s.id]=m;
+});
 }
 
 // ══════ REVERSE GEOCODING ══════
 async function reverseGeocode(lat,lng){
-  try{
-    const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&addressdetails=1`);
-    const j=await r.json();const a=j.address||{};const dn=j.display_name||'';
-    let prov='';const provMatch=dn.match(/จังหวัด([^\s,]+)/);if(provMatch)prov=provMatch[1];
-    if(!prov)prov=(a.state||a.province||'').toString().replace(/^จังหวัด/,'').replace(/,/g,'').trim();
-    let dist='';const distMatch=dn.match(/อำเภอ([^\s,]+)/);if(distMatch)dist=distMatch[1];
-    if(!dist){const khetMatch=dn.match(/เขต([^\s,]+)/);if(khetMatch)dist=khetMatch[1];}
-    if(!dist){const county=(a.county||'').toString().replace(/^อำเภอ/,'').replace(/^เขต/,'').trim();if(county)dist=county;}
-    return {province:prov,district:dist};
-  }catch(e){return {province:'',district:''};}
+try{
+const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=th&addressdetails=1`);
+const j=await r.json();const a=j.address||{};const dn=j.display_name||'';
+let prov='';const provMatch=dn.match(/จังหวัด([^\s,]+)/);if(provMatch)prov=provMatch[1];
+if(!prov)prov=(a.state||a.province||'').toString().replace(/^จังหวัด/,'').replace(/,/g,'').trim();
+let dist='';const distMatch=dn.match(/อำเภอ([^\s,]+)/);if(distMatch)dist=distMatch[1];
+if(!dist){const khetMatch=dn.match(/เขต([^\s,]+)/);if(khetMatch)dist=khetMatch[1];}
+if(!dist){const county=(a.county||'').toString().replace(/^อำเภอ/,'').replace(/^เขต/,'').trim();if(county)dist=county;}
+return {province:prov,district:dist};
+}catch(e){return {province:'',district:''};}
 }
 
 // ══════ API ══════
 async function apiGet(action,params=''){
-  if(!API_URL)return null;
-  try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
+if(!API_URL)return null;
+try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
 }
 async function apiPost(action,data){
-  if(!API_URL)return {_err:'NO_API_URL'};
-  try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(e){return {_err:e.message||'NETWORK'};}
+if(!API_URL)return {_err:'NO_API_URL'};
+try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(e){return {_err:e.message||'NETWORK'};}
 }
 
 // ══════ INIT ══════
 async function init(){
-  document.getElementById('apiUrlInput').value=API_URL;
-  if(!API_URL){setConn('err','⚠️ ยังไม่ได้ตั้งค่า API URL');switchRight('settings');return;}
-  setConn('','⏳ กำลังโหลด...');
-  const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
-  if(t!==null){salesTeam=t;setConn('ok','✅ เชื่อมต่อแล้ว');}else setConn('err','❌ เชื่อมต่อไม่ได้');
-  if(s)shops=s;
-  renderAll();
+document.getElementById('apiUrlInput').value=API_URL;
+if(!API_URL){setConn('err','⚠️ ยังไม่ได้ตั้งค่า API URL');switchRight('settings');return;}
+setConn('','⏳ กำลังโหลด...');
+const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
+if(t!==null){salesTeam=t;setConn('ok','✅ เชื่อมต่อแล้ว');}else setConn('err','❌ เชื่อมต่อไม่ได้');
+if(s)shops=s;
+renderAll();
 }
 function setConn(c,t){const e=document.getElementById('connStatus');e.className='conn-status'+(c?' '+c:'');e.textContent=t;}
 function saveApiUrl(){const u=document.getElementById('apiUrlInput').value.trim();if(!u){showToast('ใส่ URL',true);return;}API_URL=u;localStorage.setItem('salesmap-api-url',u);showToast('บันทึก URL แล้ว');init();}
 
 async function refreshData(){
-  const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='⏳ ...';
-  const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
-  if(t!==null)salesTeam=t;if(s)shops=s;renderAll();
-  btn.disabled=false;btn.textContent='🔄 รีเฟรช';showToast(`โหลดแล้ว: ${shops.length} ร้าน`);
+const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='⏳ ...';
+const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
+if(t!==null)salesTeam=t;if(s)shops=s;renderAll();
+btn.disabled=false;btn.textContent='🔄 รีเฟรช';showToast(`โหลดแล้ว: ${shops.length} ร้าน`);
 }
 
 // ══════ CHANGE ADMIN PIN ══════
 async function changePin(){
-  const oldP=document.getElementById('oldPinInput').value.trim();
-  const newP=document.getElementById('newPinInput').value.trim();
-  if(!oldP||!newP){showToast('กรุณากรอกรหัสเดิมและใหม่',true);return;}
-  if(newP.length<4){showToast('รหัสใหม่ต้องมีอย่างน้อย 4 หลัก',true);return;}
-  const r=await apiPost('changeAdminPin',{name:adminName,oldPin:oldP,newPin:newP});
-  if(r&&r.ok){
-    showToast('✅ เปลี่ยนรหัสสำเร็จ');
-    document.getElementById('oldPinInput').value='';document.getElementById('newPinInput').value='';
-    apiPost('logAudit',{data:{adminName,action:'changePin',details:'เปลี่ยนรหัสของตัวเอง'}});
-  }else{
-    showToast('❌ '+(r&&r.message?r.message:'เปลี่ยนไม่ได้'),true);
-  }
+const oldP=document.getElementById('oldPinInput').value.trim();
+const newP=document.getElementById('newPinInput').value.trim();
+if(!oldP||!newP){showToast('กรุณากรอกรหัสเดิมและใหม่',true);return;}
+if(newP.length<4){showToast('รหัสใหม่ต้องมีอย่างน้อย 4 หลัก',true);return;}
+const r=await apiPost('changeAdminPin',{name:adminName,oldPin:oldP,newPin:newP});
+if(r&&r.ok){
+showToast('✅ เปลี่ยนรหัสสำเร็จ');
+document.getElementById('oldPinInput').value='';document.getElementById('newPinInput').value='';
+apiPost('logAudit',{data:{adminName,action:'changePin',details:'เปลี่ยนรหัสของตัวเอง'}});
+}else{
+showToast('❌ '+(r&&r.message?r.message:'เปลี่ยนไม่ได้'),true);
+}
 }
 
 // ══════ TEAM ══════
 async function addSalesMember(){
-  const input=document.getElementById('newSalesName'),name=input.value.trim();
-  if(!name)return;if(salesTeam.includes(name)){showToast(`"${esc(name)}" มีอยู่แล้ว`,true);return;}
-  salesTeam.push(name);salesTeam.sort((a,b)=>a.localeCompare(b,'th'));
-  renderTeamList();updateFilters();input.value='';document.getElementById('addSalesBtn').disabled=true;
-  await apiPost('setTeam',{data:salesTeam});showToast(`เพิ่ม "${esc(name)}"`);
+const input=document.getElementById('newSalesName'),name=input.value.trim();
+if(!name)return;if(salesTeam.includes(name)){showToast(`"${esc(name)}" มีอยู่แล้ว`,true);return;}
+salesTeam.push(name);salesTeam.sort((a,b)=>a.localeCompare(b,'th'));
+renderTeamList();updateFilters();input.value='';document.getElementById('addSalesBtn').disabled=true;
+await apiPost('setTeam',{data:salesTeam});showToast(`เพิ่ม "${esc(name)}"`);
 }
 async function removeSalesMember(name){
-  if(!confirm(`ลบ "${name}" ?`))return;
-  salesTeam=salesTeam.filter(n=>n!==name);renderTeamList();updateFilters();
-  await apiPost('setTeam',{data:salesTeam});showToast(`ลบ "${esc(name)}"`);
+if(!confirm(`ลบ "${name}" ?`))return;
+salesTeam=salesTeam.filter(n=>n!==name);renderTeamList();updateFilters();
+await apiPost('setTeam',{data:salesTeam});showToast(`ลบ "${esc(name)}"`);
 }
 function renderTeamList(){
-  const el=document.getElementById('salesTeamList');
-  if(!salesTeam.length){el.innerHTML='<div class="empty-team">👥 ยังไม่มีรายชื่อเซลล์</div>';return;}
-  el.innerHTML=salesTeam.map(name=>{
-    const en=esc(name);
-    return `<div class="team-member-card"><div class="member-avatar">👤</div><div class="member-info"><div class="member-name">${en}</div><div class="member-stats">บันทึก ${shops.filter(s=>s.sales===name).length} ร้าน</div></div><button class="member-remove" onclick="removeSalesMember('${en.replace(/'/g,"\\'")}')">✕ ลบ</button></div>`;
-  }).join('');
+const el=document.getElementById('salesTeamList');
+if(!salesTeam.length){el.innerHTML='<div class="empty-team">👥 ยังไม่มีรายชื่อเซลล์</div>';return;}
+el.innerHTML=salesTeam.map(name=>{
+const en=esc(name);
+return `<div class="team-member-card"><div class="member-avatar">👤</div><div class="member-info"><div class="member-name">${en}</div><div class="member-stats">บันทึก ${shops.filter(s=>s.sales===name).length} ร้าน</div></div><button class="member-remove" onclick="removeSalesMember('${en.replace(/'/g,"\\'")}')">✕ ลบ</button></div>`;
+}).join('');
 }
 
 // ══════ AUDIT LOG ══════
 async function loadAuditLog(){
-  const el=document.getElementById('auditList');
-  el.innerHTML='<div class="audit-empty">⏳ กำลังโหลด...</div>';
-  const data=await apiGet('getAuditLog');
-  if(!data||!data.length){el.innerHTML='<div class="audit-empty">ยังไม่มีประวัติ</div>';return;}
-  el.innerHTML=data.slice(0,100).map(log=>{
-    const dt=new Date(log.timestamp);
-    const ts=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-    return `<div class="audit-item"><span class="audit-time">${esc(ts)}</span><span class="audit-name">${esc(log.adminName)}</span><span class="audit-action">${esc(log.action)} — ${esc(log.details)}</span></div>`;
-  }).join('');
+const el=document.getElementById('auditList');
+el.innerHTML='<div class="audit-empty">⏳ กำลังโหลด...</div>';
+const data=await apiGet('getAuditLog');
+if(!data||!data.length){el.innerHTML='<div class="audit-empty">ยังไม่มีประวัติ</div>';return;}
+el.innerHTML=data.slice(0,100).map(log=>{
+const dt=new Date(log.timestamp);
+const ts=dt.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+return `<div class="audit-item"><span class="audit-time">${esc(ts)}</span><span class="audit-name">${esc(log.adminName)}</span><span class="audit-action">${esc(log.action)} — ${esc(log.details)}</span></div>`;
+}).join('');
 }
 
 // ══════ DATE ══════
@@ -745,225 +745,225 @@ function fmtD(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0
 
 // ══════ FILTER ══════
 function getFiltered(){
-  const q=(document.getElementById('searchInput').value||'').toLowerCase();
-  const prov=document.getElementById('filterProv').value;
-  const dist=document.getElementById('filterDistrict').value;
-  const sales=document.getElementById('filterSales').value;
-  const df=document.getElementById('dateFrom').value,dt=document.getElementById('dateTo').value;
-  return shops.filter(s=>{
-    if(q&&!s.name.toLowerCase().includes(q)&&!(s.phone||'').includes(q)&&!(s.district||'').toLowerCase().includes(q))return false;
-    if(prov&&s.province!==prov)return false;
-    if(dist&&s.district!==dist)return false;
-    if(sales&&s.sales!==sales)return false;
-    if(df||dt){const sd=(s.createdAt||'').slice(0,10);if(df&&sd<df)return false;if(dt&&sd>dt)return false;}
-    return true;
-  }).sort((a,b)=>{const va=a[sortField]||'',vb=b[sortField]||'';return(typeof va==='string'?va.localeCompare(vb):va-vb)*sortDir;});
+const q=(document.getElementById('searchInput').value||'').toLowerCase();
+const prov=document.getElementById('filterProv').value;
+const dist=document.getElementById('filterDistrict').value;
+const sales=document.getElementById('filterSales').value;
+const df=document.getElementById('dateFrom').value,dt=document.getElementById('dateTo').value;
+return shops.filter(s=>{
+if(q&&!s.name.toLowerCase().includes(q)&&!(s.phone||'').includes(q)&&!(s.district||'').toLowerCase().includes(q))return false;
+if(prov&&s.province!==prov)return false;
+if(dist&&s.district!==dist)return false;
+if(sales&&s.sales!==sales)return false;
+if(df||dt){const sd=(s.createdAt||'').slice(0,10);if(df&&sd<df)return false;if(dt&&sd>dt)return false;}
+return true;
+}).sort((a,b)=>{const va=a[sortField]||'',vb=b[sortField]||'';return(typeof va==='string'?va.localeCompare(vb):va-vb)*sortDir;});
 }
 function sortBy(f){if(sortField===f)sortDir*=-1;else{sortField=f;sortDir=1;}renderTable();}
 
 // ══════ RENDER ══════
 function renderAll(){updateStats();updateFilters();renderTable();renderMarkers();renderTeamList();}
 function updateStats(){
-  document.getElementById('statTotal').textContent=shops.length;
-  document.getElementById('statProvince').textContent=new Set(shops.map(s=>s.province).filter(Boolean)).size;
-  document.getElementById('statSales').textContent=salesTeam.length;
-  const n=new Date();document.getElementById('statMonth').textContent=shops.filter(s=>{const d=new Date(s.createdAt);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
+document.getElementById('statTotal').textContent=shops.length;
+document.getElementById('statProvince').textContent=new Set(shops.map(s=>s.province).filter(Boolean)).size;
+document.getElementById('statSales').textContent=salesTeam.length;
+const n=new Date();document.getElementById('statMonth').textContent=shops.filter(s=>{const d=new Date(s.createdAt);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
 }
 function updateFilters(){
-  const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
-  const salesIn=[...new Set(shops.map(s=>s.sales).filter(Boolean))];
-  const allSales=[...new Set([...salesTeam,...salesIn])].sort((a,b)=>a.localeCompare(b,'th'));
+const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
+const salesIn=[...new Set(shops.map(s=>s.sales).filter(Boolean))];
+const allSales=[...new Set([...salesTeam,...salesIn])].sort((a,b)=>a.localeCompare(b,'th'));
 
-  const pEl=document.getElementById('filterProv'),curP=pEl.value;
-  pEl.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option ${p===curP?'selected':''}>${esc(p)}</option>`).join('');
+const pEl=document.getElementById('filterProv'),curP=pEl.value;
+pEl.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option ${p===curP?'selected':''}>${esc(p)}</option>`).join('');
 
-  // กรองอำเภอตามจังหวัดที่เลือก
-  const selectedProv=pEl.value;
-  let filteredDists;
-  if(selectedProv){filteredDists=[...new Set(shops.filter(s=>s.province===selectedProv).map(s=>s.district).filter(Boolean))].sort();}
-  else{filteredDists=[...new Set(shops.map(s=>s.district).filter(Boolean))].sort();}
-  const dEl=document.getElementById('filterDistrict'),curD=dEl.value;
-  dEl.innerHTML='<option value="">ทุกอำเภอ</option>'+filteredDists.map(d=>`<option ${d===curD?'selected':''}>${esc(d)}</option>`).join('');
-  // ถ้าอำเภอเดิมไม่อยู่ในรายการใหม่ → reset
-  if(curD&&!filteredDists.includes(curD))dEl.value='';
+// กรองอำเภอตามจังหวัดที่เลือก
+const selectedProv=pEl.value;
+let filteredDists;
+if(selectedProv){filteredDists=[...new Set(shops.filter(s=>s.province===selectedProv).map(s=>s.district).filter(Boolean))].sort();}
+else{filteredDists=[...new Set(shops.map(s=>s.district).filter(Boolean))].sort();}
+const dEl=document.getElementById('filterDistrict'),curD=dEl.value;
+dEl.innerHTML='<option value="">ทุกอำเภอ</option>'+filteredDists.map(d=>`<option ${d===curD?'selected':''}>${esc(d)}</option>`).join('');
+// ถ้าอำเภอเดิมไม่อยู่ในรายการใหม่ → reset
+if(curD&&!filteredDists.includes(curD))dEl.value='';
 
-  const sEl=document.getElementById('filterSales'),curS=sEl.value;
-  sEl.innerHTML='<option value="">ทุกเซลล์</option>'+allSales.map(s=>`<option ${s===curS?'selected':''}>${esc(s)}</option>`).join('');
+const sEl=document.getElementById('filterSales'),curS=sEl.value;
+sEl.innerHTML='<option value="">ทุกเซลล์</option>'+allSales.map(s=>`<option ${s===curS?'selected':''}>${esc(s)}</option>`).join('');
 }
 
 function onProvChange(){
-  document.getElementById('filterDistrict').value='';
-  updateFilters();
+document.getElementById('filterDistrict').value='';
+updateFilters();
 }
 
 function renderTable(){
-  const filtered=getFiltered(),tbody=document.getElementById('tableBody');
-  if(!filtered.length){tbody.innerHTML=`<tr><td colspan="10" class="empty-state">${shops.length?'🔍 ไม่พบ':'📍 ยังไม่มีข้อมูล'}</td></tr>`;updateSelection();return;}
-  tbody.innerHTML=filtered.map(s=>{
-    const d=new Date(s.createdAt);const ds=d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-    return `<tr class="${selected.has(s.id)?'selected':''}" ondblclick="editShop('${esc(s.id)}')">
-      <td class="cb-cell"><input type="checkbox" ${selected.has(s.id)?'checked':''} onchange="toggleSelect('${esc(s.id)}')"></td>
-      <td class="cell-name">${esc(s.name)}</td>
-      <td>${s.province?`<span class="cell-loc">${esc(s.province)}</span>`:'-'}</td>
-      <td>${s.district?`<span class="cell-loc">${esc(s.district)}</span>`:'-'}</td>
-      <td class="cell-sales">${esc(s.sales)||'-'}</td>
-      <td>${esc(s.phone)||'-'}</td>
-      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--text-dim);font-size:13px">${esc(s.note)||'-'}</td>
-      <td class="cell-coord">${parseFloat(s.lat).toFixed(5)}, ${parseFloat(s.lng).toFixed(5)}</td>
-      <td class="cell-date">${ds}</td>
-      <td><div class="row-actions">
-        <button class="row-btn" onclick="focusMap('${esc(s.id)}')">🗺️</button>
-        <button class="row-btn" onclick="window.open('https://www.google.com/maps?q=${s.lat},${s.lng}','_blank')">🧭</button>
-        <button class="row-btn" onclick="editShop('${esc(s.id)}')">✏️</button>
-        ${adminRole==='owner'?'<button class="row-btn del" onclick="deleteShop(\''+esc(s.id)+'\')">🗑️</button>':''}
-      </div></td></tr>`;
-  }).join('');
-  updateSelection();renderMarkers();
+const filtered=getFiltered(),tbody=document.getElementById('tableBody');
+if(!filtered.length){tbody.innerHTML=`<tr><td colspan="10" class="empty-state">${shops.length?'🔍 ไม่พบ':'📍 ยังไม่มีข้อมูล'}</td></tr>`;updateSelection();return;}
+tbody.innerHTML=filtered.map(s=>{
+const d=new Date(s.createdAt);const ds=d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+return `<tr class="${selected.has(s.id)?'selected':''}" ondblclick="editShop('${esc(s.id)}')">
+     <td class="cb-cell"><input type="checkbox" ${selected.has(s.id)?'checked':''} onchange="toggleSelect('${esc(s.id)}')"></td>
+     <td class="cell-name">${esc(s.name)}</td>
+     <td>${s.province?`<span class="cell-loc">${esc(s.province)}</span>`:'-'}</td>
+     <td>${s.district?`<span class="cell-loc">${esc(s.district)}</span>`:'-'}</td>
+     <td class="cell-sales">${esc(s.sales)||'-'}</td>
+     <td>${esc(s.phone)||'-'}</td>
+     <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--text-dim);font-size:13px">${esc(s.note)||'-'}</td>
+     <td class="cell-coord">${parseFloat(s.lat).toFixed(5)}, ${parseFloat(s.lng).toFixed(5)}</td>
+     <td class="cell-date">${ds}</td>
+     <td><div class="row-actions">
+       <button class="row-btn" onclick="focusMap('${esc(s.id)}')">🗺️</button>
+       <button class="row-btn" onclick="window.open('https://www.google.com/maps?q=${s.lat},${s.lng}','_blank')">🧭</button>
+       <button class="row-btn" onclick="editShop('${esc(s.id)}')">✏️</button>
+       ${adminRole==='owner'?'<button class="row-btn del" onclick="deleteShop(\''+esc(s.id)+'\')">🗑️</button>':''}
+     </div></td></tr>`;
+}).join('');
+updateSelection();renderMarkers();
 }
 
 function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);renderTable();}
 function toggleSelectAll(){const a=document.getElementById('selectAll').checked;if(a)getFiltered().forEach(s=>selected.add(s.id));else selected.clear();renderTable();}
 function updateSelection(){
-  const i=document.getElementById('selectionInfo'),b=document.getElementById('bulkDeleteBtn');
-  if(selected.size&&adminRole==='owner'){i.innerHTML=`เลือก <b>${selected.size}</b> รายการ`;b.style.display='flex';}
-  else{i.textContent=`${getFiltered().length} / ${shops.length}`;b.style.display='none';}
+const i=document.getElementById('selectionInfo'),b=document.getElementById('bulkDeleteBtn');
+if(selected.size&&adminRole==='owner'){i.innerHTML=`เลือก <b>${selected.size}</b> รายการ`;b.style.display='flex';}
+else{i.textContent=`${getFiltered().length} / ${shops.length}`;b.style.display='none';}
 }
 async function bulkDelete(){
-  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
-  if(!confirm(`ลบ ${selected.size} รายการ?`))return;
-  const ids=[...selected];const count=ids.length;
-  shops=shops.filter(s=>!selected.has(s.id));selected.clear();renderAll();
-  await apiPost('deleteShops',{ids});
-  apiPost('logAudit',{data:{adminName,action:'bulkDelete',details:`ลบ ${count} ร้าน`}});
-  showToast('ลบเรียบร้อย');
+if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
+if(!confirm(`ลบ ${selected.size} รายการ?`))return;
+const ids=[...selected];const count=ids.length;
+shops=shops.filter(s=>!selected.has(s.id));selected.clear();renderAll();
+await apiPost('deleteShops',{ids});
+apiPost('logAudit',{data:{adminName,action:'bulkDelete',details:`ลบ ${count} ร้าน`}});
+showToast('ลบเรียบร้อย');
 }
 
 function focusMap(id){const s=shops.find(x=>x.id===id);if(s){switchRight('map');setTimeout(()=>{initMapIfNeeded();if(map){map.invalidateSize();map.setView([s.lat,s.lng],16);if(markers[id])markers[id].openPopup();}},200);}}
 async function deleteShop(id){
-  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
-  const s=shops.find(x=>x.id===id);if(!s||!confirm(`ลบ "${s.name}" ?`))return;
-  shops=shops.filter(x=>x.id!==id);selected.delete(id);renderAll();
-  await apiPost('deleteShop',{id});
-  apiPost('logAudit',{data:{adminName,action:'deleteShop',details:`ลบร้าน "${s.name}"`}});
-  showToast('ลบแล้ว');
+if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
+const s=shops.find(x=>x.id===id);if(!s||!confirm(`ลบ "${s.name}" ?`))return;
+shops=shops.filter(x=>x.id!==id);selected.delete(id);renderAll();
+await apiPost('deleteShop',{id});
+apiPost('logAudit',{data:{adminName,action:'deleteShop',details:`ลบร้าน "${s.name}"`}});
+showToast('ลบแล้ว');
 }
 
 // ══════ MODAL ══════
 function populateModalSales(){
-  const sel=document.getElementById('mSales'),cur=sel.value;
-  const all=[...new Set([...salesTeam,...shops.map(s=>s.sales).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'th'));
-  sel.innerHTML='<option value="">เลือก</option>'+all.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('');
+const sel=document.getElementById('mSales'),cur=sel.value;
+const all=[...new Set([...salesTeam,...shops.map(s=>s.sales).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'th'));
+sel.innerHTML='<option value="">เลือก</option>'+all.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('');
 }
 
 function showAddModal(){
-  editingId='__new__';document.getElementById('modalTitle').textContent='➕ เพิ่มร้านค้าใหม่';
-  ['mName','mPhone','mLat','mLng','mNote','mProvince','mDistrict'].forEach(id=>document.getElementById(id).value='');
-  populateModalSales();document.getElementById('mSales').value='';
-  document.getElementById('editModal').classList.add('show');
+editingId='__new__';document.getElementById('modalTitle').textContent='➕ เพิ่มร้านค้าใหม่';
+['mName','mPhone','mLat','mLng','mNote','mProvince','mDistrict'].forEach(id=>document.getElementById(id).value='');
+populateModalSales();document.getElementById('mSales').value='';
+document.getElementById('editModal').classList.add('show');
 }
 function editShop(id){
-  const s=shops.find(x=>x.id===id);if(!s)return;editingId=id;
-  document.getElementById('modalTitle').textContent='✏️ แก้ไขร้านค้า';
-  document.getElementById('mName').value=s.name;document.getElementById('mLat').value=s.lat;document.getElementById('mLng').value=s.lng;
-  document.getElementById('mProvince').value=s.province||'';document.getElementById('mDistrict').value=s.district||'';
-  populateModalSales();document.getElementById('mSales').value=s.sales||'';
-  document.getElementById('mPhone').value=s.phone||'';document.getElementById('mNote').value=s.note||'';
-  document.getElementById('editModal').classList.add('show');
+const s=shops.find(x=>x.id===id);if(!s)return;editingId=id;
+document.getElementById('modalTitle').textContent='✏️ แก้ไขร้านค้า';
+document.getElementById('mName').value=s.name;document.getElementById('mLat').value=s.lat;document.getElementById('mLng').value=s.lng;
+document.getElementById('mProvince').value=s.province||'';document.getElementById('mDistrict').value=s.district||'';
+populateModalSales();document.getElementById('mSales').value=s.sales||'';
+document.getElementById('mPhone').value=s.phone||'';document.getElementById('mNote').value=s.note||'';
+document.getElementById('editModal').classList.add('show');
 }
 
 async function geocodeModal(){
-  const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
-  if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัดก่อน',true);return;}
-  showToast('กำลังหาที่ตั้ง...');
-  const r=await reverseGeocode(lat,lng);
-  document.getElementById('mProvince').value=r.province;
-  document.getElementById('mDistrict').value=r.district;
-  showToast(r.province?`พบ: อ.${r.district} จ.${r.province}`:'ไม่พบข้อมูล');
+const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
+if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัดก่อน',true);return;}
+showToast('กำลังหาที่ตั้ง...');
+const r=await reverseGeocode(lat,lng);
+document.getElementById('mProvince').value=r.province;
+document.getElementById('mDistrict').value=r.district;
+showToast(r.province?`พบ: อ.${r.district} จ.${r.province}`:'ไม่พบข้อมูล');
 }
 
 async function saveModal(){
-  const name=document.getElementById('mName').value.trim();
-  const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
-  if(!name){showToast('ใส่ชื่อร้าน',true);return;}if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัด',true);return;}
-  const data={
-    id:editingId==='__new__'?Date.now().toString(36)+Math.random().toString(36).substr(2,5):editingId,
-    name,lat,lng,
-    province:document.getElementById('mProvince').value.trim(),
-    district:document.getElementById('mDistrict').value.trim(),
-    sales:document.getElementById('mSales').value,
-    phone:document.getElementById('mPhone').value.trim(),
-    note:document.getElementById('mNote').value.trim(),
-    createdAt:editingId==='__new__'?new Date().toISOString():(shops.find(x=>x.id===editingId)||{}).createdAt||new Date().toISOString()
-  };
-  if(editingId==='__new__'){
-    shops.push(data);await apiPost('addShop',{data});
-    apiPost('logAudit',{data:{adminName,action:'addShop',details:`เพิ่มร้าน "${name}"`}});
-    showToast(`เพิ่ม "${esc(name)}"`);
-  }else{
-    const i=shops.findIndex(x=>x.id===editingId);if(i>-1)shops[i]=data;
-    await apiPost('updateShop',{data});
-    apiPost('logAudit',{data:{adminName,action:'updateShop',details:`แก้ไขร้าน "${name}"`}});
-    showToast('อัปเดตแล้ว');
-  }
-  closeModal('editModal');renderAll();
+const name=document.getElementById('mName').value.trim();
+const lat=parseFloat(document.getElementById('mLat').value),lng=parseFloat(document.getElementById('mLng').value);
+if(!name){showToast('ใส่ชื่อร้าน',true);return;}if(isNaN(lat)||isNaN(lng)){showToast('ใส่พิกัด',true);return;}
+const data={
+id:editingId==='__new__'?Date.now().toString(36)+Math.random().toString(36).substr(2,5):editingId,
+name,lat,lng,
+province:document.getElementById('mProvince').value.trim(),
+district:document.getElementById('mDistrict').value.trim(),
+sales:document.getElementById('mSales').value,
+phone:document.getElementById('mPhone').value.trim(),
+note:document.getElementById('mNote').value.trim(),
+createdAt:editingId==='__new__'?new Date().toISOString():(shops.find(x=>x.id===editingId)||{}).createdAt||new Date().toISOString()
+};
+if(editingId==='__new__'){
+shops.push(data);await apiPost('addShop',{data});
+apiPost('logAudit',{data:{adminName,action:'addShop',details:`เพิ่มร้าน "${name}"`}});
+showToast(`เพิ่ม "${esc(name)}"`);
+}else{
+const i=shops.findIndex(x=>x.id===editingId);if(i>-1)shops[i]=data;
+await apiPost('updateShop',{data});
+apiPost('logAudit',{data:{adminName,action:'updateShop',details:`แก้ไขร้าน "${name}"`}});
+showToast('อัปเดตแล้ว');
+}
+closeModal('editModal');renderAll();
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
 // ══════ DUPLICATE CHECK ══════
 async function checkDuplicates(){
-  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ตรวจร้านซ้ำได้',true);return;}
-  document.getElementById('dupModal').classList.add('show');
-  document.getElementById('dupContent').innerHTML='<div class="dup-loading">⏳ กำลังตรวจสอบร้านค้าทั้งหมด...</div>';
-  const data=await apiGet('getDuplicates');
-  if(!data||!data.length){
-    document.getElementById('dupContent').innerHTML='<div class="dup-empty">✅ ไม่พบร้านค้าซ้ำ!<br><span style="font-size:13px;color:var(--text-dim)">ตรวจ '+shops.length+' ร้าน (เงื่อนไข: จังหวัด+อำเภอเดียวกัน, ชื่อคล้าย ≥80%, ใกล้กัน ≤500 ม.)</span></div>';
-    return;
-  }
-  let html=`<div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">พบ <b style="color:var(--orange)">${data.length}</b> คู่ที่อาจซ้ำกัน (จังหวัด+อำเภอเดียวกัน, ชื่อคล้าย ≥80%, ใกล้กัน ≤500 ม.)</div>`;
-  data.forEach((d,idx)=>{
-    const badgeClass=d.similarity>=95?'high':'medium';
-    html+=`<div class="dup-pair" id="dupPair${idx}">
-      <div class="dup-pair-header">
-        <span>#${idx+1} · ${esc(d.province)} · อ.${esc(d.district)}</span>
-        <span class="dup-badge ${badgeClass}">คล้าย ${d.similarity}% · ${d.distance} ม.</span>
-      </div>
-      <div class="dup-pair-shops">
-        <div class="dup-shop">
-          <div class="dup-shop-name">${esc(d.shopA.name)}</div>
-          <div class="dup-shop-info">👤 ${esc(d.shopA.sales)||'-'}<br>📞 ${esc(d.shopA.phone)||'-'}<br>📅 ${d.shopA.createdAt?new Date(d.shopA.createdAt).toLocaleDateString('th-TH'):'-'}</div>
-          <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopA.id)}',${idx},'A')">🗑️ ลบร้าน A</button>
-        </div>
-        <div class="dup-shop">
-          <div class="dup-shop-name">${esc(d.shopB.name)}</div>
-          <div class="dup-shop-info">👤 ${esc(d.shopB.sales)||'-'}<br>📞 ${esc(d.shopB.phone)||'-'}<br>📅 ${d.shopB.createdAt?new Date(d.shopB.createdAt).toLocaleDateString('th-TH'):'-'}</div>
-          <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopB.id)}',${idx},'B')">🗑️ ลบร้าน B</button>
-        </div>
-      </div>
-    </div>`;
-  });
-  document.getElementById('dupContent').innerHTML=html;
+if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ตรวจร้านซ้ำได้',true);return;}
+document.getElementById('dupModal').classList.add('show');
+document.getElementById('dupContent').innerHTML='<div class="dup-loading">⏳ กำลังตรวจสอบร้านค้าทั้งหมด...</div>';
+const data=await apiGet('getDuplicates');
+if(!data||!data.length){
+document.getElementById('dupContent').innerHTML='<div class="dup-empty">✅ ไม่พบร้านค้าซ้ำ!<br><span style="font-size:13px;color:var(--text-dim)">ตรวจ '+shops.length+' ร้าน (เงื่อนไข: จังหวัด+อำเภอเดียวกัน, ชื่อคล้าย ≥80%, ใกล้กัน ≤500 ม.)</span></div>';
+return;
+}
+let html=`<div style="font-size:13px;color:var(--text-dim);margin-bottom:12px">พบ <b style="color:var(--orange)">${data.length}</b> คู่ที่อาจซ้ำกัน (จังหวัด+อำเภอเดียวกัน, ชื่อคล้าย ≥80%, ใกล้กัน ≤500 ม.)</div>`;
+data.forEach((d,idx)=>{
+const badgeClass=d.similarity>=95?'high':'medium';
+html+=`<div class="dup-pair" id="dupPair${idx}">
+     <div class="dup-pair-header">
+       <span>#${idx+1} · ${esc(d.province)} · อ.${esc(d.district)}</span>
+       <span class="dup-badge ${badgeClass}">คล้าย ${d.similarity}% · ${d.distance} ม.</span>
+     </div>
+     <div class="dup-pair-shops">
+       <div class="dup-shop">
+         <div class="dup-shop-name">${esc(d.shopA.name)}</div>
+         <div class="dup-shop-info">👤 ${esc(d.shopA.sales)||'-'}<br>📞 ${esc(d.shopA.phone)||'-'}<br>📅 ${d.shopA.createdAt?new Date(d.shopA.createdAt).toLocaleDateString('th-TH'):'-'}</div>
+         <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopA.id)}',${idx},'A')">🗑️ ลบร้าน A</button>
+       </div>
+       <div class="dup-shop">
+         <div class="dup-shop-name">${esc(d.shopB.name)}</div>
+         <div class="dup-shop-info">👤 ${esc(d.shopB.sales)||'-'}<br>📞 ${esc(d.shopB.phone)||'-'}<br>📅 ${d.shopB.createdAt?new Date(d.shopB.createdAt).toLocaleDateString('th-TH'):'-'}</div>
+         <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopB.id)}',${idx},'B')">🗑️ ลบร้าน B</button>
+       </div>
+     </div>
+   </div>`;
+});
+document.getElementById('dupContent').innerHTML=html;
 }
 async function deleteDupShop(id,pairIdx,side){
-  if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
-  const s=shops.find(x=>x.id===id);
-  if(!s||!confirm(`ลบ "${s.name}" ?`))return;
-  shops=shops.filter(x=>x.id!==id);renderAll();
-  await apiPost('deleteShop',{id});
-  apiPost('logAudit',{data:{adminName,action:'deleteDuplicate',details:`ลบร้านซ้ำ "${s.name}"`}});
-  showToast(`ลบ "${esc(s.name)}" แล้ว`);
-  // ซ่อน pair ที่ลบแล้ว
-  const pair=document.getElementById('dupPair'+pairIdx);
-  if(pair){pair.style.opacity='0.3';pair.style.pointerEvents='none';}
+if(adminRole!=='owner'){showToast('❌ เฉพาะเจ้าของระบบเท่านั้นที่ลบได้',true);return;}
+const s=shops.find(x=>x.id===id);
+if(!s||!confirm(`ลบ "${s.name}" ?`))return;
+shops=shops.filter(x=>x.id!==id);renderAll();
+await apiPost('deleteShop',{id});
+apiPost('logAudit',{data:{adminName,action:'deleteDuplicate',details:`ลบร้านซ้ำ "${s.name}"`}});
+showToast(`ลบ "${esc(s.name)}" แล้ว`);
+// ซ่อน pair ที่ลบแล้ว
+const pair=document.getElementById('dupPair'+pairIdx);
+if(pair){pair.style.opacity='0.3';pair.style.pointerEvents='none';}
 }
 
 // ══════ EXPORT ══════
 function exportCSV(){
-  const f=getFiltered();if(!f.length){showToast('ไม่มีข้อมูล',true);return;}
-  const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
-  const rows=f.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
-  dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-${ds()}.csv`,'text/csv;charset=utf-8');
-  apiPost('logAudit',{data:{adminName,action:'exportCSV',details:`Export ${f.length} ร้าน (filter)`}});
-  showToast(`Export ${f.length} รายการ`);
+const f=getFiltered();if(!f.length){showToast('ไม่มีข้อมูล',true);return;}
+const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
+const rows=f.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
+dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-${ds()}.csv`,'text/csv;charset=utf-8');
+apiPost('logAudit',{data:{adminName,action:'exportCSV',details:`Export ${f.length} ร้าน (filter)`}});
+showToast(`Export ${f.length} รายการ`);
 }
 function dl(c,fn,t){const b=new Blob([c],{type:t}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);}
 function ds(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;}
@@ -972,70 +972,70 @@ function ds(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()
 function showImportModal(){csvRows=[];document.getElementById('csvFile').value='';document.getElementById('importPreview').textContent='';document.getElementById('importBtn').style.display='none';document.getElementById('geocodeCheck').style.display='none';document.getElementById('importProgress').style.display='none';document.getElementById('importModal').classList.add('show');}
 
 function handleCSV(e){
-  const f=e.target.files[0];if(!f)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const buf=ev.target.result;const bytes=new Uint8Array(buf);
-    const hasUtf8Bom=(bytes[0]===0xEF&&bytes[1]===0xBB&&bytes[2]===0xBF);
-    let text;
-    if(hasUtf8Bom){text=new TextDecoder('utf-8').decode(buf);}
-    else{
-      text=new TextDecoder('utf-8').decode(buf);
-      const hasThai=/[\u0E00-\u0E7F]/.test(text);
-      const hasGarbled=/[\u00C0-\u00FF]{2,}/.test(text)||/\uFFFD/.test(text);
-      if(!hasThai||hasGarbled){try{text=new TextDecoder('windows-874').decode(buf);}catch(e2){try{text=new TextDecoder('tis-620').decode(buf);}catch(e3){}}}
-    }
-    processCSVText(text);
-  };
-  reader.readAsArrayBuffer(f);
+const f=e.target.files[0];if(!f)return;
+const reader=new FileReader();
+reader.onload=ev=>{
+const buf=ev.target.result;const bytes=new Uint8Array(buf);
+const hasUtf8Bom=(bytes[0]===0xEF&&bytes[1]===0xBB&&bytes[2]===0xBF);
+let text;
+if(hasUtf8Bom){text=new TextDecoder('utf-8').decode(buf);}
+else{
+text=new TextDecoder('utf-8').decode(buf);
+const hasThai=/[\u0E00-\u0E7F]/.test(text);
+const hasGarbled=/[\u00C0-\u00FF]{2,}/.test(text)||/\uFFFD/.test(text);
+if(!hasThai||hasGarbled){try{text=new TextDecoder('windows-874').decode(buf);}catch(e2){try{text=new TextDecoder('tis-620').decode(buf);}catch(e3){}}}
+}
+processCSVText(text);
+};
+reader.readAsArrayBuffer(f);
 }
 
 function processCSVText(text){
-  if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
-  const lines=text.split(/\r?\n/).filter(l=>l.trim());
-  if(lines.length<2){document.getElementById('importPreview').textContent='❌ ไฟล์ว่างหรืออ่านไม่ได้';return;}
-  csvRows=[];
-  for(let i=1;i<lines.length;i++){
-    const c=parseCSVLine(lines[i]);
-    if(c.length>=3){csvRows.push({name:(c[0]||'').trim(),lat:parseFloat(c[1]),lng:parseFloat(c[2]),sales:(c[3]||'').trim(),phone:(c[4]||'').trim(),note:(c[5]||'').trim()});}
-  }
-  const valid=csvRows.filter(r=>r.name&&!isNaN(r.lat)&&!isNaN(r.lng));
-  document.getElementById('importPreview').innerHTML=`✅ พบ <b>${valid.length}</b> รายการ`+(valid.length?` — ตัวอย่าง: "${esc(valid[0].name)}"`:'');
-  document.getElementById('geocodeCheck').style.display=valid.length?'flex':'none';
-  document.getElementById('importBtn').style.display=valid.length?'block':'none';
-  csvRows=valid;
+if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+const lines=text.split(/\r?\n/).filter(l=>l.trim());
+if(lines.length<2){document.getElementById('importPreview').textContent='❌ ไฟล์ว่างหรืออ่านไม่ได้';return;}
+csvRows=[];
+for(let i=1;i<lines.length;i++){
+const c=parseCSVLine(lines[i]);
+if(c.length>=3){csvRows.push({name:(c[0]||'').trim(),lat:parseFloat(c[1]),lng:parseFloat(c[2]),sales:(c[3]||'').trim(),phone:(c[4]||'').trim(),note:(c[5]||'').trim()});}
+}
+const valid=csvRows.filter(r=>r.name&&!isNaN(r.lat)&&!isNaN(r.lng));
+document.getElementById('importPreview').innerHTML=`✅ พบ <b>${valid.length}</b> รายการ`+(valid.length?` — ตัวอย่าง: "${esc(valid[0].name)}"`:'');
+document.getElementById('geocodeCheck').style.display=valid.length?'flex':'none';
+document.getElementById('importBtn').style.display=valid.length?'block':'none';
+csvRows=valid;
 }
 function parseCSVLine(l){const r=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){r.push(c.trim());c='';}else c+=ch;}r.push(c.trim());return r;}
 
 async function doImport(){
-  const doGeo=document.getElementById('autoGeocode').checked;
-  const prog=document.getElementById('importProgress'),progText=document.getElementById('progressText'),progFill=document.getElementById('progressFill');
-  document.getElementById('importBtn').style.display='none';
-  document.getElementById('importCancelBtn').style.display='none';
-  prog.style.display='block';
-  const newShops=[];
-  for(let i=0;i<csvRows.length;i++){
-    const row=csvRows[i];
-    progText.textContent=`กำลังประมวลผล ${i+1}/${csvRows.length}: ${esc(row.name)}`;
-    progFill.style.width=((i+1)/csvRows.length*100)+'%';
-    let province='',district='';
-    if(doGeo){const geo=await reverseGeocode(row.lat,row.lng);province=geo.province;district=geo.district;if(i<csvRows.length-1)await new Promise(r=>setTimeout(r,1100));}
-    const shop={id:Date.now().toString(36)+Math.random().toString(36).substr(2,8),name:row.name,lat:row.lat,lng:row.lng,province,district,sales:row.sales,phone:row.phone||'',note:row.note||'',createdAt:new Date().toISOString()};
-    shops.push(shop);newShops.push(shop);
-  }
-  progText.textContent='กำลังบันทึกลง Google Sheets...';
-  await apiPost('addShops',{data:newShops});
-  apiPost('logAudit',{data:{adminName,action:'importCSV',details:`นำเข้า ${newShops.length} ร้าน`}});
-  closeModal('importModal');renderAll();showToast(`นำเข้า ${newShops.length} ร้านเรียบร้อย!`);
+const doGeo=document.getElementById('autoGeocode').checked;
+const prog=document.getElementById('importProgress'),progText=document.getElementById('progressText'),progFill=document.getElementById('progressFill');
+document.getElementById('importBtn').style.display='none';
+document.getElementById('importCancelBtn').style.display='none';
+prog.style.display='block';
+const newShops=[];
+for(let i=0;i<csvRows.length;i++){
+const row=csvRows[i];
+progText.textContent=`กำลังประมวลผล ${i+1}/${csvRows.length}: ${esc(row.name)}`;
+progFill.style.width=((i+1)/csvRows.length*100)+'%';
+let province='',district='';
+if(doGeo){const geo=await reverseGeocode(row.lat,row.lng);province=geo.province;district=geo.district;if(i<csvRows.length-1)await new Promise(r=>setTimeout(r,1100));}
+const shop={id:Date.now().toString(36)+Math.random().toString(36).substr(2,8),name:row.name,lat:row.lat,lng:row.lng,province,district,sales:row.sales,phone:row.phone||'',note:row.note||'',createdAt:new Date().toISOString()};
+shops.push(shop);newShops.push(shop);
+}
+progText.textContent='กำลังบันทึกลง Google Sheets...';
+await apiPost('addShops',{data:newShops});
+apiPost('logAudit',{data:{adminName,action:'importCSV',details:`นำเข้า ${newShops.length} ร้าน`}});
+closeModal('importModal');renderAll();showToast(`นำเข้า ${newShops.length} ร้านเรียบร้อย!`);
 }
 
 // ══════ RIGHT PANEL ══════
 function switchRight(tab){
-  document.querySelectorAll('.right-tab').forEach((el,i)=>el.classList.toggle('active',(tab==='map'&&i===0)||(tab==='settings'&&i===1)));
-  document.getElementById('rightMap').classList.toggle('active',tab==='map');
-  document.getElementById('rightSettings').classList.toggle('active',tab==='settings');
-  if(tab==='map'){initMapIfNeeded();setTimeout(()=>{if(map)map.invalidateSize();},100);}
-  if(tab==='settings'){renderTeamList();if(adminRole==='owner')loadAdminList();}
+document.querySelectorAll('.right-tab').forEach((el,i)=>el.classList.toggle('active',(tab==='map'&&i===0)||(tab==='settings'&&i===1)));
+document.getElementById('rightMap').classList.toggle('active',tab==='map');
+document.getElementById('rightSettings').classList.toggle('active',tab==='settings');
+if(tab==='map'){initMapIfNeeded();setTimeout(()=>{if(map)map.invalidateSize();},100);}
+if(tab==='settings'){renderTeamList();if(adminRole==='owner')loadAdminList();}
 }
 
 // ══════ EXPORT FULL-SCREEN ══════
@@ -1045,175 +1045,175 @@ function openExportPage(){document.getElementById('exportOverlay').classList.add
 function closeExportPage(){document.getElementById('exportOverlay').classList.remove('show');}
 
 function populateExFilters(){
-  const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
-  const selP=document.getElementById('exFilterProv'),curP=selP.value;
-  selP.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option value="${esc(p)}"${p===curP?' selected':''}>${esc(p)}</option>`).join('');
-  onExProvChange();
-  const sales=[...new Set(shops.map(s=>s.sales).filter(Boolean))].sort();
-  const selS=document.getElementById('exFilterSales'),curS=selS.value;
-  selS.innerHTML='<option value="">ทุกเซลล์</option>'+sales.map(s=>`<option value="${esc(s)}"${s===curS?' selected':''}>${esc(s)}</option>`).join('');
+const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
+const selP=document.getElementById('exFilterProv'),curP=selP.value;
+selP.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option value="${esc(p)}"${p===curP?' selected':''}>${esc(p)}</option>`).join('');
+onExProvChange();
+const sales=[...new Set(shops.map(s=>s.sales).filter(Boolean))].sort();
+const selS=document.getElementById('exFilterSales'),curS=selS.value;
+selS.innerHTML='<option value="">ทุกเซลล์</option>'+sales.map(s=>`<option value="${esc(s)}"${s===curS?' selected':''}>${esc(s)}</option>`).join('');
 }
 function onExProvChange(){
-  const prov=document.getElementById('exFilterProv').value;
-  const dists=[...new Set(shops.filter(s=>!prov||s.province===prov).map(s=>s.district).filter(Boolean))].sort();
-  const selD=document.getElementById('exFilterDistrict'),curD=selD.value;
-  selD.innerHTML='<option value="">ทุกอำเภอ</option>'+dists.map(d=>`<option value="${esc(d)}"${d===curD?' selected':''}>${esc(d)}</option>`).join('');
-  if(curD&&!dists.includes(curD))selD.value='';
+const prov=document.getElementById('exFilterProv').value;
+const dists=[...new Set(shops.filter(s=>!prov||s.province===prov).map(s=>s.district).filter(Boolean))].sort();
+const selD=document.getElementById('exFilterDistrict'),curD=selD.value;
+selD.innerHTML='<option value="">ทุกอำเภอ</option>'+dists.map(d=>`<option value="${esc(d)}"${d===curD?' selected':''}>${esc(d)}</option>`).join('');
+if(curD&&!dists.includes(curD))selD.value='';
 }
 function getExFiltered(){
-  const prov=document.getElementById('exFilterProv').value;
-  const dist=document.getElementById('exFilterDistrict').value;
-  const sales=document.getElementById('exFilterSales').value;
-  const from=document.getElementById('exDateFrom').value;
-  const to=document.getElementById('exDateTo').value;
-  const q=(document.getElementById('exSearch').value||'').toLowerCase();
-  document.getElementById('exDateClear').style.display=(from||to)?'inline':'none';
-  return shops.filter(s=>{
-    if(prov&&s.province!==prov)return false;
-    if(dist&&s.district!==dist)return false;
-    if(sales&&s.sales!==sales)return false;
-    if(from){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d<from)return false;}
-    if(to){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d>to)return false;}
-    if(q&&!s.name.toLowerCase().includes(q)&&!(s.district||'').toLowerCase().includes(q)&&!(s.phone||'').includes(q))return false;
-    return true;
-  });
+const prov=document.getElementById('exFilterProv').value;
+const dist=document.getElementById('exFilterDistrict').value;
+const sales=document.getElementById('exFilterSales').value;
+const from=document.getElementById('exDateFrom').value;
+const to=document.getElementById('exDateTo').value;
+const q=(document.getElementById('exSearch').value||'').toLowerCase();
+document.getElementById('exDateClear').style.display=(from||to)?'inline':'none';
+return shops.filter(s=>{
+if(prov&&s.province!==prov)return false;
+if(dist&&s.district!==dist)return false;
+if(sales&&s.sales!==sales)return false;
+if(from){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d<from)return false;}
+if(to){const d=s.createdAt?s.createdAt.slice(0,10):'';if(d>to)return false;}
+if(q&&!s.name.toLowerCase().includes(q)&&!(s.district||'').toLowerCase().includes(q)&&!(s.phone||'').includes(q))return false;
+return true;
+});
 }
 function clearExDateFilter(){document.getElementById('exDateFrom').value='';document.getElementById('exDateTo').value='';document.getElementById('exDateClear').style.display='none';renderExportTable();}
 
 function renderExportTable(){
-  const list=getExFiltered();const el=document.getElementById('exTableBody');
-  document.getElementById('exLeftBadge').textContent=list.length+' ร้าน';updateExCount();
-  if(!list.length){el.innerHTML=`<tr><td colspan="8" class="ex-empty">ไม่มีข้อมูลตามเงื่อนไข</td></tr>`;return;}
-  el.innerHTML=list.map(s=>{
-    const checked=exportSelected.has(s.id);
-    const d=s.createdAt?new Date(s.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):'';
-    return `<tr class="${checked?'ex-selected':''}">
-      <td class="cb-cell"><input type="checkbox" ${checked?'checked':''} onchange="toggleExItem('${esc(s.id)}',this.checked)"></td>
-      <td class="ex-cell-name">${esc(s.name)}</td>
-      <td>${s.province?`<span class="ex-cell-loc">${esc(s.province)}</span>`:'-'}</td>
-      <td>${s.district?`<span class="ex-cell-loc">${esc(s.district)}</span>`:'-'}</td>
-      <td class="ex-cell-sales">${esc(s.sales)||'-'}</td>
-      <td>${esc(s.phone)||'-'}</td>
-      <td class="ex-cell-coord">${s.lat}, ${s.lng}</td>
-      <td class="ex-cell-date">${d}</td></tr>`;
-  }).join('');
-  document.getElementById('exSelectAll').checked=list.length>0&&list.every(s=>exportSelected.has(s.id));
+const list=getExFiltered();const el=document.getElementById('exTableBody');
+document.getElementById('exLeftBadge').textContent=list.length+' ร้าน';updateExCount();
+if(!list.length){el.innerHTML=`<tr><td colspan="8" class="ex-empty">ไม่มีข้อมูลตามเงื่อนไข</td></tr>`;return;}
+el.innerHTML=list.map(s=>{
+const checked=exportSelected.has(s.id);
+const d=s.createdAt?new Date(s.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):'';
+return `<tr class="${checked?'ex-selected':''}">
+     <td class="cb-cell"><input type="checkbox" ${checked?'checked':''} onchange="toggleExItem('${esc(s.id)}',this.checked)"></td>
+     <td class="ex-cell-name">${esc(s.name)}</td>
+     <td>${s.province?`<span class="ex-cell-loc">${esc(s.province)}</span>`:'-'}</td>
+     <td>${s.district?`<span class="ex-cell-loc">${esc(s.district)}</span>`:'-'}</td>
+     <td class="ex-cell-sales">${esc(s.sales)||'-'}</td>
+     <td>${esc(s.phone)||'-'}</td>
+     <td class="ex-cell-coord">${s.lat}, ${s.lng}</td>
+     <td class="ex-cell-date">${d}</td></tr>`;
+}).join('');
+document.getElementById('exSelectAll').checked=list.length>0&&list.every(s=>exportSelected.has(s.id));
 }
 
 function renderExportRight(){
-  const q=(document.getElementById('exSearchRight').value||'').toLowerCase();
-  const items=shops.filter(s=>exportSelected.has(s.id)&&(!q||s.name.toLowerCase().includes(q)));
-  const el=document.getElementById('exRightList');
-  if(!exportSelected.size){el.innerHTML='<div class="ex-right-empty">← ติ๊กเลือกร้านจากตารางฝั่งซ้าย<br><br>หรือกด <b>"⊕ เพิ่มทั้งหมดที่กรอง"</b><br>เพื่อเลือกทุกร้านตาม filter ทีเดียว</div>';return;}
-  el.innerHTML=items.map(s=>{
-    let sub=[];if(s.district)sub.push('อ.'+esc(s.district));if(s.sales)sub.push(esc(s.sales));
-    return `<div class="ex-right-item" onclick="removeExItem('${esc(s.id)}')">
-      <div class="ex-right-item-name">${esc(s.name)}</div>
-      ${sub.length?`<div class="ex-right-item-sub">${sub.join(' · ')}</div>`:''}
-      <div class="ex-right-item-remove">✕</div></div>`;
-  }).join('');
-  const provs=[...new Set(shops.filter(s=>exportSelected.has(s.id)).map(s=>s.province).filter(Boolean))];
-  const salesList=[...new Set(shops.filter(s=>exportSelected.has(s.id)).map(s=>s.sales).filter(Boolean))];
-  document.getElementById('exRightSummary').innerHTML=`<b>${exportSelected.size}</b> ร้าน · ${provs.length} จังหวัด · ${salesList.length} เซลล์`;
+const q=(document.getElementById('exSearchRight').value||'').toLowerCase();
+const items=shops.filter(s=>exportSelected.has(s.id)&&(!q||s.name.toLowerCase().includes(q)));
+const el=document.getElementById('exRightList');
+if(!exportSelected.size){el.innerHTML='<div class="ex-right-empty">← ติ๊กเลือกร้านจากตารางฝั่งซ้าย<br><br>หรือกด <b>"⊕ เพิ่มทั้งหมดที่กรอง"</b><br>เพื่อเลือกทุกร้านตาม filter ทีเดียว</div>';return;}
+el.innerHTML=items.map(s=>{
+let sub=[];if(s.district)sub.push('อ.'+esc(s.district));if(s.sales)sub.push(esc(s.sales));
+return `<div class="ex-right-item" onclick="removeExItem('${esc(s.id)}')">
+     <div class="ex-right-item-name">${esc(s.name)}</div>
+     ${sub.length?`<div class="ex-right-item-sub">${sub.join(' · ')}</div>`:''}
+     <div class="ex-right-item-remove">✕</div></div>`;
+}).join('');
+const provs=[...new Set(shops.filter(s=>exportSelected.has(s.id)).map(s=>s.province).filter(Boolean))];
+const salesList=[...new Set(shops.filter(s=>exportSelected.has(s.id)).map(s=>s.sales).filter(Boolean))];
+document.getElementById('exRightSummary').innerHTML=`<b>${exportSelected.size}</b> ร้าน · ${provs.length} จังหวัด · ${salesList.length} เซลล์`;
 }
 
 function toggleExItem(id,checked){if(checked)exportSelected.add(id);else exportSelected.delete(id);renderExportTable();renderExportRight();}
 function removeExItem(id){exportSelected.delete(id);renderExportTable();renderExportRight();}
 function toggleExSelectAll(){
-  const list=getExFiltered();const allChecked=list.every(s=>exportSelected.has(s.id));
-  if(allChecked)list.forEach(s=>exportSelected.delete(s.id));else list.forEach(s=>exportSelected.add(s.id));
-  renderExportTable();renderExportRight();
+const list=getExFiltered();const allChecked=list.every(s=>exportSelected.has(s.id));
+if(allChecked)list.forEach(s=>exportSelected.delete(s.id));else list.forEach(s=>exportSelected.add(s.id));
+renderExportTable();renderExportRight();
 }
 function addAllFiltered(){
-  const list=getExFiltered();list.forEach(s=>exportSelected.add(s.id));
-  // แจ้งเตือนถ้า admin เลือกเกิน 50
-  if(adminRole!=='owner'&&exportSelected.size>50){showToast('⚠️ เลือก '+exportSelected.size+' ร้าน — export ได้ไม่เกิน 50 ร้าน/ครั้ง',true);}
-  else{showToast(`เพิ่ม ${exportSelected.size} ร้าน`);}
-  renderExportTable();renderExportRight();
+const list=getExFiltered();list.forEach(s=>exportSelected.add(s.id));
+// แจ้งเตือนถ้า admin เลือกเกิน 50
+if(adminRole!=='owner'&&exportSelected.size>50){showToast('⚠️ เลือก '+exportSelected.size+' ร้าน — export ได้ไม่เกิน 50 ร้าน/ครั้ง',true);}
+else{showToast(`เพิ่ม ${exportSelected.size} ร้าน`);}
+renderExportTable();renderExportRight();
 }
 function clearExportList(){exportSelected.clear();document.getElementById('exSearch').value='';document.getElementById('exSearchRight').value='';renderExportTable();renderExportRight();}
 function updateExCount(){
-  document.getElementById('exRightBadge').textContent=exportSelected.size+' ร้าน';
-  document.getElementById('expGoBtn').disabled=!exportSelected.size;
-  document.getElementById('expGoBtn2').disabled=!exportSelected.size;
+document.getElementById('exRightBadge').textContent=exportSelected.size+' ร้าน';
+document.getElementById('expGoBtn').disabled=!exportSelected.size;
+document.getElementById('expGoBtn2').disabled=!exportSelected.size;
 }
 function doExportSelected(){
-  const items=shops.filter(s=>exportSelected.has(s.id));
-  if(!items.length){showToast('ยังไม่ได้เลือกร้าน',true);return;}
-  // ═══ จำกัด 50 ร้าน/ครั้ง สำหรับ admin (owner ไม่จำกัด) ═══
-  if(adminRole!=='owner'&&items.length>50){showToast('❌ ดึงข้อมูลได้ไม่เกิน 50 ร้าน/ครั้ง (เลือกอยู่ '+items.length+' ร้าน)',true);return;}
-  const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
-  const rows=items.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
-  dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-export-${ds()}.csv`,'text/csv;charset=utf-8');
-  // บันทึก audit log
-  const provs=[...new Set(items.map(s=>s.province).filter(Boolean))];
-  apiPost('logAudit',{data:{adminName,action:'exportCSV',details:`Export ${items.length} ร้าน (${provs.join(',')||'ทุกจังหวัด'})`}});
-  showToast(`📤 Export ${items.length} ร้านค้าแล้ว`);
+const items=shops.filter(s=>exportSelected.has(s.id));
+if(!items.length){showToast('ยังไม่ได้เลือกร้าน',true);return;}
+// ═══ จำกัด 50 ร้าน/ครั้ง สำหรับ admin (owner ไม่จำกัด) ═══
+if(adminRole!=='owner'&&items.length>50){showToast('❌ ดึงข้อมูลได้ไม่เกิน 50 ร้าน/ครั้ง (เลือกอยู่ '+items.length+' ร้าน)',true);return;}
+const h='ชื่อร้าน,จังหวัด,อำเภอ,เซลล์,เบอร์โทร,หมายเหตุ,ละติจูด,ลองจิจูด,วันที่';
+const rows=items.map(s=>`"${s.name}","${s.province||''}","${s.district||''}","${s.sales||''}","${s.phone||''}","${(s.note||'').replace(/"/g,'""')}",${s.lat},${s.lng},"${new Date(s.createdAt).toLocaleString('th-TH')}"`);
+dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-export-${ds()}.csv`,'text/csv;charset=utf-8');
+// บันทึก audit log
+const provs=[...new Set(items.map(s=>s.province).filter(Boolean))];
+apiPost('logAudit',{data:{adminName,action:'exportCSV',details:`Export ${items.length} ร้าน (${provs.join(',')||'ทุกจังหวัด'})`}});
+showToast(`📤 Export ${items.length} ร้านค้าแล้ว`);
 }
 
 // ══════ ADMIN MANAGEMENT (owner only) ══════
 async function loadAdminList(){
-  const data=await apiGet('getAdminList');
-  if(data)renderAdminCards(data);
+const data=await apiGet('getAdminList');
+if(data)renderAdminCards(data);
 }
 function renderAdminCards(list){
-  const el=document.getElementById('adminCardList');
-  if(!list||!list.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">ยังไม่มีรายชื่อแอดมิน</div>';return;}
-  el.innerHTML=list.map(a=>{
-    const isOwner=a.role==='owner';
-    const avClass=isOwner?'owner-av':'admin-av';
-    const roleClass=isOwner?'owner':'admin';
-    const roleText=isOwner?'เจ้าของ':'แอดมิน';
-    const removeBtn=isOwner?'':'<button class="member-remove" onclick="removeAdminMember(\''+esc(a.name).replace(/'/g,"\\'")+'\')">✕ ลบ</button>';
-    return `<div class="admin-card">
-      <div class="admin-avatar ${avClass}">${isOwner?'👑':'👤'}</div>
-      <div class="admin-card-info">
-        <div class="admin-card-name">${esc(a.name)} <span class="role-badge ${roleClass}">${roleText}</span></div>
-        <div class="admin-card-meta">📍 ${esc(a.province)||'-'}</div>
-      </div>
-      ${removeBtn}
-    </div>`;
-  }).join('');
+const el=document.getElementById('adminCardList');
+if(!list||!list.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--text-dim);font-size:13px">ยังไม่มีรายชื่อแอดมิน</div>';return;}
+el.innerHTML=list.map(a=>{
+const isOwner=a.role==='owner';
+const avClass=isOwner?'owner-av':'admin-av';
+const roleClass=isOwner?'owner':'admin';
+const roleText=isOwner?'เจ้าของ':'แอดมิน';
+const removeBtn=isOwner?'':'<button class="member-remove" onclick="removeAdminMember(\''+esc(a.name).replace(/'/g,"\\'")+'\')">✕ ลบ</button>';
+return `<div class="admin-card">
+     <div class="admin-avatar ${avClass}">${isOwner?'👑':'👤'}</div>
+     <div class="admin-card-info">
+       <div class="admin-card-name">${esc(a.name)} <span class="role-badge ${roleClass}">${roleText}</span></div>
+       <div class="admin-card-meta">📍 ${esc(a.province)||'-'}</div>
+     </div>
+     ${removeBtn}
+   </div>`;
+}).join('');
 }
 async function addNewAdmin(){
-  const name=document.getElementById('newAdminName').value.trim();
-  const pin=document.getElementById('newAdminPin').value.trim();
-  const prov=document.getElementById('newAdminProv').value;
-  if(!name||!pin){showToast('กรุณากรอกชื่อและรหัสผ่าน',true);return;}
-  if(pin.length<4){showToast('รหัสต้องมีอย่างน้อย 4 หลัก',true);return;}
-  const r=await apiPost('addAdmin',{data:{name,pin,role:'admin',province:prov},requestedBy:adminName});
-  if(r&&r.ok){
-    showToast('✅ '+r.message);
-    document.getElementById('newAdminName').value='';document.getElementById('newAdminPin').value='';document.getElementById('newAdminProv').value='';
-    apiPost('logAudit',{data:{adminName,action:'addAdmin',details:'เพิ่มแอดมิน "'+name+'" ('+prov+')'}});
-    loadAdminList();
-  }else{showToast('❌ '+(r&&r.message?r.message:'เพิ่มไม่ได้'),true);}
+const name=document.getElementById('newAdminName').value.trim();
+const pin=document.getElementById('newAdminPin').value.trim();
+const prov=document.getElementById('newAdminProv').value;
+if(!name||!pin){showToast('กรุณากรอกชื่อและรหัสผ่าน',true);return;}
+if(pin.length<4){showToast('รหัสต้องมีอย่างน้อย 4 หลัก',true);return;}
+const r=await apiPost('addAdmin',{data:{name,pin,role:'admin',province:prov},requestedBy:adminName});
+if(r&&r.ok){
+showToast('✅ '+r.message);
+document.getElementById('newAdminName').value='';document.getElementById('newAdminPin').value='';document.getElementById('newAdminProv').value='';
+apiPost('logAudit',{data:{adminName,action:'addAdmin',details:'เพิ่มแอดมิน "'+name+'" ('+prov+')'}});
+loadAdminList();
+}else{showToast('❌ '+(r&&r.message?r.message:'เพิ่มไม่ได้'),true);}
 }
 async function removeAdminMember(name){
-  if(!confirm('ลบแอดมิน "'+name+'" ?\nแอดมินคนนี้จะเข้าระบบไม่ได้อีก'))return;
-  const r=await apiPost('removeAdmin',{name,requestedBy:adminName});
-  if(r&&r.ok){
-    showToast('✅ '+r.message);
-    apiPost('logAudit',{data:{adminName,action:'removeAdmin',details:'ลบแอดมิน "'+name+'"'}});
-    loadAdminList();
-  }else{showToast('❌ '+(r&&r.message?r.message:'ลบไม่ได้'),true);}
+if(!confirm('ลบแอดมิน "'+name+'" ?\nแอดมินคนนี้จะเข้าระบบไม่ได้อีก'))return;
+const r=await apiPost('removeAdmin',{name,requestedBy:adminName});
+if(r&&r.ok){
+showToast('✅ '+r.message);
+apiPost('logAudit',{data:{adminName,action:'removeAdmin',details:'ลบแอดมิน "'+name+'"'}});
+loadAdminList();
+}else{showToast('❌ '+(r&&r.message?r.message:'ลบไม่ได้'),true);}
 }
 
 function showToast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast'+(e?' error':'');setTimeout(()=>t.classList.add('show'),10);setTimeout(()=>t.classList.remove('show'),2500);}
 
 // ══════ START ══════
 if(checkAdminAuth()){
-  document.getElementById('adminLoginOverlay').classList.add('hidden');
-  const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
-  const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
-  document.getElementById('adminBadge').textContent='👤 '+adminName+' ('+roleLabel+provLabel+')';
-  if(adminRole==='owner'){
-    document.getElementById('adminMgmtSection').classList.add('show');
-    document.getElementById('dupCheckBtn').style.display='';
-    document.getElementById('changePinSection').style.display='';
-  }
-  init();
-  setTimeout(()=>loadAdminList(),1000);
+document.getElementById('adminLoginOverlay').classList.add('hidden');
+const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
+const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
+document.getElementById('adminBadge').textContent='👤 '+adminName+' ('+roleLabel+provLabel+')';
+if(adminRole==='owner'){
+document.getElementById('adminMgmtSection').classList.add('show');
+document.getElementById('dupCheckBtn').style.display='';
+document.getElementById('changePinSection').style.display='';
+}
+init();
+setTimeout(()=>loadAdminList(),1000);
 }
 </script>
 </body>
