@@ -112,7 +112,9 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 .settings-section-title{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .settings-section-desc{font-size:13px;color:var(--text-dim);margin-bottom:14px;line-height:1.5}
 .add-sales-row{display:flex;gap:8px;margin-bottom:14px}
-.add-sales-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:14px;font-family:inherit;outline:none}
+.add-sales-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:14px;font-family:inherit;outline:none;min-width:0}
+.add-sales-input.pin{flex:0 0 110px;letter-spacing:2px;text-align:center}
+.member-actions{display:flex;gap:6px;flex-shrink:0}
 .add-sales-input:focus{border-color:var(--blue)}
 .add-sales-btn{padding:9px 16px;background:var(--blue);border:none;border-radius:8px;color:white;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap}
 .add-sales-btn:hover{filter:brightness(1.1)}
@@ -410,9 +412,10 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 
 <div class="settings-section">
 <div class="settings-section-title">👥 จัดการรายชื่อเซลล์</div>
-<div class="settings-section-desc">เพิ่มหรือลบรายชื่อเซลล์ที่นี่ รายชื่อจะแสดงในแอป Sales Pin</div>
+<div class="settings-section-desc">เพิ่มเซลล์พร้อมตั้งรหัสผ่าน 4 หลักได้ที่นี่ · ปุ่ม 🔑 ตั้งรหัสใหม่ให้เซลล์ที่ลืมรหัส · ไม่ต้องเข้า Google Sheet</div>
 <div class="add-sales-row">
-<input class="add-sales-input" id="newSalesName" placeholder="พิมพ์ชื่อเซลล์ใหม่..." oninput="document.getElementById('addSalesBtn').disabled=!this.value.trim()" onkeydown="if(event.key==='Enter')addSalesMember()">
+<input class="add-sales-input" id="newSalesName" placeholder="ชื่อเซลล์ใหม่..." oninput="onNewSalesInput()" onkeydown="if(event.key==='Enter')addSalesMember()">
+<input class="add-sales-input pin" id="newSalesPin" type="tel" inputmode="numeric" maxlength="4" placeholder="รหัส 4 หลัก" oninput="this.value=this.value.replace(/\D/g,'');onNewSalesInput()" onkeydown="if(event.key==='Enter')addSalesMember()">
 <button class="add-sales-btn" id="addSalesBtn" disabled onclick="addSalesMember()">➕ เพิ่ม</button>
 </div>
 <div class="sales-team-list" id="salesTeamList"></div>
@@ -542,7 +545,9 @@ let adminName='',adminRole='',adminProvince='';
 let API_URL=localStorage.getItem('salesmap-api-url')||'https://script.google.com/macros/s/AKfycbyWJGCku3wxI0tR0l0CX3RGj7P8OT_ccbTaCVu82Cuqe3tJC4ar7SZDfsuCLO8Yeb8J/exec';
 
 // ══════ XSS PROTECTION ══════
-function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s.toString();return d.innerHTML;}
+// escape ครบ & < > " ' — ใช้ได้ทั้งใน text และใน attribute (data-id="...") · ห้ามต่อค่าลงใน onclick="fn('...')" ตรงๆ (XSS)
+function esc(s){if(s===null||s===undefined||s==='')return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function thCmp(a,b){return String(a).localeCompare(String(b),'th');}
 
 // ══════ ADMIN AUTH ══════
 function checkAdminAuth(){
@@ -591,7 +596,7 @@ sessionStorage.setItem('salesmap-admin-auth',JSON.stringify({loggedIn:true,admin
 document.getElementById('adminLoginOverlay').classList.add('hidden');
 const roleLabel=adminRole==='owner'?'เจ้าของ':'แอดมิน';
 const provLabel=adminProvince&&adminProvince!=='ทั้งหมด'?' · '+adminProvince:'';
-document.getElementById('adminBadge').textContent='👤 '+esc(adminName)+' ('+roleLabel+provLabel+')';
+document.getElementById('adminBadge').textContent='👤 '+adminName+' ('+roleLabel+provLabel+')';
 showToast('สวัสดี '+name+'!');
 // แสดงส่วนจัดการแอดมินถ้าเป็น owner
 if(adminRole==='owner'){
@@ -657,33 +662,58 @@ return {province:prov,district:dist};
 }
 
 // ══════ API ══════
+// GAS ตอบช้าได้ถึง 40 วิ และตอบ 404 "ไม่สามารถเปิดไฟล์ได้ในเวลานี้" เป็นครั้งคราว (วัดจริง 2026-09-16: ร้าน 5,924 = 1.5MB)
+// เดิม fetch ไม่มี timeout + กลืน error → ตารางว่างเปล่าแต่สถานะบอก "เชื่อมต่อแล้ว"
+function fetchWithTimeout(url,opts={},ms=90000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);return fetch(url,{...opts,signal:c.signal}).finally(()=>clearTimeout(t));}
 async function apiGet(action,params=''){
 if(!API_URL)return null;
-try{const r=await fetch(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
+try{const r=await fetchWithTimeout(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){return null;}
+}
+// วัดจริง: 404 มาเป็นชุดติดกันได้ 5-8 ครั้งแล้วค่อยหาย → ลอง 4 ครั้ง เว้น 3/6/10 วิ
+async function apiGetRetry(action,tries=4){
+const waits=[3000,6000,10000];
+for(let i=1;i<=tries;i++){const d=await apiGet(action);if(d!==null)return d;if(i<tries){setConn('','⏳ Google ตอบไม่ทัน กำลังลองใหม่ ('+(i+1)+'/'+tries+')...');await new Promise(r=>setTimeout(r,waits[i-1]||10000));}}
+return null;
 }
 async function apiPost(action,data){
 if(!API_URL)return {_err:'NO_API_URL'};
-try{const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})});const j=await r.json();if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(e){return {_err:e.message||'NETWORK'};}
+try{const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})},60000);const j=await r.json();if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(e){return {_err:e.name==='AbortError'?'TIMEOUT':(e.message||'NETWORK')};}
 }
 
+// ══════ SHOP CACHE (ข้อมูลล่าสุดที่โหลดสำเร็จ — ให้ตารางไม่ว่างเปล่าเวลา Google ตอบไม่ทัน) ══════
+const SHOPS_CACHE_KEY='salesmap-shops-cache';
+function loadShopsCache(){try{const raw=localStorage.getItem(SHOPS_CACHE_KEY);if(!raw)return null;const c=JSON.parse(raw);return(c&&Array.isArray(c.data))?c:null;}catch(e){return null;}}
+function saveShopsCache(list){try{localStorage.setItem(SHOPS_CACHE_KEY,JSON.stringify({ts:Date.now(),data:list}));}catch(e){}}
+
 // ══════ INIT ══════
+async function loadData(){
+setConn('','⏳ กำลังโหลด...');
+const[t,s]=await Promise.all([apiGetRetry('getTeam'),apiGetRetry('getAllShops')]);   // getAllShops ผ่าน cache ฝั่ง server (3 วิ) แทน getShops ที่อ่านชีทใหม่ทุกครั้ง (10-40 วิ)
+if(t!==null)salesTeam=t;
+if(s){shops=s;saveShopsCache(s);setConn('ok','✅ เชื่อมต่อแล้ว · '+s.length.toLocaleString()+' ร้าน');}
+else{
+const c=loadShopsCache();
+if(c&&!shops.length)shops=c.data;
+const when=c?new Date(c.ts).toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+setConn('err','❌ โหลดร้านค้าจากระบบไม่ได้'+(shops.length?' — แสดงข้อมูลเดิม ('+when+')':'')+' · กด 🔄 รีเฟรช');
+showToast('⚠️ Google ตอบไม่ทัน (ลองแล้ว 4 ครั้ง) — กด รีเฟรช อีกครั้ง',true);
+}
+renderAll();
+return !!s;
+}
 async function init(){
 document.getElementById('apiUrlInput').value=API_URL;
 if(!API_URL){setConn('err','⚠️ ยังไม่ได้ตั้งค่า API URL');switchRight('settings');return;}
-setConn('','⏳ กำลังโหลด...');
-const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
-if(t!==null){salesTeam=t;setConn('ok','✅ เชื่อมต่อแล้ว');}else setConn('err','❌ เชื่อมต่อไม่ได้');
-if(s)shops=s;
-renderAll();
+const c=loadShopsCache();if(c&&!shops.length){shops=c.data;renderAll();}   // โชว์ข้อมูลเดิมทันทีระหว่างรอโหลด
+await loadData();
 }
 function setConn(c,t){const e=document.getElementById('connStatus');e.className='conn-status'+(c?' '+c:'');e.textContent=t;}
 function saveApiUrl(){const u=document.getElementById('apiUrlInput').value.trim();if(!u){showToast('ใส่ URL',true);return;}API_URL=u;localStorage.setItem('salesmap-api-url',u);showToast('บันทึก URL แล้ว');init();}
 
 async function refreshData(){
 const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='⏳ ...';
-const[t,s]=await Promise.all([apiGet('getTeam'),apiGet('getShops')]);
-if(t!==null)salesTeam=t;if(s)shops=s;renderAll();
-btn.disabled=false;btn.textContent='🔄 รีเฟรช';showToast(`โหลดแล้ว: ${shops.length} ร้าน`);
+const ok=await loadData();
+btn.disabled=false;btn.textContent='🔄 รีเฟรช';if(ok)showToast(`โหลดแล้ว: ${shops.length} ร้าน`);
 }
 
 // ══════ CHANGE ADMIN PIN ══════
@@ -703,24 +733,44 @@ showToast('❌ '+(r&&r.message?r.message:'เปลี่ยนไม่ได�
 }
 
 // ══════ TEAM ══════
+// จัดการรายคนผ่าน addTeamMember/removeTeamMember/setTeamPin (backend v3.3) — ไม่ส่ง list ทั้งก้อนแล้ว (เคยทำชื่อ+PIN คนอื่นหายเมื่อแอดมิน 2 คนแก้พร้อมกัน)
+function onNewSalesInput(){const n=document.getElementById('newSalesName').value.trim(),p=document.getElementById('newSalesPin').value;document.getElementById('addSalesBtn').disabled=!(n&&/^\d{4}$/.test(p));}
 async function addSalesMember(){
-const input=document.getElementById('newSalesName'),name=input.value.trim();
-if(!name)return;if(salesTeam.includes(name)){showToast(`"${esc(name)}" มีอยู่แล้ว`,true);return;}
-salesTeam.push(name);salesTeam.sort((a,b)=>a.localeCompare(b,'th'));
-renderTeamList();updateFilters();input.value='';document.getElementById('addSalesBtn').disabled=true;
-await apiPost('setTeam',{data:salesTeam});showToast(`เพิ่ม "${esc(name)}"`);
+const nameEl=document.getElementById('newSalesName'),pinEl=document.getElementById('newSalesPin'),btn=document.getElementById('addSalesBtn');
+const name=nameEl.value.trim(),pin=pinEl.value.trim();
+if(!name||!/^\d{4}$/.test(pin)){showToast('กรอกชื่อและรหัสผ่านตัวเลข 4 หลัก',true);return;}
+if(salesTeam.includes(name)){showToast(`"${name}" มีอยู่แล้ว`,true);return;}
+btn.disabled=true;btn.textContent='⏳';
+const r=await apiPost('addTeamMember',{name,pin});
+btn.textContent='➕ เพิ่ม';
+if(r&&r.ok){
+salesTeam.push(name);salesTeam.sort(thCmp);renderTeamList();updateFilters();
+nameEl.value='';pinEl.value='';showToast('✅ '+r.message);
+apiPost('logAudit',{data:{adminName,action:'addTeamMember',details:`เพิ่มเซลล์ "${name}"`}});
+}else{showToast('❌ '+((r&&(r.message||r._err))||'เพิ่มไม่ได้'),true);btn.disabled=false;}
 }
 async function removeSalesMember(name){
-if(!confirm(`ลบ "${name}" ?`))return;
-salesTeam=salesTeam.filter(n=>n!==name);renderTeamList();updateFilters();
-await apiPost('setTeam',{data:salesTeam});showToast(`ลบ "${esc(name)}"`);
+if(!confirm(`ลบ "${name}" ?\nเซลล์คนนี้จะเข้าแอปไม่ได้อีก (ร้านที่บันทึกไว้ยังอยู่)`))return;
+const r=await apiPost('removeTeamMember',{name});
+if(r&&r.ok){
+salesTeam=salesTeam.filter(n=>n!==name);renderTeamList();updateFilters();showToast('✅ '+r.message);
+apiPost('logAudit',{data:{adminName,action:'removeTeamMember',details:`ลบเซลล์ "${name}"`}});
+}else showToast('❌ '+((r&&(r.message||r._err))||'ลบไม่ได้'),true);
+}
+async function resetSalesPin(name){
+const pin=prompt(`ตั้งรหัสผ่านใหม่ (ตัวเลข 4 หลัก) ให้ "${name}"`);
+if(pin===null)return;
+if(!/^\d{4}$/.test(pin.trim())){showToast('รหัสต้องเป็นตัวเลข 4 หลัก',true);return;}
+const r=await apiPost('setTeamPin',{name,pin:pin.trim()});
+if(r&&r.ok){showToast('✅ '+r.message);apiPost('logAudit',{data:{adminName,action:'setTeamPin',details:`ตั้งรหัสใหม่ให้เซลล์ "${name}"`}});}
+else showToast('❌ '+((r&&(r.message||r._err))||'ตั้งรหัสไม่ได้'),true);
 }
 function renderTeamList(){
 const el=document.getElementById('salesTeamList');
 if(!salesTeam.length){el.innerHTML='<div class="empty-team">👥 ยังไม่มีรายชื่อเซลล์</div>';return;}
 el.innerHTML=salesTeam.map(name=>{
 const en=esc(name);
-return `<div class="team-member-card"><div class="member-avatar">👤</div><div class="member-info"><div class="member-name">${en}</div><div class="member-stats">บันทึก ${shops.filter(s=>s.sales===name).length} ร้าน</div></div><button class="member-remove" onclick="removeSalesMember('${en.replace(/'/g,"\\'")}')">✕ ลบ</button></div>`;
+return `<div class="team-member-card"><div class="member-avatar">👤</div><div class="member-info"><div class="member-name">${en}</div><div class="member-stats">บันทึก ${shops.filter(s=>s.sales===name).length} ร้าน</div></div><div class="member-actions"><button class="member-remove" data-name="${en}" onclick="resetSalesPin(this.dataset.name)" title="ตั้งรหัสผ่านใหม่">🔑 รหัส</button><button class="member-remove" data-name="${en}" onclick="removeSalesMember(this.dataset.name)">✕ ลบ</button></div></div>`;
 }).join('');
 }
 
@@ -757,7 +807,7 @@ if(dist&&s.district!==dist)return false;
 if(sales&&s.sales!==sales)return false;
 if(df||dt){const sd=(s.createdAt||'').slice(0,10);if(df&&sd<df)return false;if(dt&&sd>dt)return false;}
 return true;
-}).sort((a,b)=>{const va=a[sortField]||'',vb=b[sortField]||'';return(typeof va==='string'?va.localeCompare(vb):va-vb)*sortDir;});
+}).sort((a,b)=>{const va=a[sortField]||'',vb=b[sortField]||'';return(typeof va==='number'&&typeof vb==='number'?va-vb:thCmp(va,vb))*sortDir;});
 }
 function sortBy(f){if(sortField===f)sortDir*=-1;else{sortField=f;sortDir=1;}renderTable();}
 
@@ -772,7 +822,7 @@ const n=new Date();document.getElementById('statMonth').textContent=shops.filter
 function updateFilters(){
 const provs=[...new Set(shops.map(s=>s.province).filter(Boolean))].sort();
 const salesIn=[...new Set(shops.map(s=>s.sales).filter(Boolean))];
-const allSales=[...new Set([...salesTeam,...salesIn])].sort((a,b)=>a.localeCompare(b,'th'));
+const allSales=[...new Set([...salesTeam,...salesIn])].sort(thCmp);
 
 const pEl=document.getElementById('filterProv'),curP=pEl.value;
 pEl.innerHTML='<option value="">ทุกจังหวัด</option>'+provs.map(p=>`<option ${p===curP?'selected':''}>${esc(p)}</option>`).join('');
@@ -801,8 +851,8 @@ const filtered=getFiltered(),tbody=document.getElementById('tableBody');
 if(!filtered.length){tbody.innerHTML=`<tr><td colspan="10" class="empty-state">${shops.length?'🔍 ไม่พบ':'📍 ยังไม่มีข้อมูล'}</td></tr>`;updateSelection();return;}
 tbody.innerHTML=filtered.map(s=>{
 const d=new Date(s.createdAt);const ds=d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
-return `<tr class="${selected.has(s.id)?'selected':''}" ondblclick="editShop('${esc(s.id)}')">
-     <td class="cb-cell"><input type="checkbox" ${selected.has(s.id)?'checked':''} onchange="toggleSelect('${esc(s.id)}')"></td>
+return `<tr class="${selected.has(s.id)?'selected':''}" data-id="${esc(s.id)}" ondblclick="editShop(this.dataset.id)">
+     <td class="cb-cell"><input type="checkbox" ${selected.has(s.id)?'checked':''} data-id="${esc(s.id)}" onchange="toggleSelect(this.dataset.id)"></td>
      <td class="cell-name">${esc(s.name)}</td>
      <td>${s.province?`<span class="cell-loc">${esc(s.province)}</span>`:'-'}</td>
      <td>${s.district?`<span class="cell-loc">${esc(s.district)}</span>`:'-'}</td>
@@ -812,10 +862,10 @@ return `<tr class="${selected.has(s.id)?'selected':''}" ondblclick="editShop('${
      <td class="cell-coord">${parseFloat(s.lat).toFixed(5)}, ${parseFloat(s.lng).toFixed(5)}</td>
      <td class="cell-date">${ds}</td>
      <td><div class="row-actions">
-       <button class="row-btn" onclick="focusMap('${esc(s.id)}')">🗺️</button>
+       <button class="row-btn" data-id="${esc(s.id)}" onclick="focusMap(this.dataset.id)">🗺️</button>
        <button class="row-btn" onclick="window.open('https://www.google.com/maps?q=${s.lat},${s.lng}','_blank')">🧭</button>
-       <button class="row-btn" onclick="editShop('${esc(s.id)}')">✏️</button>
-       ${adminRole==='owner'?'<button class="row-btn del" onclick="deleteShop(\''+esc(s.id)+'\')">🗑️</button>':''}
+       <button class="row-btn" data-id="${esc(s.id)}" onclick="editShop(this.dataset.id)">✏️</button>
+       ${adminRole==='owner'?'<button class="row-btn del" data-id="'+esc(s.id)+'" onclick="deleteShop(this.dataset.id)">🗑️</button>':''}
      </div></td></tr>`;
 }).join('');
 updateSelection();renderMarkers();
@@ -851,7 +901,7 @@ showToast('ลบแล้ว');
 // ══════ MODAL ══════
 function populateModalSales(){
 const sel=document.getElementById('mSales'),cur=sel.value;
-const all=[...new Set([...salesTeam,...shops.map(s=>s.sales).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,'th'));
+const all=[...new Set([...salesTeam,...shops.map(s=>s.sales).filter(Boolean)])].sort(thCmp);
 sel.innerHTML='<option value="">เลือก</option>'+all.map(s=>`<option ${s===cur?'selected':''}>${esc(s)}</option>`).join('');
 }
 
@@ -895,17 +945,26 @@ phone:document.getElementById('mPhone').value.trim(),
 note:document.getElementById('mNote').value.trim(),
 createdAt:editingId==='__new__'?new Date().toISOString():(shops.find(x=>x.id===editingId)||{}).createdAt||new Date().toISOString()
 };
+// กันกดบันทึกซ้ำ (เคยได้ร้านซ้ำ 2 id) + เช็คผล API ก่อนแก้ข้อมูลบนจอ
+const saveBtn=document.querySelector('#editModal .m-save');
+if(saveBtn.disabled)return;
+saveBtn.disabled=true;saveBtn.textContent='⏳ กำลังบันทึก...';
+try{
 if(editingId==='__new__'){
-shops.push(data);await apiPost('addShop',{data});
+const r=await apiPost('addShop',{data});
+if(r&&r._err){showToast('❌ บันทึกไม่สำเร็จ: '+r._err,true);return;}
+shops.push(data);saveShopsCache(shops);
 apiPost('logAudit',{data:{adminName,action:'addShop',details:`เพิ่มร้าน "${name}"`}});
-showToast(`เพิ่ม "${esc(name)}"`);
+showToast(`เพิ่ม "${name}"`);
 }else{
-const i=shops.findIndex(x=>x.id===editingId);if(i>-1)shops[i]=data;
-await apiPost('updateShop',{data});
+const r=await apiPost('updateShop',{data});
+if(r&&r._err){showToast('❌ อัปเดตไม่สำเร็จ: '+r._err,true);return;}
+const i=shops.findIndex(x=>x.id===editingId);if(i>-1)shops[i]=data;saveShopsCache(shops);
 apiPost('logAudit',{data:{adminName,action:'updateShop',details:`แก้ไขร้าน "${name}"`}});
 showToast('อัปเดตแล้ว');
 }
 closeModal('editModal');renderAll();
+}finally{saveBtn.disabled=false;saveBtn.textContent='💾 บันทึก';}
 }
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 
@@ -931,12 +990,12 @@ html+=`<div class="dup-pair" id="dupPair${idx}">
        <div class="dup-shop">
          <div class="dup-shop-name">${esc(d.shopA.name)}</div>
          <div class="dup-shop-info">👤 ${esc(d.shopA.sales)||'-'}<br>📞 ${esc(d.shopA.phone)||'-'}<br>📅 ${d.shopA.createdAt?new Date(d.shopA.createdAt).toLocaleDateString('th-TH'):'-'}</div>
-         <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopA.id)}',${idx},'A')">🗑️ ลบร้าน A</button>
+         <button class="dup-shop-del" data-id="${esc(d.shopA.id)}" onclick="deleteDupShop(this.dataset.id,${idx},'A')">🗑️ ลบร้าน A</button>
        </div>
        <div class="dup-shop">
          <div class="dup-shop-name">${esc(d.shopB.name)}</div>
          <div class="dup-shop-info">👤 ${esc(d.shopB.sales)||'-'}<br>📞 ${esc(d.shopB.phone)||'-'}<br>📅 ${d.shopB.createdAt?new Date(d.shopB.createdAt).toLocaleDateString('th-TH'):'-'}</div>
-         <button class="dup-shop-del" onclick="deleteDupShop('${esc(d.shopB.id)}',${idx},'B')">🗑️ ลบร้าน B</button>
+         <button class="dup-shop-del" data-id="${esc(d.shopB.id)}" onclick="deleteDupShop(this.dataset.id,${idx},'B')">🗑️ ลบร้าน B</button>
        </div>
      </div>
    </div>`;
@@ -950,7 +1009,7 @@ if(!s||!confirm(`ลบ "${s.name}" ?`))return;
 shops=shops.filter(x=>x.id!==id);renderAll();
 await apiPost('deleteShop',{id});
 apiPost('logAudit',{data:{adminName,action:'deleteDuplicate',details:`ลบร้านซ้ำ "${s.name}"`}});
-showToast(`ลบ "${esc(s.name)}" แล้ว`);
+showToast(`ลบ "${s.name}" แล้ว`);
 // ซ่อน pair ที่ลบแล้ว
 const pair=document.getElementById('dupPair'+pairIdx);
 if(pair){pair.style.opacity='0.3';pair.style.pointerEvents='none';}
@@ -1016,7 +1075,7 @@ prog.style.display='block';
 const newShops=[];
 for(let i=0;i<csvRows.length;i++){
 const row=csvRows[i];
-progText.textContent=`กำลังประมวลผล ${i+1}/${csvRows.length}: ${esc(row.name)}`;
+progText.textContent=`กำลังประมวลผล ${i+1}/${csvRows.length}: ${row.name}`;
 progFill.style.width=((i+1)/csvRows.length*100)+'%';
 let province='',district='';
 if(doGeo){const geo=await reverseGeocode(row.lat,row.lng);province=geo.province;district=geo.district;if(i<csvRows.length-1)await new Promise(r=>setTimeout(r,1100));}
@@ -1088,7 +1147,7 @@ el.innerHTML=list.map(s=>{
 const checked=exportSelected.has(s.id);
 const d=s.createdAt?new Date(s.createdAt).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'}):'';
 return `<tr class="${checked?'ex-selected':''}">
-     <td class="cb-cell"><input type="checkbox" ${checked?'checked':''} onchange="toggleExItem('${esc(s.id)}',this.checked)"></td>
+     <td class="cb-cell"><input type="checkbox" ${checked?'checked':''} data-id="${esc(s.id)}" onchange="toggleExItem(this.dataset.id,this.checked)"></td>
      <td class="ex-cell-name">${esc(s.name)}</td>
      <td>${s.province?`<span class="ex-cell-loc">${esc(s.province)}</span>`:'-'}</td>
      <td>${s.district?`<span class="ex-cell-loc">${esc(s.district)}</span>`:'-'}</td>
@@ -1107,7 +1166,7 @@ const el=document.getElementById('exRightList');
 if(!exportSelected.size){el.innerHTML='<div class="ex-right-empty">← ติ๊กเลือกร้านจากตารางฝั่งซ้าย<br><br>หรือกด <b>"⊕ เพิ่มทั้งหมดที่กรอง"</b><br>เพื่อเลือกทุกร้านตาม filter ทีเดียว</div>';return;}
 el.innerHTML=items.map(s=>{
 let sub=[];if(s.district)sub.push('อ.'+esc(s.district));if(s.sales)sub.push(esc(s.sales));
-return `<div class="ex-right-item" onclick="removeExItem('${esc(s.id)}')">
+return `<div class="ex-right-item" data-id="${esc(s.id)}" onclick="removeExItem(this.dataset.id)">
      <div class="ex-right-item-name">${esc(s.name)}</div>
      ${sub.length?`<div class="ex-right-item-sub">${sub.join(' · ')}</div>`:''}
      <div class="ex-right-item-remove">✕</div></div>`;
@@ -1164,7 +1223,7 @@ const isOwner=a.role==='owner';
 const avClass=isOwner?'owner-av':'admin-av';
 const roleClass=isOwner?'owner':'admin';
 const roleText=isOwner?'เจ้าของ':'แอดมิน';
-const removeBtn=isOwner?'':'<button class="member-remove" onclick="removeAdminMember(\''+esc(a.name).replace(/'/g,"\\'")+'\')">✕ ลบ</button>';
+const removeBtn=isOwner?'':'<button class="member-remove" data-name="'+esc(a.name)+'" onclick="removeAdminMember(this.dataset.name)">✕ ลบ</button>';
 return `<div class="admin-card">
      <div class="admin-avatar ${avClass}">${isOwner?'👑':'👤'}</div>
      <div class="admin-card-info">
