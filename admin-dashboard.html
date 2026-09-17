@@ -577,7 +577,7 @@ btn.classList.remove('loading');btn.textContent='🔐 เข้าสู่ร�
 
 if(!result||result._err){
 document.getElementById('loginWarning').style.display='block';
-document.getElementById('loginWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+(result?result._err:'ไม่ทราบสาเหตุ');
+document.getElementById('loginWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+(result?result._err:'ไม่ทราบสาเหตุ')+' — กดเข้าสู่ระบบอีกครั้ง';
 btn.disabled=false;return;
 }
 if(!result.valid){
@@ -675,9 +675,18 @@ const waits=[3000,6000,10000];
 for(let i=1;i<=tries;i++){const d=await apiGet(action);if(d!==null)return d;if(i<tries){setConn('','⏳ Google ตอบไม่ทัน กำลังลองใหม่ ('+(i+1)+'/'+tries+')...');await new Promise(r=>setTimeout(r,waits[i-1]||10000));}}
 return null;
 }
+// Google ตอบเป็นหน้า HTML 404 "ไม่สามารถเปิดไฟล์ได้ในเวลานี้" หรือหมดเวลาเป็นครั้งคราว (เจอตอน login 2026-09-17) → ลองซ้ำ 3 ครั้ง
+// เฉพาะ transport error ไม่ใช่ error จาก server · write ทุกตัว idempotent (addShop/addCheckin ตาม id, team/admin ตามชื่อ, delete ตาม id)
+async function apiPostOnce(action,data){
+try{const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})},60000);const txt=await r.text();
+try{const j=JSON.parse(txt);if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(pe){return {_err:'Google ตอบไม่ทัน',_retry:true};}
+}catch(e){return {_err:e.name==='AbortError'?'หมดเวลา (60 วิ)':(e.message||'NETWORK'),_retry:true};}
+}
 async function apiPost(action,data){
 if(!API_URL)return {_err:'NO_API_URL'};
-try{const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})},60000);const j=await r.json();if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}catch(e){return {_err:e.name==='AbortError'?'TIMEOUT':(e.message||'NETWORK')};}
+const waits=[2000,5000];let r;
+for(let i=0;i<3;i++){r=await apiPostOnce(action,data);if(!(r&&r._retry))return r;if(i<2)await new Promise(res=>setTimeout(res,waits[i]));}
+r._err+=' (ลองแล้ว 3 ครั้ง)';return r;
 }
 
 // ══════ SHOP CACHE (ข้อมูลล่าสุดที่โหลดสำเร็จ — ให้ตารางไม่ว่างเปล่าเวลา Google ตอบไม่ทัน) ══════

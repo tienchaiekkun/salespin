@@ -292,17 +292,28 @@ function fetchWithTimeout(url,opts={},ms=90000){
   return fetch(url,{...opts,signal:ctrl.signal}).finally(()=>clearTimeout(timer));
 }
 async function apiGet(action,params=''){if(!API_URL)return null;try{const r=await fetchWithTimeout(`${API_URL}?action=${action}${params}`);const j=await r.json();return j.ok?j.data:null;}catch(e){console.log('GET error ['+action+']:',e.message);return null;}}
-async function apiPost(action,data){
-  if(!API_URL)return {_err:'NO_API_URL'};
+// Google ตอบเป็นหน้า HTML 404 "ไม่สามารถเปิดไฟล์ได้ในเวลานี้" หรือหมดเวลาเป็นครั้งคราว → ลองซ้ำ 3 ครั้ง (เฉพาะ transport error
+// ไม่ใช่ error จาก server) · ปลอดภัยเพราะ addShop/addCheckin idempotent ตาม id ที่ client สร้าง
+async function apiPostOnce(action,data){
   try{
     const r=await fetchWithTimeout(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action,...data})},45000);
     const txt=await r.text();
     try{const j=JSON.parse(txt);if(j.ok)return j.data;return {_err:'SERVER: '+(j.error||'unknown')};}
-    catch(pe){return {_err:'PARSE: '+txt.substring(0,100)};}
+    catch(pe){return {_err:'Google ตอบไม่ทัน',_retry:true};}
   }catch(e){
-    if(e.name==='AbortError')return {_err:'TIMEOUT (45วินาที)'};
-    return {_err:e.message||'NETWORK'};
+    if(e.name==='AbortError')return {_err:'หมดเวลา (45 วิ)',_retry:true};
+    return {_err:e.message||'NETWORK',_retry:true};
   }
+}
+async function apiPost(action,data){
+  if(!API_URL)return {_err:'NO_API_URL'};
+  const waits=[2000,5000];let r;
+  for(let i=0;i<3;i++){
+    r=await apiPostOnce(action,data);
+    if(!(r&&r._retry))return r;
+    if(i<2)await new Promise(res=>setTimeout(res,waits[i]));
+  }
+  r._err+=' (ลองแล้ว 3 ครั้ง)';return r;
 }
 
 // ══════ SHOP CACHE ══════
@@ -371,7 +382,7 @@ async function completeSetup(){
   btn.classList.remove('loading');btn.textContent='เข้าใช้งาน';
   if(result&&result._err){
     document.getElementById('setupWarning').style.display='block';
-    document.getElementById('setupWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+result._err;
+    document.getElementById('setupWarning').textContent='⚠️ เชื่อมต่อไม่ได้: '+result._err+' — กดเข้าใช้งานอีกครั้ง';
     btn.disabled=false;return;
   }
   if(!result||!result.valid){
@@ -451,7 +462,7 @@ function doCheckin(shopId){
       const img=new Image();
       img.onload=()=>{
         drawOverlay(img,{...shop,isCheckin:true});
-        const checkinData={shopId:shop.id,shopName:shop.name,sales:salesName,lat:myLat||shop.lat,lng:myLng||shop.lng,province:shop.province,district:shop.district,checkinAt:new Date().toISOString()};
+        const checkinData={id:Date.now().toString(36)+Math.random().toString(36).substr(2,5),shopId:shop.id,shopName:shop.name,sales:salesName,lat:myLat||shop.lat,lng:myLng||shop.lng,province:shop.province,district:shop.district,checkinAt:new Date().toISOString()};
         apiPost('addCheckin',{data:checkinData}).then(r=>{if(r&&r._err)showToast('⚠️ เช็คอินไม่สำเร็จ: '+r._err,true);});
         lastPhotoShop=shop;showPhotoModal(shop,true);
       };
