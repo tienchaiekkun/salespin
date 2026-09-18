@@ -173,6 +173,9 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 .ex-h-btn.primary{background:#f59e0b;color:#0d0f08;border-color:#f59e0b;font-weight:700}
 .ex-h-btn.primary:hover{filter:brightness(1.1)}
 .ex-h-btn.primary:disabled{opacity:0.3;pointer-events:none}
+.ex-h-btn.route{background:#1a6fb5;color:#fff;border-color:#1a6fb5;font-weight:700}
+.ex-h-btn.route:hover{filter:brightness(1.15);color:#fff}
+.ex-h-btn.route:disabled{opacity:0.3;pointer-events:none}
 
 .ex-body{display:flex;flex:1;overflow:hidden}
 .ex-left{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
@@ -233,6 +236,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 .ex-export-btn{width:100%;padding:12px;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#0d0f08;transition:all 0.15s;box-shadow:0 4px 16px rgba(245,158,11,0.2)}
 .ex-export-btn:hover{filter:brightness(1.1)}
 .ex-export-btn:disabled{opacity:0.25;pointer-events:none;box-shadow:none}
+.ex-export-btn.route{background:linear-gradient(135deg,#1a6fb5,#0f4c81);color:#fff;box-shadow:0 4px 16px rgba(26,111,181,0.25)}
 
 .api-url-row{display:flex;gap:8px}
 .api-url-input{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:8px;font-size:13px;font-family:'JetBrains Mono',monospace;outline:none}
@@ -492,9 +496,10 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 <div class="ex-header">
 <div class="ex-header-left">
 <div class="ex-logo">📦</div>
-<h2>Export ร้านค้า <small>เลือกร้านจากฝั่งซ้าย → ตรวจสอบฝั่งขวา → กด Export</small></h2>
+<h2>Export ร้านค้า <small>เลือกร้านจากฝั่งซ้าย → ตรวจสอบฝั่งขวา → กด Export หรือ วางแผนเส้นทาง</small></h2>
 </div>
 <div style="display:flex;align-items:center;gap:10px">
+<button class="ex-h-btn route" id="routeGoBtn" disabled onclick="doRoutePlanSelected()">🗺️ วางแผนเส้นทาง</button>
 <button class="ex-h-btn primary" id="expGoBtn" disabled onclick="doExportSelected()">📤 Export CSV</button>
 <button class="ex-h-btn" onclick="closeExportPage()">✕ ปิด</button>
 </div>
@@ -531,6 +536,7 @@ tr.selected td{background:rgba(79,140,255,0.12)}
 <div class="ex-right-list" id="exRightList"></div>
 <div class="ex-right-footer">
 <div class="ex-right-summary" id="exRightSummary"></div>
+<button class="ex-export-btn route" id="routeGoBtn2" disabled onclick="doRoutePlanSelected()">🗺️ วางแผนเส้นทาง</button>
 <button class="ex-export-btn" id="expGoBtn2" disabled onclick="doExportSelected()">📤 Export CSV</button>
 </div>
 </div>
@@ -1204,6 +1210,8 @@ function updateExCount(){
 document.getElementById('exRightBadge').textContent=exportSelected.size+' ร้าน';
 document.getElementById('expGoBtn').disabled=!exportSelected.size;
 document.getElementById('expGoBtn2').disabled=!exportSelected.size;
+document.getElementById('routeGoBtn').disabled=!exportSelected.size;
+document.getElementById('routeGoBtn2').disabled=!exportSelected.size;
 }
 function doExportSelected(){
 const items=shops.filter(s=>exportSelected.has(s.id));
@@ -1217,6 +1225,25 @@ dl('\ufeff'+h+'\n'+rows.join('\n'),`shops-export-${ds()}.csv`,'text/csv;charset=
 const provs=[...new Set(items.map(s=>s.province).filter(Boolean))];
 apiPost('logAudit',{data:{adminName,action:'exportCSV',details:`Export ${items.length} ร้าน (${provs.join(',')||'ทุกจังหวัด'})`}});
 showToast(`📤 Export ${items.length} ร้านค้าแล้ว`);
+}
+
+// ══════ วางแผนเส้นทาง — ส่งร้านที่เลือกไปหน้า route-planner.html (origin เดียวกัน → ส่งผ่าน localStorage) ══════
+const ROUTE_MAX=80; // OSRM สาธารณะรับได้ ~100 จุด/ครั้ง (รวมจุดเริ่ม+จุดจบ)
+function doRoutePlanSelected(){
+const picked=shops.filter(s=>exportSelected.has(s.id));
+if(!picked.length){showToast('ยังไม่ได้เลือกร้าน',true);return;}
+if(adminRole!=='owner'&&picked.length>50){showToast('❌ ดึงข้อมูลได้ไม่เกิน 50 ร้าน/ครั้ง (เลือกอยู่ '+picked.length+' ร้าน)',true);return;}
+const items=picked.filter(s=>isFinite(parseFloat(s.lat))&&isFinite(parseFloat(s.lng)));
+if(!items.length){showToast('ร้านที่เลือกไม่มีพิกัด',true);return;}
+if(items.length>ROUTE_MAX){showToast('❌ วางแผนได้ไม่เกิน '+ROUTE_MAX+' ร้าน/รอบ (เลือกอยู่ '+items.length+' ร้าน) — แบ่งรอบก่อน',true);return;}
+const payload={ts:Date.now(),from:adminName,shops:items.map(s=>({name:s.name,lat:parseFloat(s.lat),lng:parseFloat(s.lng),province:s.province||'',district:s.district||'',phone:s.phone||'',note:s.note||''}))};
+try{localStorage.setItem('salespin-route-shops',JSON.stringify(payload));}catch(e){showToast('❌ ส่งข้อมูลไปหน้าวางแผนไม่ได้: '+e.message,true);return;}
+const w=window.open('route-planner.html','_blank');
+if(!w){showToast('❌ เบราว์เซอร์บล็อกหน้าต่างใหม่ — อนุญาต pop-up แล้วลองอีกครั้ง',true);return;}
+const provs=[...new Set(items.map(s=>s.province).filter(Boolean))];
+apiPost('logAudit',{data:{adminName,action:'routePlan',details:`วางแผนเส้นทาง ${items.length} ร้าน (${provs.join(',')||'ทุกจังหวัด'})`}});
+const skipped=picked.length-items.length;
+showToast(`🗺️ ส่ง ${items.length} ร้านไปหน้าวางแผนเส้นทาง`+(skipped?` (ข้าม ${skipped} ร้านไม่มีพิกัด)`:''));
 }
 
 // ══════ ADMIN MANAGEMENT (owner only) ══════
